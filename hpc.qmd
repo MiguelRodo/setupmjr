@@ -126,8 +126,73 @@ This configures your environment to preferentially use the `/scratch` space for 
 
 ### `hpc slurm`
 
-The `hpc slurm` command sets up several utility scripts for interacting with the Slurm workload manager, placing them in `~/.local/bin`:
+SLURM is a popular program used by HPCs to allocate compute resources.
+The `hpc slurm` command sets up several utility scripts for interacting with the Slurm workload manager, placing them in `~/.local/bin`.
 
-- `slurm-sbatch`: Submits a Slurm job using `sbatch` and logs the submission details, including the submitted script contents and standard output, into a specified or default log directory (`_tmp/log/sbatch`).
-- `slurm-sintx`: Starts an interactive Slurm session using `sintx`. By default, it requests 2 tasks (`--ntasks=2`) and 1 node (`--nodes=1`). You can specify the number of tasks as the first argument, and pass additional flags to `sintx` thereafter (e.g., `slurm-sintx 4 --mem=10G`).
-- `slurm-squeue`: Lists the current jobs for the logged-in user using `squeue -u $USER`. You can pass additional flags to `squeue` by providing them as arguments (e.g., `slurm-squeue --format="%.18i %.9P %.8j %.8u %.2t %.10M %.6D %R"`).
+To set this up, run the following command (also part of `setupmjr hpc`):
+
+```bash
+setupmjr hpc slurm
+```
+
+The commands are as follows (run `<command> --help` for usage information on each, e.g. `slurm-sbatch --help`):
+
+- `slurm-sbatch`: Submits a SLURM job using `sbatch` and logs the submission details, including the submitted script contents and standard output, into a specified or default log directory (`_tmp/log/sbatch`).
+- `slurm-sintx`: Starts an interactive SLURM session using `sintx`. By default, it requests 2 tasks (`--ntasks=2`) and 1 node (`--nodes=1`). You can specify the number of tasks as the first argument, and pass additional flags to `sintx` thereafter (e.g., `slurm-sintx 4 --mem=10G`).
+- `slurm-squeue`: Lists the current jobs for the logged-in user using `squeue -u $USER`.
+
+### `hpc apptainer`
+
+Apptainer (formerly Singularity) is a container system commonly used on HPCs to ensure reproducible software environments. 
+The `hpc apptainer` command sets up several utility scripts for seamlessly pulling, locating, and interacting with Apptainer containers, placing them in `~/.local/bin`.
+It is designed to work tightly with images built using the `MiguelRodo/devcontainer-prebuild` GitHub Action, sharing many of the same conventions (but is compatible with containers from both Docker Hub and GitHub Container Registry).
+
+To set this up, run the following command (also part of `setupmjr hpc`):
+
+```bash
+setupmjr hpc apptainer
+```
+
+The commands installed are as follows (run `<command> --help` for usage information on each, e.g. `apptainer-run --help`):
+
+- `apptainer-pull`: Downloads Docker or GitHub Container Registry (GHCR) images and saves them as `.sif` files. It cleverly infers the appropriate repository owner, image name, and tag dynamically based on your current directory's Git remote and active branch.
+- `apptainer-path`: Automatically locates the relevant `.sif` file for your current project. It searches Apptainer cache and `/scratch` directories, prioritizing image names that match your current directory's basename and active Git branch.
+- `apptainer-exists`: A utility script that checks if the required `.sif` container for the current workspace has already been downloaded, returning a clean exit (0) if found.
+- `apptainer-run`: Executes a given command inside the project's Apptainer container. If no command is passed, it falls back to opening an interactive shell (`apptainer shell`) within the container.
+- `apptainer-rscript`: A specialized wrapper to easily pass and execute R expressions (via `Rscript -e`) directly inside the project's container without needing to manually spin up an interactive shell.
+
+::::{.callout-info collapse="true"}
+## Details
+During installation, `setupmjr` iterates through embedded scripts and copies all files starting with `apptainer-` to your local bin directory.
+::::
+
+### `hpc r`
+
+On an HPC, one may often use a non-standard `R` terminal named `radian` because it is better than the standard `R` terminal and the `RStudio` terminal is not available.
+However, `radian` (in my experience) breaks without a key configuration setting.
+
+To configure this setting, run the following command (which is also part of `setupmjr hpc`):
+
+```bash
+setupmjr hpc r
+```
+
+In addition to the above, object length and line linters are turned off (to prevent VS Code bothering you because your variable names or lines are "too long").
+
+::::{.callout-info collapse="true"}
+## Details
+
+The `~/.radian_profile` file is created if it does not exist, and the following line is added to it:
+
+```bash
+options(radian.auto_match = FALSE)
+```
+
+The `~/.lintr` file is also created if it does not exist, and the following lines are added to it:
+
+```bash
+linters: linters_with_defaults(
+    object_length_linter = NULL,
+    object_name_linter = NULL)
+```
+::::
