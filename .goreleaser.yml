@@ -1,3 +1,4 @@
+version: 2
 project_name: setupmjr
 
 builds:
@@ -40,7 +41,7 @@ nfpms:
     license: "MIT"
     maintainer: "Miguel Rodo"
     bindir: /usr/bin
-    dependencies:
+    depends:
       - bash
       - repos
     builds:
