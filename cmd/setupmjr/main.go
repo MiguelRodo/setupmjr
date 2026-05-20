@@ -50,6 +50,11 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
+	case "multirepo":
+		if err := handleMultirepo(os.Args[2:]); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
 	case "version", "--version", "-v":
 		fmt.Printf("setupmjr version %s\n", version)
 	case "help", "--help", "-h":
@@ -84,7 +89,7 @@ Commands:
   repo devcontainer [--repo <owner/repo>@<branch>] [--build]
   repo action <action-name>
   repo install repos
-  repo <other repos command>`)
+  multirepo <command>`)
 }
 
 func handleHPC(args []string) error {
@@ -215,7 +220,7 @@ func handleGit(args []string) error {
 
 func handleRepo(args []string) error {
 	if len(args) == 0 {
-		return fmt.Errorf("repo requires a subcommand: readme, devcontainer, action, install repos, clone, workspace, codespace, or create")
+		return fmt.Errorf("repo requires a subcommand: readme, devcontainer, action, or install repos")
 	}
 
 	subcmd := args[0]
@@ -248,10 +253,19 @@ func handleRepo(args []string) error {
 		}
 		return fmt.Errorf("unknown repo install subcommand")
 	default:
-		// Forward any other command to repos, EXCEPT for install-r-deps and run
-		if subcmd == "install-r-deps" || subcmd == "run" {
-			return fmt.Errorf("the '%s' command is excluded from the setupmjr wrapper. use it directly via 'repos %s'", subcmd, subcmd)
-		}
-		return repo.RunReposCommand(args)
+		return fmt.Errorf("unknown repo subcommand: %s", subcmd)
 	}
+}
+
+func handleMultirepo(args []string) error {
+	if len(args) == 0 {
+		return fmt.Errorf("multirepo requires a command")
+	}
+
+	subcmd := args[0]
+	if subcmd == "install-r-deps" || subcmd == "run" {
+		return fmt.Errorf("the '%s' command is excluded from the setupmjr wrapper. use it directly via 'repos %s'", subcmd, subcmd)
+	}
+
+	return repo.RunReposCommand(args)
 }

@@ -12,12 +12,7 @@ The `repo` subcommand is used to set up repositories.
   repo devcontainer [--repo <owner>/<repo>@<branch>] [--build]
   repo action <action-name>
   repo install repos
-  repo <other repos command>
 ```
-
-## `repo <other repos command>`
-
-Any unknown command passed to `setupmjr repo` will be automatically proxied to the bundled `repos` tool (excluding `install-r-deps` and `run`, which must be called directly via `repos`). This includes commands like `clone`, `workspace`, `codespace`, `create`, etc.
 
 ## `repo readme`
 
