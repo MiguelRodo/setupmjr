@@ -9,9 +9,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/MiguelRodo/setupmjr/internal/bash"
+	"github.com/MiguelRodo/setupmjr/internal/shell"
 	"github.com/MiguelRodo/setupmjr/internal/sysutil"
-	"github.com/MiguelRodo/setupmjr/internal/zsh"
 )
 
 // RunCommand runs a command and returns its standard output and error.
@@ -98,23 +97,26 @@ func SetupGitAuthText() error {
 		return err
 	}
 
-	if err := bash.SetupBashRCD(); err != nil {
+	if err := shell.SetupShellRCD("bash"); err != nil {
 		return err
 	}
 
-	if err := bash.SetupBashPath(); err != nil {
+	if err := shell.SetupShellPath("bash"); err != nil {
 		return err
 	}
 
 	// Make sure login.sh exists
-	if err := bash.SetupBashLogin(); err != nil {
+	if err := shell.SetupShellLogin("bash"); err != nil {
 		return err
 	}
 
-	if err := zsh.SetupZshRCD(); err != nil {
+	if err := shell.SetupShellRCD("zsh"); err != nil {
 		return err
 	}
-	if err := zsh.SetupZshLogin(); err != nil {
+	if err := shell.SetupShellPath("zsh"); err != nil {
+		return err
+	}
+	if err := shell.SetupShellLogin("zsh"); err != nil {
 		return err
 	}
 

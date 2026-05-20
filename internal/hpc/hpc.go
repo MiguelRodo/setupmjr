@@ -9,8 +9,8 @@ import (
 	"strings"
 
 	"github.com/MiguelRodo/setupmjr/internal/assets"
-	"github.com/MiguelRodo/setupmjr/internal/bash"
 	"github.com/MiguelRodo/setupmjr/internal/gitcmd"
+	"github.com/MiguelRodo/setupmjr/internal/shell"
 	"github.com/MiguelRodo/setupmjr/internal/sysutil"
 )
 
@@ -24,7 +24,7 @@ func SetupHPC() error {
 
 	// These functions will be implemented in bash package and called from main,
 	// or we can call them here. Let's return error if they fail.
-	// But actually the instructions say "setupmjr hpc Executes the following internal functions sequentially: SetupBashRCD(), SetupBashLogin(), SetupHPCScratch(), SetupHPCApptainer(), SetupHPCSlurm()"
+	// But actually the instructions say "setupmjr hpc Executes the following internal functions sequentially: SetupShellRCD(), SetupShellLogin(), SetupHPCScratch(), SetupHPCApptainer(), SetupHPCSlurm()"
 	return nil
 }
 
@@ -51,7 +51,7 @@ func SetupHPCScratch() error {
 
 // SetupHPCApptainer copies apptainer scripts to ~/.local/bin.
 func SetupHPCApptainer() error {
-	if err := bash.SetupBashPath(); err != nil {
+	if err := shell.SetupShellPath("bash"); err != nil {
 		return err
 	}
 
@@ -87,7 +87,7 @@ func SetupHPCApptainer() error {
 
 // SetupHPCSlurm copies slurm scripts to ~/.local/bin.
 func SetupHPCSlurm() error {
-	if err := bash.SetupBashPath(); err != nil {
+	if err := shell.SetupShellPath("bash"); err != nil {
 		return err
 	}
 
