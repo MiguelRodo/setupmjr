@@ -1,0 +1,93 @@
+[
+  {
+    "objectID": "bash.html",
+    "href": "bash.html",
+    "title": "bash",
+    "section": "",
+    "text": "The bash subcommand is used to set up bash."
+  },
+  {
+    "objectID": "bash.html#commands",
+    "href": "bash.html#commands",
+    "title": "bash",
+    "section": "Commands",
+    "text": "Commands\n  bash rc.d\n  bash login"
+  },
+  {
+    "objectID": "r.html",
+    "href": "r.html",
+    "title": "r",
+    "section": "",
+    "text": "The r subcommand is used to set up R environments."
+  },
+  {
+    "objectID": "r.html#commands",
+    "href": "r.html#commands",
+    "title": "r",
+    "section": "Commands",
+    "text": "Commands\n  r radian"
+  },
+  {
+    "objectID": "git.html",
+    "href": "git.html",
+    "title": "git",
+    "section": "",
+    "text": "The git subcommand is used to set up git."
+  },
+  {
+    "objectID": "git.html#commands",
+    "href": "git.html#commands",
+    "title": "git",
+    "section": "Commands",
+    "text": "Commands\n  git\n  git user\n  git login\n  git login text\n  git login cache\n  git login mngr"
+  },
+  {
+    "objectID": "repo.html",
+    "href": "repo.html",
+    "title": "repo",
+    "section": "",
+    "text": "The repo subcommand is used to set up repositories."
+  },
+  {
+    "objectID": "repo.html#commands",
+    "href": "repo.html#commands",
+    "title": "repo",
+    "section": "Commands",
+    "text": "Commands\n  repo readme\n  repo devcontainer [--repo &lt;owner/repo&gt;] [--branch &lt;branch&gt;] [--no-prebuild]\n  repo action &lt;action-name&gt;\n  repo install repos"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "setupmjr",
+    "section": "",
+    "text": "setupmjr is a cross-platform setup utility."
+  },
+  {
+    "objectID": "index.html#commands",
+    "href": "index.html#commands",
+    "title": "setupmjr",
+    "section": "Commands",
+    "text": "Commands\nsetupmjr - Cross-platform setup utility\nCommands:\n  hpc       Master HPC setup\n  hpc scratch [--r]\n  hpc apptainer\n  hpc slurm\n  hpc login git\n  hpc git\n  bash rc.d\n  bash login\n  r radian\n  git\n  git user\n  git login\n  git login text\n  git login cache\n  git login mngr\n  repo readme\n  repo devcontainer [--repo &lt;owner/repo&gt;] [--branch &lt;branch&gt;] [--no-prebuild]\n  repo action &lt;action-name&gt;\n  repo install repos"
+  },
+  {
+    "objectID": "index.html#subcommands",
+    "href": "index.html#subcommands",
+    "title": "setupmjr",
+    "section": "Subcommands",
+    "text": "Subcommands\n\nhpc\nbash\nr\ngit\nrepo"
+  },
+  {
+    "objectID": "hpc.html",
+    "href": "hpc.html",
+    "title": "hpc",
+    "section": "",
+    "text": "The hpc subcommand is used to configure HPC environments."
+  },
+  {
+    "objectID": "hpc.html#commands",
+    "href": "hpc.html#commands",
+    "title": "hpc",
+    "section": "Commands",
+    "text": "Commands\n  hpc       Master HPC setup\n  hpc scratch [--r]\n  hpc apptainer\n  hpc slurm\n  hpc login git\n  hpc git"
+  }
+]
