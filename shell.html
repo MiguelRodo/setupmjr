@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>bash – setupmjr</title>
+<title>shell – setupmjr</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -139,8 +139,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="menu-text">hpc</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./bash.html" aria-current="page"> 
-<span class="menu-text">bash</span></a>
+    <a class="nav-link active" href="./shell.html" aria-current="page"> 
+<span class="menu-text">shell</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./r.html"> 
@@ -172,10 +172,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#commands" id="toc-commands" class="nav-link active" data-scroll-target="#commands">Commands</a>
   <ul class="collapse">
-  <li><a href="#bash-rc.d" id="toc-bash-rc.d" class="nav-link" data-scroll-target="#bash-rc.d"><code>bash rc.d</code></a></li>
+  <li><a href="#shell-shell-rc.d" id="toc-shell-shell-rc.d" class="nav-link" data-scroll-target="#shell-shell-rc.d"><code>shell &lt;shell&gt; rc.d</code></a></li>
   </ul></li>
   <li><a href="#details" id="toc-details" class="nav-link" data-scroll-target="#details">Details</a></li>
-  <li><a href="#bash-path" id="toc-bash-path" class="nav-link" data-scroll-target="#bash-path"><code>bash path</code></a></li>
+  <li><a href="#shell-shell-path" id="toc-shell-shell-path" class="nav-link" data-scroll-target="#shell-shell-path"><code>shell &lt;shell&gt; path</code></a></li>
   <li><a href="#details-1" id="toc-details-1" class="nav-link" data-scroll-target="#details-1">Details</a></li>
   </ul>
 </nav>
@@ -185,7 +185,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">bash</h1>
+<h1 class="title">shell</h1>
 </div>
 
 
@@ -202,40 +202,40 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>The <code>bash</code> subcommand is used to set up bash.</p>
+<p>The <code>shell</code> subcommand is used to set up shell environments like bash or zsh. The <code>bash</code> subcommand acts as a shorthand for <code>shell bash</code>.</p>
 <section id="commands" class="level2">
 <h2 class="anchored" data-anchor-id="commands">Commands</h2>
-<pre><code>  bash rc.d
-  bash path
-  bash login</code></pre>
-<section id="bash-rc.d" class="level3">
-<h3 class="anchored" data-anchor-id="bash-rc.d"><code>bash rc.d</code></h3>
-<p>To manage shell configuration more effectively, it is helpful to place individual scripts inside a dedicated directory (i.e.&nbsp;<code>~/.bashrc.d/</code>) rather than cluttering the main <code>~/.bashrc</code> file. The <code>bash rc.d</code> command sets up this directory and configures your <code>~/.bashrc</code> to source all scripts inside it.</p>
+<pre><code>  shell &lt;shell&gt; rc.d
+  shell &lt;shell&gt; path
+  shell &lt;shell&gt; login</code></pre>
+<section id="shell-shell-rc.d" class="level3">
+<h3 class="anchored" data-anchor-id="shell-shell-rc.d"><code>shell &lt;shell&gt; rc.d</code></h3>
+<p>To manage shell configuration more effectively, it is helpful to place individual scripts inside a dedicated directory (i.e.&nbsp;<code>~/.&lt;shell&gt;rc.d/</code>) rather than cluttering the main <code>~/.&lt;shell&gt;rc</code> file. The <code>shell &lt;shell&gt; rc.d</code> command sets up this directory and configures your <code>~/.&lt;shell&gt;rc</code> to source all scripts inside it.</p>
 <p>To set this up, run the following command:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> bash rc.d</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> shell <span class="op">&lt;</span>shell<span class="op">&gt;</span> rc.d</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 </section>
 <section id="details" class="level2 callout-info" data-collapse="true">
 <h2 class="anchored" data-anchor-id="details">Details</h2>
-<p>The <code>bash rc.d</code> command configures the environment by doing the following:</p>
+<p>The <code>shell &lt;shell&gt; rc.d</code> command configures the environment by doing the following:</p>
 <ol type="1">
-<li><p>It ensures the <code>~/.bashrc.d</code> directory exists.</p></li>
-<li><p>It appends a loop to your <code>~/.bashrc</code> to automatically source any readable scripts inside <code>~/.bashrc.d/</code>:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="va">$HOME</span>/.bashrc.d/<span class="pp">*</span><span class="kw">;</span> <span class="cf">do</span> <span class="bu">[</span> <span class="ot">-r</span> <span class="st">"</span><span class="va">$i</span><span class="st">"</span> <span class="bu">]</span> <span class="kw">&amp;&amp;</span> <span class="bu">source</span> <span class="st">"</span><span class="va">$i</span><span class="st">"</span><span class="kw">;</span> <span class="cf">done</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div></li>
+<li><p>It ensures the <code>~/.&lt;shell&gt;rc.d</code> directory exists.</p></li>
+<li><p>It appends a loop to your <code>~/.&lt;shell&gt;rc</code> to automatically source any readable scripts inside <code>~/.&lt;shell&gt;rc.d/</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="va">$HOME</span>/.<span class="op">&lt;</span>shell<span class="op">&gt;</span>rc.d/<span class="pp">*</span><span class="kw">;</span> <span class="cf">do</span> <span class="bu">[</span> <span class="ot">-r</span> <span class="st">"</span><span class="va">$i</span><span class="st">"</span> <span class="bu">]</span> <span class="kw">&amp;&amp;</span> <span class="bu">source</span> <span class="st">"</span><span class="va">$i</span><span class="st">"</span><span class="kw">;</span> <span class="cf">done</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div></li>
 </ol>
 </section>
-<section id="bash-path" class="level3">
-<h3 class="anchored" data-anchor-id="bash-path"><code>bash path</code></h3>
-<p>Often, custom executables and scripts are stored in standard local directories like <code>~/bin</code> or <code>~/.local/bin</code>. To execute these seamlessly, these directories need to be appended to the system <code>PATH</code>. The <code>bash path</code> command provides a shell-agnostic way to add these directories to your path by placing a script (<code>path-executables.sh</code>) inside <code>~/.bashrc.d/</code>.</p>
+<section id="shell-shell-path" class="level3">
+<h3 class="anchored" data-anchor-id="shell-shell-path"><code>shell &lt;shell&gt; path</code></h3>
+<p>Often, custom executables and scripts are stored in standard local directories like <code>~/bin</code> or <code>~/.local/bin</code>. To execute these seamlessly, these directories need to be appended to the system <code>PATH</code>. The <code>shell &lt;shell&gt; path</code> command provides a shell-agnostic way to add these directories to your path by placing a script (<code>path-executables.sh</code>) inside <code>~/.&lt;shell&gt;rc.d/</code>.</p>
 <p>To set this up, run the following command:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> bash path</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> shell <span class="op">&lt;</span>shell<span class="op">&gt;</span> path</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="details-1" class="level2 callout-info" data-collapse="true">
 <h2 class="anchored" data-anchor-id="details-1">Details</h2>
-<p>The <code>bash path</code> command ensures <code>~/bin</code> and <code>~/.local/bin</code> are accessible by doing the following:</p>
+<p>The <code>shell &lt;shell&gt; path</code> command ensures <code>~/bin</code> and <code>~/.local/bin</code> are accessible by doing the following:</p>
 <ol type="1">
-<li><p>It calls <code>bash rc.d</code> to ensure the <code>~/.bashrc.d/</code> directory is properly set up and sourced by <code>~/.bashrc</code>.</p></li>
-<li><p>It copies an embedded script, <code>path-executables.sh</code>, to <code>~/.bashrc.d/path-executables.sh</code>. This script safely appends <code>~/bin</code> and <code>~/.local/bin</code> to the <code>PATH</code> environment variable if they are not already included.</p></li>
+<li><p>It calls <code>shell &lt;shell&gt; rc.d</code> to ensure the <code>~/.&lt;shell&gt;rc.d/</code> directory is properly set up and sourced by <code>~/.&lt;shell&gt;rc</code>.</p></li>
+<li><p>It copies an embedded script, <code>path-executables.sh</code>, to <code>~/.&lt;shell&gt;rc.d/path-executables.sh</code>. This script safely appends <code>~/bin</code> and <code>~/.local/bin</code> to the <code>PATH</code> environment variable if they are not already included.</p></li>
 </ol>
 </section>
 
