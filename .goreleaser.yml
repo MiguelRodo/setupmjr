@@ -41,7 +41,7 @@ nfpms:
     license: "MIT"
     maintainer: "Miguel Rodo"
     bindir: /usr/bin
-    dependencies:
+    depends:
       - bash
     builds:
       - setupmjr-linux
