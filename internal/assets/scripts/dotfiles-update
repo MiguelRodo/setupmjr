@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+# dotfiles-update.sh — update and run unified installer for dotfiles
+
+set -euo pipefail
+
+# -----------------------------------------------------------------------------
+# Print usage information
+# -----------------------------------------------------------------------------
+usage() {
+  cat <<EOF
+Usage: $0 <env>
+
+<env> must be one of:
+  hpc       - HPC setup
+  linux     - Linux setup (not in a container)
+  wsl       - WSL setup (not in a container)
+  dev       - Devcontainer setup inside Linux/WSL
+  codespace - Devcontainer setup inside Codespace setup)
+  mac       - MacOS setup
+
+Description:
+  Clones or updates the dotfiles repo and then invokes
+  install-env.sh with the chosen environment.
+
+Example:
+  $0 hpc
+  $0 linux
+  $0 wsl
+  $0 dev
+  $0 codespace
+  $0 mac
+EOF
+  exit 1
+}
+
+# -----------------------------------------------------------------------------
+# Parse and validate command-line arguments
+# -----------------------------------------------------------------------------
+parse_args() {
+  echo "Parsing arguments…"
+  [[ $# -eq 1 ]] || usage
+  dotfiles_env="$1"
+  case "$dotfiles_env" in
+    hpc|linux|wsl|dev|codespace|codespaces|mac) ;;
+    *) echo "Error: invalid environment '$dotfiles_env'." >&2; usage ;;
+  esac
+  if [[ "$dotfiles_env" == "codespaces" ]]; then
+    dotfiles_env="codespace"
+  fi
+  echo "Arguments parsed successfully. Environment set to '$dotfiles_env'."
+}
+
+# -----------------------------------------------------------------------------
+# Clone the repo if missing, or pull latest changes
+# -----------------------------------------------------------------------------
+update_repo() {
+  DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
+  echo "=== Updating dotfiles in $DOTFILES_DIR ==="
+  if [[ ! -d "$DOTFILES_DIR" ]]; then
+    echo "Cloning dotfiles repository..."
+    git clone https://github.com/SATVILab/dotfiles.git "$DOTFILES_DIR"
+  else
+    echo "Pulling latest changes..."
+    pushd "$DOTFILES_DIR" >/dev/null
+    branch=$(git rev-parse --abbrev-ref HEAD)
+    git pull origin "$branch"
+    popd >/dev/null
+  fi
+}
+
+# -----------------------------------------------------------------------------
+# Invoke the unified installer script
+# -----------------------------------------------------------------------------
+run_installer() {
+  DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
+  installer="$DOTFILES_DIR/install-env.sh"
+  echo
+  echo "=== Running unified installer for '$dotfiles_env' ==="
+  if [[ ! -f "$installer" ]]; then
+    echo "Error: $installer not found." >&2
+    exit 1
+  fi
+  chmod +x "$installer"
+  "$installer" "$dotfiles_env"
+}
+
+# -----------------------------------------------------------------------------
+# Return to the original directory
+# -----------------------------------------------------------------------------
+restore_pwd() {
+  echo
+  cd "$ORIG_DIR"
+  echo "Returned to original directory: $ORIG_DIR"
+}
+
+# -----------------------------------------------------------------------------
+# Remind the user to source their shell
+# -----------------------------------------------------------------------------
+remind_source() {
+  if [[ -f "$HOME/.bashrc" ]]; then
+    echo
+    echo "To apply changes, please source your .bashrc or restart your shell:"
+    echo "    source ~/.bashrc"
+  fi
+}
+
+# -----------------------------------------------------------------------------
+# Main entrypoint
+# -----------------------------------------------------------------------------
+main() {
+  parse_args "$@"
+  ORIG_DIR="$PWD"
+
+  update_repo
+  run_installer
+
+  restore_pwd
+  remind_source
+
+  echo
+  echo "Dotfiles update complete for '$dotfiles_env'."
+}
+
+main "$@"
