@@ -10,8 +10,7 @@ import (
 	"github.com/MiguelRodo/setupmjr/internal/sysutil"
 )
 
-// SetupBashRCD ensures ~/.local/bin is in PATH by adding sourcing block to ~/.bashrc,
-// and copies path-executables.sh to ~/.bashrc.d.
+// SetupBashRCD ensures ~/.bashrc.d is sourced by adding sourcing block to ~/.bashrc.
 func SetupBashRCD() error {
 	home, err := sysutil.HomeDir()
 	if err != nil {
@@ -57,7 +56,21 @@ func SetupBashRCD() error {
 		return err
 	}
 
-	// 3. Copy path-executables.sh
+	return nil
+}
+
+// SetupBashPath copies path-executables.sh to ~/.bashrc.d.
+func SetupBashPath() error {
+	if err := SetupBashRCD(); err != nil {
+		return err
+	}
+
+	home, err := sysutil.HomeDir()
+	if err != nil {
+		return err
+	}
+
+	bashrcd := filepath.Join(home, ".bashrc.d")
 	dst := filepath.Join(bashrcd, "path-executables.sh")
 	if err := sysutil.CopyEmbedFile(assets.FS, "bashrc.d/path-executables.sh", dst, 0755); err != nil {
 		return fmt.Errorf("copy path-executables.sh: %w", err)

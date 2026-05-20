@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/MiguelRodo/setupmjr/internal/assets"
+	"github.com/MiguelRodo/setupmjr/internal/bash"
 	"github.com/MiguelRodo/setupmjr/internal/gitcmd"
 	"github.com/MiguelRodo/setupmjr/internal/sysutil"
 )
@@ -51,6 +52,10 @@ func SetupHPCScratch() error {
 
 // SetupHPCApptainer copies apptainer scripts to ~/.local/bin.
 func SetupHPCApptainer() error {
+	if err := bash.SetupBashPath(); err != nil {
+		return err
+	}
+
 	home, err := sysutil.HomeDir()
 	if err != nil {
 		return err
@@ -83,6 +88,10 @@ func SetupHPCApptainer() error {
 
 // SetupHPCSlurm copies slurm scripts to ~/.local/bin.
 func SetupHPCSlurm() error {
+	if err := bash.SetupBashPath(); err != nil {
+		return err
+	}
+
 	home, err := sysutil.HomeDir()
 	if err != nil {
 		return err
