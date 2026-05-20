@@ -11,8 +11,8 @@ website:
         text: Installation
       - href: hpc.qmd
         text: hpc
-      - href: bash.qmd
-        text: bash
+      - href: shell.qmd
+        text: shell
       - href: r.qmd
         text: r
       - href: git.qmd

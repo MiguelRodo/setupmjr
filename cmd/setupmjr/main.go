@@ -6,12 +6,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/MiguelRodo/setupmjr/internal/bash"
 	"github.com/MiguelRodo/setupmjr/internal/gitcmd"
 	"github.com/MiguelRodo/setupmjr/internal/hpc"
 	"github.com/MiguelRodo/setupmjr/internal/r"
 	"github.com/MiguelRodo/setupmjr/internal/repo"
-	"github.com/MiguelRodo/setupmjr/internal/zsh"
+	"github.com/MiguelRodo/setupmjr/internal/shell"
 )
 
 var version = "dev"
@@ -32,6 +31,15 @@ func main() {
 		}
 	case "bash":
 		if err := handleBash(os.Args[2:]); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+	case "shell":
+		if len(os.Args) < 3 {
+			fmt.Fprintf(os.Stderr, "Error: shell requires a shell name (e.g., bash, zsh)\n")
+			os.Exit(1)
+		}
+		if err := handleShellCmd(os.Args[3:], os.Args[2]); err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
@@ -70,6 +78,9 @@ Commands:
   hpc slurm
   hpc git
   hpc r
+  shell <shell> rc.d
+  shell <shell> path
+  shell <shell> login
   bash rc.d
   bash path
   bash login
@@ -92,22 +103,25 @@ func handleHPC(args []string) error {
 		if err := hpc.SetupHPC(); err != nil {
 			return err
 		}
-		if err := bash.SetupBashRCD(); err != nil {
+		if err := shell.SetupShellRCD("bash"); err != nil {
 			return err
 		}
-		if err := bash.SetupBashPath(); err != nil {
+		if err := shell.SetupShellPath("bash"); err != nil {
 			return err
 		}
-		if err := bash.SetupBashLogin(); err != nil {
+		if err := shell.SetupShellLogin("bash"); err != nil {
 			return err
 		}
-		if err := zsh.SetupZshRCD(); err != nil {
+		if err := shell.SetupShellRCD("zsh"); err != nil {
 			return err
 		}
-		if err := zsh.SetupZshLogin(); err != nil {
+		if err := shell.SetupShellPath("zsh"); err != nil {
 			return err
 		}
-		// Execute SetupHPCGit AFTER SetupBashLogin and SetupZshLogin so login.sh is not overwritten
+		if err := shell.SetupShellLogin("zsh"); err != nil {
+			return err
+		}
+		// Execute SetupHPCGit AFTER SetupShellLogin so login.sh is not overwritten
 		if err := hpc.SetupHPCGit(); err != nil {
 			return err
 		}
@@ -152,20 +166,24 @@ func handleHPC(args []string) error {
 }
 
 func handleBash(args []string) error {
+	return handleShellCmd(args, "bash")
+}
+
+func handleShellCmd(args []string, shellName string) error {
 	if len(args) == 0 {
-		return fmt.Errorf("bash requires a subcommand: rc.d, path, or login")
+		return fmt.Errorf("%s requires a subcommand: rc.d, path, or login", shellName)
 	}
 
 	subcmd := args[0]
 	switch subcmd {
 	case "rc.d":
-		return bash.SetupBashRCD()
+		return shell.SetupShellRCD(shellName)
 	case "path":
-		return bash.SetupBashPath()
+		return shell.SetupShellPath(shellName)
 	case "login":
-		return bash.SetupBashLogin()
+		return shell.SetupShellLogin(shellName)
 	default:
-		return fmt.Errorf("unknown bash subcommand: %s", subcmd)
+		return fmt.Errorf("unknown %s subcommand: %s", shellName, subcmd)
 	}
 }
 

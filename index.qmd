@@ -17,8 +17,9 @@ Commands:
   hpc login git
   hpc git
   hpc r
-  bash rc.d
-  bash login
+  shell <shell> rc.d
+  shell <shell> path
+  shell <shell> login
   r radian
   git
   git user
@@ -34,7 +35,7 @@ Commands:
 
 ## Subcommands
 - [hpc](hpc.qmd)
-- [bash](bash.qmd)
+- [shell](shell.qmd)
 - [r](r.qmd)
 - [git](git.qmd)
 - [repo](repo.qmd)
