@@ -24,12 +24,12 @@ func SetupHPC() error {
 
 	// These functions will be implemented in bash package and called from main,
 	// or we can call them here. Let's return error if they fail.
-	// But actually the instructions say "setupmjr hpc Executes the following internal functions sequentially: SetupBashRCD(), SetupBashLogin(), SetupHPCScratch(withR = false), SetupHPCApptainer(), SetupHPCSlurm()"
+	// But actually the instructions say "setupmjr hpc Executes the following internal functions sequentially: SetupBashRCD(), SetupBashLogin(), SetupHPCScratch(), SetupHPCApptainer(), SetupHPCSlurm()"
 	return nil
 }
 
-// SetupHPCScratch copies the hpc-scratch.sh script and optionally .Renviron.
-func SetupHPCScratch(withR bool) error {
+// SetupHPCScratch copies the hpc-scratch.sh script.
+func SetupHPCScratch() error {
 	home, err := sysutil.HomeDir()
 	if err != nil {
 		return err
@@ -45,14 +45,6 @@ func SetupHPCScratch(withR bool) error {
 		return fmt.Errorf("copy hpc-scratch.sh: %w", err)
 	}
 	fmt.Printf("Copied hpc-scratch.sh to %s\n", dst)
-
-	if withR {
-		rEnvDst := filepath.Join(home, ".Renviron")
-		if err := sysutil.CopyEmbedFile(assets.FS, "r/.Renviron", rEnvDst, 0644); err != nil {
-			return fmt.Errorf("copy .Renviron: %w", err)
-		}
-		fmt.Printf("Copied .Renviron to %s\n", rEnvDst)
-	}
 
 	return nil
 }

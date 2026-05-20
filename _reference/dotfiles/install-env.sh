@@ -249,12 +249,12 @@ configure_login() {
 }
 
 # -----------------------------------------------------------------------------
-# Copy hidden config files, sanitising .Renviron for non-hpc environments
+# Create hidden config files
 # -----------------------------------------------------------------------------
 copy_hidden_configs_r() {
-  echo "Copying hidden config files…"
+  echo "Setting up hidden config files…"
 
-  # If in dev or codespace, and R not available, skip copying R configs
+  # If in dev or codespace, and R not available, skip configuring R configs
   if [[ "$dotfiles_env" == "dev" || "$dotfiles_env" == "codespace" ]]; then
     if ! command -v R &> /dev/null; then
       echo "R not found, skipping all R config files in $dotfiles_env environment."
@@ -262,59 +262,23 @@ copy_hidden_configs_r() {
     fi
   fi
 
-  local files=( .Renviron .lintr .radian_profile )
-  local dotfiles_dir dest_dir
-  dotfiles_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  local radian_profile="$HOME/.radian_profile"
+  if [[ ! -f "$radian_profile" ]] || ! grep -q "options(radian.auto_match = FALSE)" "$radian_profile"; then
+    echo "options(radian.auto_match = FALSE)" >> "$radian_profile"
+    echo "  Configured $radian_profile"
+  fi
 
-  dest_dir="$HOME"
+  local lintr="$HOME/.lintr"
+  if [[ ! -f "$lintr" ]] || ! grep -q "object_length_linter = NULL" "$lintr"; then
+    cat << 'EOF' >> "$lintr"
+linters: linters_with_defaults(
+    object_length_linter = NULL,
+    object_name_linter = NULL)
+EOF
+    echo "  Configured $lintr"
+  fi
 
-  for file in "${files[@]}"; do
-    local src="$dotfiles_dir/r/$file" dest="$dest_dir/$file"
-    [[ -e "$src" ]] || { echo "  $file not found, skipping"; continue; }
-
-    if [[ ! -e "$dest" ]] || ! cmp -s "$src" "$dest"; then
-      echo
-      if [[ -e "$dest" ]]; then
-        echo "$file exists. Showing diff:"
-        diff "$dest" "$src"
-        action="overwrite"
-      else
-        echo "$file does not exist locally."
-        action="copy"
-      fi
-
-      if auto_approve; then
-        echo "Auto-approving $action of $file"
-        yn="y"
-      else
-        while true; do
-          read -p "Do you want to $action $file (likely say yes if unsure)? [y/n] " yn
-          case "${yn,,}" in
-            y|yes|n|no) break ;;
-            *) echo "  Please answer y or n." ;;
-          esac
-        done
-      fi
-
-      if [[ "${yn,,}" == "y" || "${yn,,}" == "yes" ]]; then
-        # .Renviron special handling
-        if [[ "$file" == ".Renviron" && "$dotfiles_env" != "hpc" ]]; then
-          sed -E \
-            '/^(RENV_PATHS_LIBRARY_ROOT|RENV_PATHS_CACHE|RENV_PATHS_ROOT|R_LIBS)=/d' \
-            "$src" > "$dest"
-          echo "  Sanitised and copied $file"
-        else
-          cp "$src" "$dest"
-          echo "  Copied $file"
-        fi
-      else
-        echo "  Skipped $file"
-      fi
-    else
-      echo "  $file is up to date."
-    fi
-  done
-  echo "Hidden config files copied."
+  echo "Hidden config files set up."
 }
 
 

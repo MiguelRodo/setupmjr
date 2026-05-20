@@ -4,5 +4,5 @@ import (
 	"embed"
 )
 
-//go:embed scripts/* bashrc.d/* r/*
+//go:embed scripts/* bashrc.d/*
 var FS embed.FS

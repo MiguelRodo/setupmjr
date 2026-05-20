@@ -49,7 +49,7 @@ Set this repository as your dotfiles in the Codespaces settings. It will automat
   * **Apptainer and Slurm tools** for HPC/cluster users
   * **dotfiles-update** helper for keeping your setup current
 * **R config:**
-  Copies sensible `.Renviron`, `.lintr`, and `.radian_profile` defaults if using R/VS Code—also strips out HPC-specific R settings if not on cluster.
+  Sets up sensible `.lintr` and `.radian_profile` defaults if using R/VS Code.
 * **Authentication environment:**
   Prompts (when in interactive mode) to set up initial GitHub and HuggingFace authentication for use in scripts/RStudio/VS Code.
 * **Git configuration:**
@@ -79,7 +79,6 @@ If in a GitHub codespace, you should rebuild the codespace (full rebuild not nee
 ## Forking
 
 To use this as a base for your own dotfiles, fork this repository and modify the scripts as needed.
-In particular, the `r/.Renviron` file has SATVI-specific environment variables that you may want to change (harmless if you do not, however).
 Feel free to contribute improvements back to the main repository.
 
 ---
