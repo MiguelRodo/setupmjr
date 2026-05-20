@@ -22,7 +22,7 @@ vscode_version="latest"
 while [[ $# -gt 0 ]]; do
   case $1 in
     -f|--file)
-      # map our -f/--file into apptainer-run’s -f
+      # map our -f/--file into apptainer-run's -f
       args_for_path+=(--file "$2")
       shift 2
       ;;
@@ -83,11 +83,11 @@ else
     -d "$(dirname "$sif_path")" \
     -q \
     "$cli_path" update \
-    || echo "→ update either succeeded or wasn’t needed"
+    || echo "→ update either succeeded or wasn't needed"
 fi
 
 # 3) optionally clean up any existing tunnels
-if $clean; then
+if [[ "$clean" == true ]]; then
   echo "Cleaning up existing VS Code tunnels..."
   for cmd in kill prune unregister; do
     apptainer-run \
