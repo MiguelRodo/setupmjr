@@ -158,7 +158,7 @@ The commands are as follows (run `<command> --help` for usage information on eac
 - `slurm-sintx`: Starts an interactive SLURM session using `sintx`. By default, it requests 2 tasks (`--ntasks=2`) and 1 node (`--nodes=1`). You can specify the number of tasks as the first argument, and pass additional flags to `sintx` thereafter (e.g., `slurm-sintx 4 --mem=10G`).
 - `slurm-squeue`: Lists the current jobs for the logged-in user using `squeue -u $USER`.
 
-:::: {.callout-info collapse="true"}
+::: {.callout-info collapse="true"}
 ## Details
 
 The `hpc slurm` command sets up these tools by doing the following:
@@ -166,7 +166,7 @@ The `hpc slurm` command sets up these tools by doing the following:
 1. It ensures that `~/.local/bin` is added to your system's `PATH` environment variable by (if required) adding an export statement to your `.bashrc`.
 
 2. It places the specific utility wrapper scripts (`slurm-sbatch`, `slurm-sintx`, `slurm-squeue`) directly into `~/.local/bin/`.
-::::
+:::
 
 ### `hpc apptainer`
 
@@ -188,7 +188,7 @@ The commands installed are as follows (run `<command> --help` for usage informat
 - `apptainer-run`: Executes a given command inside the project's Apptainer container. If no command is passed, it falls back to opening an interactive shell (`apptainer shell`) within the container.
 - `apptainer-rscript`: A specialized wrapper to easily pass and execute R expressions (via `Rscript -e`) directly inside the project's container without needing to manually spin up an interactive shell.
 
-:::: {.callout-info collapse="true"}
+::: {.callout-info collapse="true"}
 ## Details
 
 The `hpc apptainer` command sets up these tools by doing the following:
@@ -196,7 +196,7 @@ The `hpc apptainer` command sets up these tools by doing the following:
 1. It ensures that `~/.local/bin` is added to your system's `PATH` environment variable by (if required) adding an export statement to your `.bashrc`.
 
 2. It places the specific utility wrapper scripts directly into `~/.local/bin/`.
-::::
+:::
 
 
 ### `hpc r`
@@ -212,7 +212,7 @@ setupmjr hpc r
 
 In addition to the above, object length and line linters are turned off (to prevent VS Code bothering you because your variable names or lines are "too long").
 
-::::{.callout-info collapse="true"}
+::: {.callout-info collapse="true"}
 ## Details
 
 The `~/.radian_profile` file is created if it does not exist, and the following line is added to it:
@@ -228,4 +228,4 @@ linters: linters_with_defaults(
     object_length_linter = NULL,
     object_name_linter = NULL)
 ```
-::::
+:::
