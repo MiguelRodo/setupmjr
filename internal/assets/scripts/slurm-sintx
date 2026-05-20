@@ -2,4 +2,4 @@
 
 ntasks="${1:-2}"
 
-sintx --ntasks="$ntasks" --nodes=1
+sintx --ntasks="$ntasks" --nodes=1 "${@:2}"
