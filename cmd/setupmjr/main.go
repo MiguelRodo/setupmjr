@@ -9,6 +9,7 @@ import (
 	"github.com/MiguelRodo/setupmjr/internal/gitcmd"
 	"github.com/MiguelRodo/setupmjr/internal/hpc"
 	"github.com/MiguelRodo/setupmjr/internal/r"
+	"github.com/MiguelRodo/setupmjr/internal/repo"
 )
 
 var version = "dev"
@@ -42,6 +43,11 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
+	case "repo":
+		if err := handleRepo(os.Args[2:]); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
 	case "version":
 		fmt.Printf("setupmjr version %s\n", version)
 	default:
@@ -68,7 +74,11 @@ Commands:
   git login
   git login text
   git login cache
-  git login mngr`)
+  git login mngr
+  repo readme
+  repo devcontainer [--repo <owner/repo>] [--branch <branch>] [--no-prebuild]
+  repo action <action-name>
+  repo install repos`)
 }
 
 func handleHPC(args []string) error {
@@ -178,5 +188,36 @@ func handleGit(args []string) error {
 		}
 	default:
 		return fmt.Errorf("unknown git subcommand: %s", subcmd)
+	}
+}
+
+func handleRepo(args []string) error {
+	if len(args) == 0 {
+		return fmt.Errorf("repo requires a subcommand: readme, devcontainer, action, or install repos")
+	}
+
+	subcmd := args[0]
+	switch subcmd {
+	case "readme":
+		return repo.SetupRepoReadme()
+	case "devcontainer":
+		fs := flag.NewFlagSet("devcontainer", flag.ExitOnError)
+		repoFlag := fs.String("repo", "MiguelRodo/comp", "Repository to copy .devcontainer from")
+		branchFlag := fs.String("branch", "main", "Branch to copy .devcontainer from")
+		noPrebuild := fs.Bool("no-prebuild", false, "Copy devcontainer prebuild action")
+		fs.Parse(args[1:])
+		return repo.SetupRepoDevcontainer(*repoFlag, *branchFlag, *noPrebuild)
+	case "action":
+		if len(args) < 2 {
+			return fmt.Errorf("repo action requires an action name")
+		}
+		return repo.SetupRepoAction(args[1])
+	case "install":
+		if len(args) > 1 && args[1] == "repos" {
+			return repo.SetupRepoInstallRepos()
+		}
+		return fmt.Errorf("unknown repo install subcommand")
+	default:
+		return fmt.Errorf("unknown repo subcommand: %s", subcmd)
 	}
 }
