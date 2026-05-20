@@ -11,7 +11,21 @@
     "href": "bash.html#commands",
     "title": "bash",
     "section": "Commands",
-    "text": "Commands\n  bash rc.d\n  bash login"
+    "text": "Commands\n  bash rc.d\n  bash path\n  bash login\n\nbash rc.d\nTo manage shell configuration more effectively, it is helpful to place individual scripts inside a dedicated directory (i.e. ~/.bashrc.d/) rather than cluttering the main ~/.bashrc file. The bash rc.d command sets up this directory and configures your ~/.bashrc to source all scripts inside it.\nTo set this up, run the following command:\nsetupmjr bash rc.d"
+  },
+  {
+    "objectID": "bash.html#details",
+    "href": "bash.html#details",
+    "title": "bash",
+    "section": "Details",
+    "text": "Details\nThe bash rc.d command configures the environment by doing the following:\n\nIt ensures the ~/.bashrc.d directory exists.\nIt appends a loop to your ~/.bashrc to automatically source any readable scripts inside ~/.bashrc.d/:\nfor i in $HOME/.bashrc.d/*; do [ -r \"$i\" ] && source \"$i\"; done"
+  },
+  {
+    "objectID": "bash.html#details-1",
+    "href": "bash.html#details-1",
+    "title": "bash",
+    "section": "Details",
+    "text": "Details\nThe bash path command ensures ~/bin and ~/.local/bin are accessible by doing the following:\n\nIt calls bash rc.d to ensure the ~/.bashrc.d/ directory is properly set up and sourced by ~/.bashrc.\nIt copies an embedded script, path-executables.sh, to ~/.bashrc.d/path-executables.sh. This script safely appends ~/bin and ~/.local/bin to the PATH environment variable if they are not already included."
   },
   {
     "objectID": "r.html",
