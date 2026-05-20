@@ -45,6 +45,10 @@ bash uninstall-local.sh
 
 ### Option 2: Install from APT Repository (Recommended for automatic updates, but requires sudo)
 
+::::{.callout-warning}
+The APT repository is an upcoming feature and not yet fully configured.
+::::
+
 Install and keep `setupmjr` up to date directly via `apt`:
 
 ```bash
@@ -97,6 +101,10 @@ sudo dpkg -r setupmjr
 
 ## macOS (Homebrew)
 
+::::{.callout-warning}
+The Homebrew tap is an upcoming feature and not yet fully configured.
+::::
+
 ```bash
 brew tap MiguelRodo/setupmjr
 brew install setupmjr
@@ -126,7 +134,19 @@ it in the first writable directory in your current `PATH`.
 
 **Requirements:** PowerShell and network access to GitHub releases.
 
+*(Note: Ensure you are executing this within a PowerShell console `pwsh` or `powershell.exe`, as native `cmd.exe` will not interpret the script correctly.)*
+
+To uninstall:
+
+```powershell
+.\install.ps1 -Uninstall
+```
+
 ### Option 2: Scoop
+
+::::{.callout-warning}
+The Scoop bucket is an upcoming feature and not yet fully configured.
+::::
 
 ```powershell
 scoop bucket add setupmjr https://github.com/MiguelRodo/scoop-bucket
@@ -142,7 +162,7 @@ Requires the Go toolchain installed.
 Install directly from the remote module path:
 
 ```bash
-go install [github.com/MiguelRodo/setupmjr/v1/cmd/setupmjr@latest](https://github.com/MiguelRodo/setupmjr/v1/cmd/setupmjr@latest)
+go install github.com/MiguelRodo/setupmjr/cmd/setupmjr@latest
 ```
 
 Or build from a local clone (Linux-specific example shown):

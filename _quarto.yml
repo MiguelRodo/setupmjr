@@ -7,6 +7,8 @@ website:
     left:
       - href: index.qmd
         text: Home
+      - href: install.qmd
+        text: Installation
       - href: hpc.qmd
         text: hpc
       - href: bash.qmd
