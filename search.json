@@ -144,7 +144,7 @@
     "href": "hpc.html#commands",
     "title": "hpc",
     "section": "Commands",
-    "text": "Commands\n  hpc       Master HPC setup\n  hpc git\n  hpc scratch [--r]\n  hpc apptainer\n  hpc slurm\n  hpc r"
+    "text": "Commands\n  hpc       Master HPC setup\n  hpc git\n  hpc scratch\n  hpc apptainer\n  hpc slurm\n  hpc r"
   },
   {
     "objectID": "hpc.html#installation",
