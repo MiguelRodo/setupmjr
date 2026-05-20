@@ -68,6 +68,7 @@ Commands:
   hpc slurm
   hpc login git
   hpc git
+  hpc r
   bash rc.d
   bash login
   r radian
@@ -108,6 +109,9 @@ func handleHPC(args []string) error {
 		if err := hpc.SetupHPCSlurm(); err != nil {
 			return err
 		}
+		if err := r.SetupRRadian(); err != nil {
+			return err
+		}
 		fmt.Println("Please run 'source ~/.bashrc' to apply the changes.")
 		return nil
 	}
@@ -126,6 +130,8 @@ func handleHPC(args []string) error {
 		err = hpc.SetupHPCSlurm()
 	case "git":
 		err = hpc.SetupHPCGit()
+	case "r":
+		err = r.SetupRRadian()
 	case "login":
 		if len(args) > 1 && args[1] == "git" {
 			err = hpc.SetupHPCLoginGit()

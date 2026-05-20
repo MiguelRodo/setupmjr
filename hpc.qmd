@@ -67,7 +67,7 @@ Apart from needing to edit one file for Git authentication if this has not been 
 - *Add `Apptainer` and `SLURM` helpers*: If these tools are available on the HPC, helper scripts will be added to simplify their usage.
 - *Configures `radian`*: If you use `radian` as your R terminal, it is configured to work properly on the HPC.
 
-Each of these features can be configured independently via the respective subcommands (`hpc scratch`, `hpc apptainer`, `hpc slurm`, `hpc git`).
+Each of these features can be configured independently via the respective subcommands (`hpc scratch`, `hpc apptainer`, `hpc slurm`, `hpc git`, `hpc r`).
 
 ### Setting up Git
 
