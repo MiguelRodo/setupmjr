@@ -80,7 +80,9 @@ if [[ ! -f "$SLURM_SCRIPT" ]]; then
 fi
 
 if [ "$NO_SUB_DIR" == "false" ]; then
-    SANITIZED_SCRIPT_NAME=$(basename "$SLURM_SCRIPT" .sh | tr -cd '[:alnum:]_-')
+    FILENAME=$(basename "$SLURM_SCRIPT")
+    FILENAME_NO_EXT="${FILENAME%.*}"
+    SANITIZED_SCRIPT_NAME=$(echo "$FILENAME_NO_EXT" | tr -cd '[:alnum:]_-')
     if [ -z "$SANITIZED_SCRIPT_NAME" ]; then
         echo "Error: Invalid script name."
         echo "Sanitized script name was empty."
@@ -162,7 +164,7 @@ fi
 # Run sbatch with the provided script and options, capturing the job ID and standard output (from sbatch)
 {
     echo "--- sbatch Command ---"
-    sbatch_command="sbatch ${sbatch_options[@]} -o $LOG_FILE $SLURM_SCRIPT"
+    sbatch_command="sbatch ${sbatch_options[*]} -o $LOG_FILE $SLURM_SCRIPT"
     echo "$sbatch_command"
     echo "-----------------------"
     echo ""
