@@ -166,5 +166,19 @@
     "title": "hpc",
     "section": "Details",
     "text": "Details\nGit authentication is configured by the following:\n\nIt is ensured that .bashrc.d files are sourced by .bashrc.\nThe credential helper is set to the following:\n!f() { sleep 1; echo \"username=${GITHUB_USER:-TOKEN}\"; echo \"password=${GH_TOKEN:-$GITHUB_TOKEN}\"; }; f\nA script is added to ~/.bashrc.d/login.sh, which has space for the user to add their GitHub username and PAT, and then exports these as environment variables (GITHUB_USER and GITHUB_USERNAME for the user name and GITHUB_TOKEN, GH_TOKEN and GITHUB_PAT for the token)."
+  },
+  {
+    "objectID": "hpc.html#details-1",
+    "href": "hpc.html#details-1",
+    "title": "hpc",
+    "section": "Details",
+    "text": "Details\nThe hpc scratch command configures the environment to use the /scratch directory by doing the following:\n\nIt ensures that .bashrc.d files are sourced by .bashrc.\nA script is added to ~/.bashrc.d/hpc-scratch.sh, which explicitly exports paths for Apptainer, Singularity, renv, and R libraries to use /scratch/$USER. Specifically, it sets the following environment variables:\n\nRENV_CONFIG_PAK_ENABLED=false\nRENV_CONFIG_SANDBOX_ENABLED=false\nRENV_PATHS_LIBRARY_ROOT=/scratch/${USER}/.local/lib/R/library\nRENV_PATHS_CACHE=/scratch/${USER}/renv/cache:/renv/cache\nRENV_PATHS_ROOT=/scratch/${USER}/.local/lib/R/library\nR_LIBS=/scratch/${USER}/.local/lib/R"
+  },
+  {
+    "objectID": "hpc.html#details-2",
+    "href": "hpc.html#details-2",
+    "title": "hpc",
+    "section": "Details",
+    "text": "Details\nThe hpc slurm command sets up these tools by doing the following:\n\nIt ensures that ~/.local/bin is added to your system’s PATH environment variable by adding an export statement to your .bashrc.\nIt places the specific utility wrapper scripts (slurm-sbatch, slurm-sintx, slurm-squeue) directly into ~/.local/bin/."
   }
 ]

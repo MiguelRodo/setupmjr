@@ -178,7 +178,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </ul></li>
   <li><a href="#details" id="toc-details" class="nav-link" data-scroll-target="#details">Details</a></li>
   <li><a href="#using-scratch-space" id="toc-using-scratch-space" class="nav-link" data-scroll-target="#using-scratch-space">Using scratch space</a></li>
+  <li><a href="#details-1" id="toc-details-1" class="nav-link" data-scroll-target="#details-1">Details</a></li>
   <li><a href="#hpc-slurm" id="toc-hpc-slurm" class="nav-link" data-scroll-target="#hpc-slurm"><code>hpc slurm</code></a></li>
+  <li><a href="#details-2" id="toc-details-2" class="nav-link" data-scroll-target="#details-2">Details</a></li>
   </ul>
 </nav>
     </div>
@@ -283,6 +285,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ul></li>
 </ul>
 </section>
+<section id="details-1" class="level2 callout-info" data-collapse="true">
+<h2 class="anchored" data-anchor-id="details-1">Details</h2>
+<p>The <code>hpc scratch</code> command configures the environment to use the <code>/scratch</code> directory by doing the following:</p>
+<ol type="1">
+<li><p>It ensures that <code>.bashrc.d</code> files are sourced by <code>.bashrc</code>.</p></li>
+<li><p>A script is added to <code>~/.bashrc.d/hpc-scratch.sh</code>, which explicitly exports paths for Apptainer, Singularity, <code>renv</code>, and R libraries to use <code>/scratch/$USER</code>. Specifically, it sets the following environment variables:</p>
+<ul>
+<li><code>RENV_CONFIG_PAK_ENABLED=false</code></li>
+<li><code>RENV_CONFIG_SANDBOX_ENABLED=false</code></li>
+<li><code>RENV_PATHS_LIBRARY_ROOT=/scratch/${USER}/.local/lib/R/library</code></li>
+<li><code>RENV_PATHS_CACHE=/scratch/${USER}/renv/cache:/renv/cache</code></li>
+<li><code>RENV_PATHS_ROOT=/scratch/${USER}/.local/lib/R/library</code></li>
+<li><code>R_LIBS=/scratch/${USER}/.local/lib/R</code></li>
+</ul></li>
+</ol>
+</section>
 <section id="hpc-slurm" class="level3">
 <h3 class="anchored" data-anchor-id="hpc-slurm"><code>hpc slurm</code></h3>
 <p>The <code>hpc slurm</code> command sets up several utility scripts for interacting with the Slurm workload manager, placing them in <code>~/.local/bin</code>:</p>
@@ -291,9 +309,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>slurm-sintx</code>: Starts an interactive Slurm session using <code>sintx</code>. By default, it requests 2 tasks (<code>--ntasks=2</code>) and 1 node (<code>--nodes=1</code>). You can specify the number of tasks as the first argument, and pass additional flags to <code>sintx</code> thereafter (e.g., <code>slurm-sintx 4 --mem=10G</code>).</li>
 <li><code>slurm-squeue</code>: Lists the current jobs for the logged-in user using <code>squeue -u $USER</code>. You can pass additional flags to <code>squeue</code> by providing them as arguments (e.g., <code>slurm-squeue --format="%.18i %.9P %.8j %.8u %.2t %.10M %.6D %R"</code>).</li>
 </ul>
-
-
 </section>
+<section id="details-2" class="level2 callout-info" data-collapse="true">
+<h2 class="anchored" data-anchor-id="details-2">Details</h2>
+<p>The <code>hpc slurm</code> command sets up these tools by doing the following:</p>
+<ol type="1">
+<li><p>It ensures that <code>~/.local/bin</code> is added to your system’s <code>PATH</code> environment variable by adding an export statement to your <code>.bashrc</code>.</p></li>
+<li><p>It places the specific utility wrapper scripts (<code>slurm-sbatch</code>, <code>slurm-sintx</code>, <code>slurm-squeue</code>) directly into <code>~/.local/bin/</code>.</p></li>
+</ol>
+</section>
+
+
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
