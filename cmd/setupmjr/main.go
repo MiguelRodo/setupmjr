@@ -106,30 +106,39 @@ func handleHPC(args []string) error {
 		if err := hpc.SetupHPCSlurm(); err != nil {
 			return err
 		}
+		fmt.Println("Please run 'source ~/.bashrc' to apply the changes.")
 		return nil
 	}
 
 	subcmd := args[0]
+	var err error
 	switch subcmd {
 	case "scratch":
 		fs := flag.NewFlagSet("scratch", flag.ExitOnError)
 		withR := fs.Bool("r", false, "Include R config")
 		fs.Parse(args[1:])
-		return hpc.SetupHPCScratch(*withR)
+		err = hpc.SetupHPCScratch(*withR)
 	case "apptainer":
-		return hpc.SetupHPCApptainer()
+		err = hpc.SetupHPCApptainer()
 	case "slurm":
-		return hpc.SetupHPCSlurm()
+		err = hpc.SetupHPCSlurm()
 	case "git":
-		return hpc.SetupHPCGit()
+		err = hpc.SetupHPCGit()
 	case "login":
 		if len(args) > 1 && args[1] == "git" {
-			return hpc.SetupHPCLoginGit()
+			err = hpc.SetupHPCLoginGit()
+		} else {
+			return fmt.Errorf("unknown hpc login subcommand")
 		}
-		return fmt.Errorf("unknown hpc login subcommand")
 	default:
 		return fmt.Errorf("unknown hpc subcommand: %s", subcmd)
 	}
+
+	if err == nil {
+		fmt.Println("Please run 'source ~/.bashrc' to apply the changes.")
+	}
+
+	return err
 }
 
 func handleBash(args []string) error {
