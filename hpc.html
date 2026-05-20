@@ -180,10 +180,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#using-scratch-space" id="toc-using-scratch-space" class="nav-link" data-scroll-target="#using-scratch-space">Using scratch space</a></li>
   <li><a href="#details-1" id="toc-details-1" class="nav-link" data-scroll-target="#details-1">Details</a></li>
   <li><a href="#hpc-slurm" id="toc-hpc-slurm" class="nav-link" data-scroll-target="#hpc-slurm"><code>hpc slurm</code></a></li>
-  <li><a href="#hpc-apptainer" id="toc-hpc-apptainer" class="nav-link" data-scroll-target="#hpc-apptainer"><code>hpc apptainer</code></a></li>
   <li><a href="#details-2" id="toc-details-2" class="nav-link" data-scroll-target="#details-2">Details</a></li>
-  <li><a href="#hpc-r" id="toc-hpc-r" class="nav-link" data-scroll-target="#hpc-r"><code>hpc r</code></a></li>
+  <li><a href="#hpc-apptainer" id="toc-hpc-apptainer" class="nav-link" data-scroll-target="#hpc-apptainer"><code>hpc apptainer</code></a></li>
   <li><a href="#details-3" id="toc-details-3" class="nav-link" data-scroll-target="#details-3">Details</a></li>
+  <li><a href="#hpc-r" id="toc-hpc-r" class="nav-link" data-scroll-target="#hpc-r"><code>hpc r</code></a></li>
+  <li><a href="#details-4" id="toc-details-4" class="nav-link" data-scroll-target="#details-4">Details</a></li>
   </ul>
 </nav>
     </div>
@@ -213,11 +214,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="commands" class="level2">
 <h2 class="anchored" data-anchor-id="commands">Commands</h2>
 <pre><code>  hpc       Master HPC setup
+  hpc git
   hpc scratch [--r]
   hpc apptainer
   hpc slurm
-  hpc login git
-  hpc git</code></pre>
+  hpc r</code></pre>
 </section>
 <section id="installation" class="level2">
 <h2 class="anchored" data-anchor-id="installation">Installation</h2>
@@ -228,7 +229,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>If the above does not work, then <code>setupmjr</code> may not be on your system <code>PATH</code>. In that case, you can add the following line to your shell profile (typically <code>~/.bashrc</code>):</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">PATH</span><span class="op">=</span><span class="st">"</span><span class="va">$HOME</span><span class="st">/.local/bin:</span><span class="va">$PATH</span><span class="st">"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Then run:</p>
-<pre><code>source ~/.bashrc`.</code></pre>
+<pre><code>source ~/.bashrc</code></pre>
 <p>At this point, the following should succeed:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> <span class="at">--version</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>If not, then the initial installation failed.</p>
@@ -243,6 +244,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><em>Helps store large files effectively</em>: Large files are stored in the <code>/scratch</code> space (if available) rather than <code>/home</code>, to respect HPC storage policies.</li>
 <li><em>Authenticates with Git</em>: Scripts are added to which the user needs to simply add their GitHub username and a personal access token (PAT) to enable seamless Git operations from the HPC environment.</li>
 <li><em>Add <code>Apptainer</code> and <code>SLURM</code> helpers</em>: If these tools are available on the HPC, helper scripts will be added to simplify their usage.</li>
+<li><em>Configures <code>radian</code></em>: If you use <code>radian</code> as your R terminal, it is configured to work properly on the HPC.</li>
 </ul>
 <p>Each of these features can be configured independently via the respective subcommands (<code>hpc scratch</code>, <code>hpc apptainer</code>, <code>hpc slurm</code>, <code>hpc git</code>).</p>
 <section id="setting-up-git" class="level3">
@@ -256,7 +258,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc git</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>You will be prompted to enter your full name and email address (if these are not already set), which Git uses to identify you as the author of commits.</p>
 <p>In addition, you will be prompted to enter your GitHub username and a personal access token (PAT). This allows Git to authenticate with GitHub when you push commits or perform other operations that require authentication.</p>
-<p>To get a GitHUB PAT, go to your GitHub account settings, navigate to “Developer settings” &gt; “Personal access tokens”, and generate a new token with the appropriate scopes (e.g.&nbsp;<code>repo</code> for full control of private repositories).</p>
+<p>To get a GitHub PAT, go to your GitHub account settings, navigate to “Developer settings” &gt; “Personal access tokens”, and generate a new token with the appropriate scopes (e.g.&nbsp;<code>repo</code> for full control of private repositories).</p>
 <p>If you skip entering any of the above information, you can always run <code>setupmjr hpc git</code> again to set it up later.</p>
 </section>
 </section>
@@ -316,6 +318,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>slurm-squeue</code>: Lists the current jobs for the logged-in user using <code>squeue -u $USER</code>.</li>
 </ul>
 </section>
+<section id="details-2" class="level2 callout-info" data-collapse="true">
+<h2 class="anchored" data-anchor-id="details-2">Details</h2>
+<p>The <code>hpc slurm</code> command sets up these tools by doing the following:</p>
+<ol type="1">
+<li><p>It ensures that <code>~/.local/bin</code> is added to your system’s <code>PATH</code> environment variable by (if required) adding an export statement to your <code>.bashrc</code>.</p></li>
+<li><p>It places the specific utility wrapper scripts (<code>slurm-sbatch</code>, <code>slurm-sintx</code>, <code>slurm-squeue</code>) directly into <code>~/.local/bin/</code>.</p></li>
+</ol>
+</section>
 <section id="hpc-apptainer" class="level3">
 <h3 class="anchored" data-anchor-id="hpc-apptainer"><code>hpc apptainer</code></h3>
 <p>Apptainer (formerly Singularity) is a container system commonly used on HPCs to ensure reproducible software environments. The <code>hpc apptainer</code> command sets up several utility scripts for seamlessly pulling, locating, and interacting with Apptainer containers. It is designed to work tightly with images built using the <code>MiguelRodo/devcontainer-prebuild</code> GitHub Action, sharing many of the same conventions (but is compatible with containers from both Docker Hub and GitHub Container Registry).</p>
@@ -330,12 +340,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>apptainer-rscript</code>: A specialized wrapper to easily pass and execute R expressions (via <code>Rscript -e</code>) directly inside the project’s container without needing to manually spin up an interactive shell.</li>
 </ul>
 </section>
-<section id="details-2" class="level2 callout-info" data-collapse="true">
-<h2 class="anchored" data-anchor-id="details-2">Details</h2>
-<p>The <code>hpc slurm</code> command sets up these tools by doing the following:</p>
+<section id="details-3" class="level2 callout-info" data-collapse="true">
+<h2 class="anchored" data-anchor-id="details-3">Details</h2>
+<p>The <code>hpc apptainer</code> command sets up these tools by doing the following:</p>
 <ol type="1">
 <li><p>It ensures that <code>~/.local/bin</code> is added to your system’s <code>PATH</code> environment variable by (if required) adding an export statement to your <code>.bashrc</code>.</p></li>
-<li><p>It places the specific utility wrapper scripts (<code>slurm-sbatch</code>, <code>slurm-sintx</code>, <code>slurm-squeue</code>) directly into <code>~/.local/bin/</code>.</p></li>
+<li><p>It places the specific utility wrapper scripts directly into <code>~/.local/bin/</code>.</p></li>
 </ol>
 </section>
 <section id="hpc-r" class="level3">
@@ -345,10 +355,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>In addition to the above, object length and line linters are turned off (to prevent VS Code bothering you because your variable names or lines are “too long”).</p>
 </section>
-<section id="details-3" class="level2 callout-info" data-collapse="true">
-<h2 class="anchored" data-anchor-id="details-3">Details</h2>
+<section id="details-4" class="level2 callout-info" data-collapse="true">
+<h2 class="anchored" data-anchor-id="details-4">Details</h2>
 <p>The <code>~/.radian_profile</code> file is created if it does not exist, and the following line is added to it:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">options</span><span class="er">(</span><span class="ex">radian.auto_match</span> = FALSE<span class="kw">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">radian.auto_match =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The <code>~/.lintr</code> file is also created if it does not exist, and the following lines are added to it:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">linters:</span> linters_with_defaults<span class="er">(</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="ex">object_length_linter</span> = NULL,</span>

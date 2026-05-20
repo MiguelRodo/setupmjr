@@ -144,21 +144,21 @@
     "href": "hpc.html#commands",
     "title": "hpc",
     "section": "Commands",
-    "text": "Commands\n  hpc       Master HPC setup\n  hpc scratch [--r]\n  hpc apptainer\n  hpc slurm\n  hpc login git\n  hpc git"
+    "text": "Commands\n  hpc       Master HPC setup\n  hpc git\n  hpc scratch [--r]\n  hpc apptainer\n  hpc slurm\n  hpc r"
   },
   {
     "objectID": "hpc.html#installation",
     "href": "hpc.html#installation",
     "title": "hpc",
     "section": "Installation",
-    "text": "Installation\nAssuming that the HPC is running on Linux, the following line will install setupmjr without requiring sudo permission:\ncurl -fsSL https://raw.githubusercontent.com/MiguelRodo/setupmjr/main/install-local.sh | bash\nConfirm that installation worked by running:\nsetupmjr --version\nIf the above does not work, then setupmjr may not be on your system PATH. In that case, you can add the following line to your shell profile (typically ~/.bashrc):\nexport PATH=\"$HOME/.local/bin:$PATH\"\nThen run:\nsource ~/.bashrc`.\nAt this point, the following should succeed:\nsetupmjr --version\nIf not, then the initial installation failed."
+    "text": "Installation\nAssuming that the HPC is running on Linux, the following line will install setupmjr without requiring sudo permission:\ncurl -fsSL https://raw.githubusercontent.com/MiguelRodo/setupmjr/main/install-local.sh | bash\nConfirm that installation worked by running:\nsetupmjr --version\nIf the above does not work, then setupmjr may not be on your system PATH. In that case, you can add the following line to your shell profile (typically ~/.bashrc):\nexport PATH=\"$HOME/.local/bin:$PATH\"\nThen run:\nsource ~/.bashrc\nAt this point, the following should succeed:\nsetupmjr --version\nIf not, then the initial installation failed."
   },
   {
     "objectID": "hpc.html#setup",
     "href": "hpc.html#setup",
     "title": "hpc",
     "section": "Setup",
-    "text": "Setup\nThe following command will configure the HPC environment:\nsetupmjr hpc\nApart from needing to edit one file for Git authentication if this has not been setup yet (see below), this command requires no other user input.\nsetupmjr hpc does the following:\n\nHelps store large files effectively: Large files are stored in the /scratch space (if available) rather than /home, to respect HPC storage policies.\nAuthenticates with Git: Scripts are added to which the user needs to simply add their GitHub username and a personal access token (PAT) to enable seamless Git operations from the HPC environment.\nAdd Apptainer and SLURM helpers: If these tools are available on the HPC, helper scripts will be added to simplify their usage.\n\nEach of these features can be configured independently via the respective subcommands (hpc scratch, hpc apptainer, hpc slurm, hpc git).\n\nSetting up Git\nTo work with Git, you need to do two things:\n\nSupply Git with your name and email (if not already configured).\nProvide Git with credentials to authenticate with remote repositories, e.g. GitHub.\n\nTo set this up, run the following command (which is also part of the setupmjr hpc command):\nsetupmjr hpc git\nYou will be prompted to enter your full name and email address (if these are not already set), which Git uses to identify you as the author of commits.\nIn addition, you will be prompted to enter your GitHub username and a personal access token (PAT). This allows Git to authenticate with GitHub when you push commits or perform other operations that require authentication.\nTo get a GitHUB PAT, go to your GitHub account settings, navigate to “Developer settings” &gt; “Personal access tokens”, and generate a new token with the appropriate scopes (e.g. repo for full control of private repositories).\nIf you skip entering any of the above information, you can always run setupmjr hpc git again to set it up later."
+    "text": "Setup\nThe following command will configure the HPC environment:\nsetupmjr hpc\nApart from needing to edit one file for Git authentication if this has not been setup yet (see below), this command requires no other user input.\nsetupmjr hpc does the following:\n\nHelps store large files effectively: Large files are stored in the /scratch space (if available) rather than /home, to respect HPC storage policies.\nAuthenticates with Git: Scripts are added to which the user needs to simply add their GitHub username and a personal access token (PAT) to enable seamless Git operations from the HPC environment.\nAdd Apptainer and SLURM helpers: If these tools are available on the HPC, helper scripts will be added to simplify their usage.\nConfigures radian: If you use radian as your R terminal, it is configured to work properly on the HPC.\n\nEach of these features can be configured independently via the respective subcommands (hpc scratch, hpc apptainer, hpc slurm, hpc git).\n\nSetting up Git\nTo work with Git, you need to do two things:\n\nSupply Git with your name and email (if not already configured).\nProvide Git with credentials to authenticate with remote repositories, e.g. GitHub.\n\nTo set this up, run the following command (which is also part of the setupmjr hpc command):\nsetupmjr hpc git\nYou will be prompted to enter your full name and email address (if these are not already set), which Git uses to identify you as the author of commits.\nIn addition, you will be prompted to enter your GitHub username and a personal access token (PAT). This allows Git to authenticate with GitHub when you push commits or perform other operations that require authentication.\nTo get a GitHub PAT, go to your GitHub account settings, navigate to “Developer settings” &gt; “Personal access tokens”, and generate a new token with the appropriate scopes (e.g. repo for full control of private repositories).\nIf you skip entering any of the above information, you can always run setupmjr hpc git again to set it up later."
   },
   {
     "objectID": "hpc.html#details",
@@ -184,6 +184,13 @@
   {
     "objectID": "hpc.html#details-3",
     "href": "hpc.html#details-3",
+    "title": "hpc",
+    "section": "Details",
+    "text": "Details\nThe hpc apptainer command sets up these tools by doing the following:\n\nIt ensures that ~/.local/bin is added to your system’s PATH environment variable by (if required) adding an export statement to your .bashrc.\nIt places the specific utility wrapper scripts directly into ~/.local/bin/."
+  },
+  {
+    "objectID": "hpc.html#details-4",
+    "href": "hpc.html#details-4",
     "title": "hpc",
     "section": "Details",
     "text": "Details\nThe ~/.radian_profile file is created if it does not exist, and the following line is added to it:\noptions(radian.auto_match = FALSE)\nThe ~/.lintr file is also created if it does not exist, and the following lines are added to it:\nlinters: linters_with_defaults(\n    object_length_linter = NULL,\n    object_name_linter = NULL)"
