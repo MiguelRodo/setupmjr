@@ -70,6 +70,7 @@ Commands:
   hpc git
   hpc r
   bash rc.d
+  bash path
   bash login
   r radian
   git
@@ -91,6 +92,9 @@ func handleHPC(args []string) error {
 			return err
 		}
 		if err := bash.SetupBashRCD(); err != nil {
+			return err
+		}
+		if err := bash.SetupBashPath(); err != nil {
 			return err
 		}
 		if err := bash.SetupBashLogin(); err != nil {
@@ -151,13 +155,15 @@ func handleHPC(args []string) error {
 
 func handleBash(args []string) error {
 	if len(args) == 0 {
-		return fmt.Errorf("bash requires a subcommand: rc.d or login")
+		return fmt.Errorf("bash requires a subcommand: rc.d, path, or login")
 	}
 
 	subcmd := args[0]
 	switch subcmd {
 	case "rc.d":
 		return bash.SetupBashRCD()
+	case "path":
+		return bash.SetupBashPath()
 	case "login":
 		return bash.SetupBashLogin()
 	default:
