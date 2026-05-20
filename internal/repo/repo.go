@@ -124,6 +124,41 @@ func SetupRepoAction(actionName string) error {
 	return nil
 }
 
+func RunReposCommand(args []string) error {
+	reposCmd := "repos"
+	_, err := exec.LookPath(reposCmd)
+	if err != nil {
+		home, errHome := sysutil.HomeDir()
+		if errHome == nil {
+			localRepos := filepath.Join(home, ".local", "bin", "repos")
+			if runtime.GOOS == "windows" {
+				localRepos += ".exe"
+			}
+			if _, errStat := os.Stat(localRepos); errStat == nil {
+				reposCmd = localRepos
+			} else {
+				fmt.Println("repos command not found. Installing...")
+				if errInstall := SetupRepoInstallRepos(); errInstall != nil {
+					return fmt.Errorf("failed to install repos: %w", errInstall)
+				}
+				reposCmd = localRepos
+			}
+		} else {
+			return fmt.Errorf("repos not found and could not install automatically")
+		}
+	}
+
+	cmd := exec.Command(reposCmd, args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("repos command failed: %w", err)
+	}
+	return nil
+}
+
 func SetupRepoInstallRepos() error {
 	version := "2.5.5" // Could fetch dynamically if needed
 	goos := runtime.GOOS
@@ -138,7 +173,7 @@ func SetupRepoInstallRepos() error {
 		ext = "tar.gz"
 	}
 
-	assetName := fmt.Sprintf("repos_%s_%s.%s", version, goos, goarch)
+	assetName := fmt.Sprintf("repos_%s_%s_%s.%s", version, goos, goarch, ext)
 
 	url := fmt.Sprintf("https://github.com/MiguelRodo/repos/releases/download/v%s/%s", version, assetName)
 

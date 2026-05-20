@@ -35,6 +35,7 @@ cd setupmjr
 bash install-local.sh
 ```
 
+The installer also automatically downloads the `repos` tool as a bundled dependency.
 If no writable path entry exists, the installer will stop with guidance.
 
 To uninstall:
@@ -130,7 +131,7 @@ already present in your `PATH`:
    ```
 
 The installer downloads the latest `setupmjr.exe` binary from GitHub releases and places
-it in the first writable directory in your current `PATH`.
+it in the first writable directory in your current `PATH`. It also automatically downloads the `repos` tool as a bundled dependency.
 
 **Requirements:** PowerShell and network access to GitHub releases.
 
