@@ -48,8 +48,10 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
-	case "version":
+	case "version", "--version", "-v":
 		fmt.Printf("setupmjr version %s\n", version)
+	case "help", "--help", "-h":
+		printUsage()
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown command: %s\n", command)
 		printUsage()
