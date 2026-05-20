@@ -144,6 +144,27 @@
     "href": "hpc.html#commands",
     "title": "hpc",
     "section": "Commands",
-    "text": "Commands\n  hpc       Master HPC setup\n  hpc scratch [--r]\n  hpc apptainer\n  hpc slurm\n  hpc login git\n  hpc git\n\nhpc slurm\nThe hpc slurm command sets up several utility scripts for interacting with the Slurm workload manager, placing them in ~/.local/bin:\n\nslurm-sbatch: Submits a Slurm job using sbatch and logs the submission details, including the submitted script contents and standard output, into a specified or default log directory (_tmp/log/sbatch).\nslurm-sintx: Starts an interactive Slurm session using sintx. By default, it requests 2 tasks (--ntasks=2) and 1 node (--nodes=1). You can specify the number of tasks as the first argument, and pass additional flags to sintx thereafter (e.g., slurm-sintx 4 --mem=10G).\nslurm-squeue: Lists the current jobs for the logged-in user using squeue -u $USER. You can pass additional flags to squeue by providing them as arguments (e.g., slurm-squeue --format=\"%.18i %.9P %.8j %.8u %.2t %.10M %.6D %R\")."
+    "text": "Commands\n  hpc       Master HPC setup\n  hpc scratch [--r]\n  hpc apptainer\n  hpc slurm\n  hpc login git\n  hpc git"
+  },
+  {
+    "objectID": "hpc.html#installation",
+    "href": "hpc.html#installation",
+    "title": "hpc",
+    "section": "Installation",
+    "text": "Installation\nAssuming that the HPC is running on Linux, the following line will install setupmjr without requiring sudo permission:\ncurl -fsSL https://raw.githubusercontent.com/MiguelRodo/setupmjr/main/install-local.sh | bash\nConfirm that installation worked by running:\nsetupmjr --version\nIf the above does not work, then setupmjr may not be on your system PATH. In that case, you can add the following line to your shell profile (typically ~/.bashrc):\nexport PATH=\"$HOME/.local/bin:$PATH\"\nThen run:\nsource ~/.bashrc`.\nAt this point, the following should succeed:\nsetupmjr --version\nIf not, then the initial installation failed."
+  },
+  {
+    "objectID": "hpc.html#setup",
+    "href": "hpc.html#setup",
+    "title": "hpc",
+    "section": "Setup",
+    "text": "Setup\nThe following command will configure the HPC environment:\nsetupmjr hpc\nApart from needing to edit one file for Git authentication if this has not been setup yet (see below), this command requires no other user input.\nsetupmjr hpc does the following:\n\nHelps store large files effectively: Large files are stored in the /scratch space (if available) rather than /home, to respect HPC storage policies.\nAuthenticates with Git: Scripts are added to which the user needs to simply add their GitHub username and a personal access token (PAT) to enable seamless Git operations from the HPC environment.\nAdd Apptainer and SLURM helpers: If these tools are available on the HPC, helper scripts will be added to simplify their usage.\n\nEach of these features can be configured independently via the respective subcommands (hpc scratch, hpc apptainer, hpc slurm, hpc git).\n\nSetting up Git\nTo work with Git, you need to do two things:\n\nSupply Git with your name and email (if not already configured).\nProvide Git with credentials to authenticate with remote repositories, e.g. GitHub.\n\nTo set this up, run the following command (which is also part of the setupmjr hpc command):\nsetupmjr hpc git\nYou will be prompted to enter your full name and email address (if these are not already set), which Git uses to identify you as the author of commits.\nIn addition, you will be prompted to enter your GitHub username and a personal access token (PAT). This allows Git to authenticate with GitHub when you push commits or perform other operations that require authentication.\nTo get a GitHUB PAT, go to your GitHub account settings, navigate to “Developer settings” &gt; “Personal access tokens”, and generate a new token with the appropriate scopes (e.g. repo for full control of private repositories).\nIf you skip entering any of the above information, you can always run setupmjr hpc git again to set it up later."
+  },
+  {
+    "objectID": "hpc.html#details",
+    "href": "hpc.html#details",
+    "title": "hpc",
+    "section": "Details",
+    "text": "Details\nGit authentication is configured by the following:\n\nIt is ensured that .bashrc.d files are sourced by .bashrc.\nThe credential helper is set to the following:\n!f() { sleep 1; echo \"username=${GITHUB_USER:-TOKEN}\"; echo \"password=${GH_TOKEN:-$GITHUB_TOKEN}\"; }; f\nA script is added to ~/.bashrc.d/login.sh, which has space for the user to add their GitHub username and PAT, and then exports these as environment variables (GITHUB_USER and GITHUB_USERNAME for the user name and GITHUB_TOKEN, GH_TOKEN and GITHUB_PAT for the token)."
   }
 ]
