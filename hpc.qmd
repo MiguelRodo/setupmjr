@@ -123,6 +123,22 @@ This configures your environment to preferentially use the `/scratch` space for 
   - The `R_LIBS_USER` environment variable is set to `/scratch/$USER/.local/lib/R` and created, so that R packages are installed in the scratch space instead of the home directory.
   - Similarly, various `RENV_*` environment variables configuring `renv` paths are set to point to the scratch space.
 
+::: {.callout-info collapse="true"}
+## Details
+
+The `hpc scratch` command configures the environment to use the `/scratch` directory by doing the following:
+
+1. It ensures that `.bashrc.d` files are sourced by `.bashrc`.
+
+2. A script is added to `~/.bashrc.d/hpc-scratch.sh`, which explicitly exports paths for Apptainer, Singularity, `renv`, and R libraries to use `/scratch/$USER`. Specifically, it sets the following environment variables:
+   - `RENV_CONFIG_PAK_ENABLED=false`
+   - `RENV_CONFIG_SANDBOX_ENABLED=false`
+   - `RENV_PATHS_LIBRARY_ROOT=/scratch/${USER}/.local/lib/R/library`
+   - `RENV_PATHS_CACHE=/scratch/${USER}/renv/cache:/renv/cache`
+   - `RENV_PATHS_ROOT=/scratch/${USER}/.local/lib/R/library`
+   - `R_LIBS=/scratch/${USER}/.local/lib/R`
+:::
+
 
 ### `hpc slurm`
 
@@ -131,3 +147,13 @@ The `hpc slurm` command sets up several utility scripts for interacting with the
 - `slurm-sbatch`: Submits a Slurm job using `sbatch` and logs the submission details, including the submitted script contents and standard output, into a specified or default log directory (`_tmp/log/sbatch`).
 - `slurm-sintx`: Starts an interactive Slurm session using `sintx`. By default, it requests 2 tasks (`--ntasks=2`) and 1 node (`--nodes=1`). You can specify the number of tasks as the first argument, and pass additional flags to `sintx` thereafter (e.g., `slurm-sintx 4 --mem=10G`).
 - `slurm-squeue`: Lists the current jobs for the logged-in user using `squeue -u $USER`. You can pass additional flags to `squeue` by providing them as arguments (e.g., `slurm-squeue --format="%.18i %.9P %.8j %.8u %.2t %.10M %.6D %R"`).
+
+::: {.callout-info collapse="true"}
+## Details
+
+The `hpc slurm` command sets up these tools by doing the following:
+
+1. It ensures that `~/.local/bin` is added to your system's `PATH` environment variable by adding an export statement to your `.bashrc`.
+
+2. It places the specific utility wrapper scripts (`slurm-sbatch`, `slurm-sintx`, `slurm-squeue`) directly into `~/.local/bin/`.
+:::
