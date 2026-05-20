@@ -10,7 +10,7 @@ The `hpc` subcommand is used to configure HPC environments.
 ```
   hpc       Master HPC setup
   hpc git
-  hpc scratch [--r]
+  hpc scratch
   hpc apptainer
   hpc slurm
   hpc r

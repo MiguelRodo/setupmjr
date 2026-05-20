@@ -1,7 +1,0 @@
-# renv PAK use
-RENV_CONFIG_PAK_ENABLED=false
-RENV_CONFIG_SANDBOX_ENABLED=false
-RENV_PATHS_LIBRARY_ROOT=/scratch/${USER}/.local/lib/R/library
-RENV_PATHS_CACHE=/scratch/${USER}/renv/cache:/renv/cache
-RENV_PATHS_ROOT=/scratch/${USER}/.local/lib/R/library
-R_LIBS=/scratch/${USER}/.local/lib/R

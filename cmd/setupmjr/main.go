@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/MiguelRodo/setupmjr/internal/bash"
 	"github.com/MiguelRodo/setupmjr/internal/gitcmd"
@@ -64,12 +65,13 @@ func printUsage() {
 	fmt.Println(`setupmjr - Cross-platform setup utility
 Commands:
   hpc       Master HPC setup
-  hpc scratch [--r]
+  hpc scratch
   hpc apptainer
   hpc slurm
   hpc git
   hpc r
   bash rc.d
+  bash path
   bash login
   r radian
   git
@@ -79,7 +81,7 @@ Commands:
   git auth cache
   git auth mngr
   repo readme
-  repo devcontainer [--repo <owner/repo>] [--branch <branch>] [--no-prebuild]
+  repo devcontainer [--repo <owner/repo>@<branch>] [--build]
   repo action <action-name>
   repo install repos`)
 }
@@ -91,6 +93,9 @@ func handleHPC(args []string) error {
 			return err
 		}
 		if err := bash.SetupBashRCD(); err != nil {
+			return err
+		}
+		if err := bash.SetupBashPath(); err != nil {
 			return err
 		}
 		if err := bash.SetupBashLogin(); err != nil {
@@ -106,7 +111,7 @@ func handleHPC(args []string) error {
 		if err := hpc.SetupHPCGit(); err != nil {
 			return err
 		}
-		if err := hpc.SetupHPCScratch(false); err != nil {
+		if err := hpc.SetupHPCScratch(); err != nil {
 			return err
 		}
 		if err := hpc.SetupHPCApptainer(); err != nil {
@@ -126,10 +131,7 @@ func handleHPC(args []string) error {
 	var err error
 	switch subcmd {
 	case "scratch":
-		fs := flag.NewFlagSet("scratch", flag.ExitOnError)
-		withR := fs.Bool("r", false, "Include R config")
-		fs.Parse(args[1:])
-		err = hpc.SetupHPCScratch(*withR)
+		err = hpc.SetupHPCScratch()
 	case "apptainer":
 		err = hpc.SetupHPCApptainer()
 	case "slurm":
@@ -151,13 +153,15 @@ func handleHPC(args []string) error {
 
 func handleBash(args []string) error {
 	if len(args) == 0 {
-		return fmt.Errorf("bash requires a subcommand: rc.d or login")
+		return fmt.Errorf("bash requires a subcommand: rc.d, path, or login")
 	}
 
 	subcmd := args[0]
 	switch subcmd {
 	case "rc.d":
 		return bash.SetupBashRCD()
+	case "path":
+		return bash.SetupBashPath()
 	case "login":
 		return bash.SetupBashLogin()
 	default:
@@ -219,11 +223,19 @@ func handleRepo(args []string) error {
 		return repo.SetupRepoReadme()
 	case "devcontainer":
 		fs := flag.NewFlagSet("devcontainer", flag.ExitOnError)
-		repoFlag := fs.String("repo", "MiguelRodo/comp", "Repository to copy .devcontainer from")
-		branchFlag := fs.String("branch", "main", "Branch to copy .devcontainer from")
-		noPrebuild := fs.Bool("no-prebuild", false, "Copy devcontainer prebuild action")
+		repoFlag := fs.String("repo", "MiguelRodo/comp@main", "Repository and branch to copy .devcontainer from, formatted as <owner/repo>@<branch>")
+		buildFlag := fs.Bool("build", false, "Copy devcontainer prebuild action")
 		fs.Parse(args[1:])
-		return repo.SetupRepoDevcontainer(*repoFlag, *branchFlag, *noPrebuild)
+
+		repoStr := *repoFlag
+		branchStr := "main"
+		if strings.Contains(repoStr, "@") {
+			parts := strings.SplitN(repoStr, "@", 2)
+			repoStr = parts[0]
+			branchStr = parts[1]
+		}
+
+		return repo.SetupRepoDevcontainer(repoStr, branchStr, *buildFlag)
 	case "action":
 		if len(args) < 2 {
 			return fmt.Errorf("repo action requires an action name")

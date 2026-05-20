@@ -101,6 +101,12 @@ func SetupGitAuthText() error {
 	if err := bash.SetupBashRCD(); err != nil {
 		return err
 	}
+
+	if err := bash.SetupBashPath(); err != nil {
+		return err
+	}
+
+	// Make sure login.sh exists
 	if err := bash.SetupBashLogin(); err != nil {
 		return err
 	}

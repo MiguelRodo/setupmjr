@@ -71,7 +71,7 @@ For more information, please contact:
 	return nil
 }
 
-func SetupRepoDevcontainer(repo, branch string, noPrebuild bool) error {
+func SetupRepoDevcontainer(repo, branch string, build bool) error {
 	if repo == "" {
 		repo = "MiguelRodo/comp"
 	}
@@ -94,7 +94,7 @@ func SetupRepoDevcontainer(repo, branch string, noPrebuild bool) error {
 		return fmt.Errorf("failed to download .devcontainer from %s: %v, output: %s", repo, err, string(output))
 	}
 
-	if noPrebuild {
+	if build {
 		if err := sysutil.EnsureDirExists(".github/workflows", 0755); err != nil {
 			return err
 		}
