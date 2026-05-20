@@ -179,6 +179,13 @@
     "href": "hpc.html#details-2",
     "title": "hpc",
     "section": "Details",
-    "text": "Details\nThe hpc slurm command sets up these tools by doing the following:\n\nIt ensures that ~/.local/bin is added to your system’s PATH environment variable by adding an export statement to your .bashrc.\nIt places the specific utility wrapper scripts (slurm-sbatch, slurm-sintx, slurm-squeue) directly into ~/.local/bin/."
+    "text": "Details\nThe hpc slurm command sets up these tools by doing the following:\n\nIt ensures that ~/.local/bin is added to your system’s PATH environment variable by (if required) adding an export statement to your .bashrc.\nIt places the specific utility wrapper scripts (slurm-sbatch, slurm-sintx, slurm-squeue) directly into ~/.local/bin/."
+  },
+  {
+    "objectID": "hpc.html#details-3",
+    "href": "hpc.html#details-3",
+    "title": "hpc",
+    "section": "Details",
+    "text": "Details\nThe ~/.radian_profile file is created if it does not exist, and the following line is added to it:\noptions(radian.auto_match = FALSE)\nThe ~/.lintr file is also created if it does not exist, and the following lines are added to it:\nlinters: linters_with_defaults(\n    object_length_linter = NULL,\n    object_name_linter = NULL)"
   }
 ]

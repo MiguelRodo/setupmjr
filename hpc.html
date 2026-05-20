@@ -180,7 +180,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#using-scratch-space" id="toc-using-scratch-space" class="nav-link" data-scroll-target="#using-scratch-space">Using scratch space</a></li>
   <li><a href="#details-1" id="toc-details-1" class="nav-link" data-scroll-target="#details-1">Details</a></li>
   <li><a href="#hpc-slurm" id="toc-hpc-slurm" class="nav-link" data-scroll-target="#hpc-slurm"><code>hpc slurm</code></a></li>
+  <li><a href="#hpc-apptainer" id="toc-hpc-apptainer" class="nav-link" data-scroll-target="#hpc-apptainer"><code>hpc apptainer</code></a></li>
   <li><a href="#details-2" id="toc-details-2" class="nav-link" data-scroll-target="#details-2">Details</a></li>
+  <li><a href="#hpc-r" id="toc-hpc-r" class="nav-link" data-scroll-target="#hpc-r"><code>hpc r</code></a></li>
+  <li><a href="#details-3" id="toc-details-3" class="nav-link" data-scroll-target="#details-3">Details</a></li>
   </ul>
 </nav>
     </div>
@@ -303,20 +306,53 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="hpc-slurm" class="level3">
 <h3 class="anchored" data-anchor-id="hpc-slurm"><code>hpc slurm</code></h3>
-<p>The <code>hpc slurm</code> command sets up several utility scripts for interacting with the Slurm workload manager, placing them in <code>~/.local/bin</code>:</p>
+<p>SLURM is a popular program used by HPCs to allocate compute resources. The <code>hpc slurm</code> command sets up several utility scripts for interacting with the Slurm workload manager, placing them in <code>~/.local/bin</code>.</p>
+<p>To set this up, run the following command (also part of <code>setupmjr hpc</code>):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc slurm</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The commands are as follows (run <code>&lt;command&gt; --help</code> for usage information on each, e.g.&nbsp;<code>slurm-sbatch --help</code>):</p>
 <ul>
-<li><code>slurm-sbatch</code>: Submits a Slurm job using <code>sbatch</code> and logs the submission details, including the submitted script contents and standard output, into a specified or default log directory (<code>_tmp/log/sbatch</code>).</li>
-<li><code>slurm-sintx</code>: Starts an interactive Slurm session using <code>sintx</code>. By default, it requests 2 tasks (<code>--ntasks=2</code>) and 1 node (<code>--nodes=1</code>). You can specify the number of tasks as the first argument, and pass additional flags to <code>sintx</code> thereafter (e.g., <code>slurm-sintx 4 --mem=10G</code>).</li>
-<li><code>slurm-squeue</code>: Lists the current jobs for the logged-in user using <code>squeue -u $USER</code>. You can pass additional flags to <code>squeue</code> by providing them as arguments (e.g., <code>slurm-squeue --format="%.18i %.9P %.8j %.8u %.2t %.10M %.6D %R"</code>).</li>
+<li><code>slurm-sbatch</code>: Submits a SLURM job using <code>sbatch</code> and logs the submission details, including the submitted script contents and standard output, into a specified or default log directory (<code>_tmp/log/sbatch</code>).</li>
+<li><code>slurm-sintx</code>: Starts an interactive SLURM session using <code>sintx</code>. By default, it requests 2 tasks (<code>--ntasks=2</code>) and 1 node (<code>--nodes=1</code>). You can specify the number of tasks as the first argument, and pass additional flags to <code>sintx</code> thereafter (e.g., <code>slurm-sintx 4 --mem=10G</code>).</li>
+<li><code>slurm-squeue</code>: Lists the current jobs for the logged-in user using <code>squeue -u $USER</code>.</li>
+</ul>
+</section>
+<section id="hpc-apptainer" class="level3">
+<h3 class="anchored" data-anchor-id="hpc-apptainer"><code>hpc apptainer</code></h3>
+<p>Apptainer (formerly Singularity) is a container system commonly used on HPCs to ensure reproducible software environments. The <code>hpc apptainer</code> command sets up several utility scripts for seamlessly pulling, locating, and interacting with Apptainer containers. It is designed to work tightly with images built using the <code>MiguelRodo/devcontainer-prebuild</code> GitHub Action, sharing many of the same conventions (but is compatible with containers from both Docker Hub and GitHub Container Registry).</p>
+<p>To set this up, run the following command (also part of <code>setupmjr hpc</code>):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc apptainer</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The commands installed are as follows (run <code>&lt;command&gt; --help</code> for usage information on each, e.g.&nbsp;<code>apptainer-run --help</code>):</p>
+<ul>
+<li><code>apptainer-pull</code>: Downloads Docker or GitHub Container Registry (GHCR) images and saves them as <code>.sif</code> files. It cleverly infers the appropriate repository owner, image name, and tag dynamically based on your current directory’s Git remote and active branch.</li>
+<li><code>apptainer-path</code>: Automatically locates the relevant <code>.sif</code> file for your current project. It searches Apptainer cache and <code>/scratch</code> directories, prioritizing image names that match your current directory’s basename and active Git branch.</li>
+<li><code>apptainer-exists</code>: A utility script that checks if the required <code>.sif</code> container for the current workspace has already been downloaded, returning a clean exit (0) if found.</li>
+<li><code>apptainer-run</code>: Executes a given command inside the project’s Apptainer container. If no command is passed, it falls back to opening an interactive shell (<code>apptainer shell</code>) within the container.</li>
+<li><code>apptainer-rscript</code>: A specialized wrapper to easily pass and execute R expressions (via <code>Rscript -e</code>) directly inside the project’s container without needing to manually spin up an interactive shell.</li>
 </ul>
 </section>
 <section id="details-2" class="level2 callout-info" data-collapse="true">
 <h2 class="anchored" data-anchor-id="details-2">Details</h2>
 <p>The <code>hpc slurm</code> command sets up these tools by doing the following:</p>
 <ol type="1">
-<li><p>It ensures that <code>~/.local/bin</code> is added to your system’s <code>PATH</code> environment variable by adding an export statement to your <code>.bashrc</code>.</p></li>
+<li><p>It ensures that <code>~/.local/bin</code> is added to your system’s <code>PATH</code> environment variable by (if required) adding an export statement to your <code>.bashrc</code>.</p></li>
 <li><p>It places the specific utility wrapper scripts (<code>slurm-sbatch</code>, <code>slurm-sintx</code>, <code>slurm-squeue</code>) directly into <code>~/.local/bin/</code>.</p></li>
 </ol>
+</section>
+<section id="hpc-r" class="level3">
+<h3 class="anchored" data-anchor-id="hpc-r"><code>hpc r</code></h3>
+<p>On an HPC, one may often use a non-standard <code>R</code> terminal named <code>radian</code> because it is better than the standard <code>R</code> terminal and the <code>RStudio</code> terminal is not available. However, <code>radian</code> (in my experience) breaks without a key configuration setting.</p>
+<p>To configure this setting, run the following command (which is also part of <code>setupmjr hpc</code>):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>In addition to the above, object length and line linters are turned off (to prevent VS Code bothering you because your variable names or lines are “too long”).</p>
+</section>
+<section id="details-3" class="level2 callout-info" data-collapse="true">
+<h2 class="anchored" data-anchor-id="details-3">Details</h2>
+<p>The <code>~/.radian_profile</code> file is created if it does not exist, and the following line is added to it:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">options</span><span class="er">(</span><span class="ex">radian.auto_match</span> = FALSE<span class="kw">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The <code>~/.lintr</code> file is also created if it does not exist, and the following lines are added to it:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">linters:</span> linters_with_defaults<span class="er">(</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="ex">object_length_linter</span> = NULL,</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="ex">object_name_linter</span> = NULL<span class="kw">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 
 
