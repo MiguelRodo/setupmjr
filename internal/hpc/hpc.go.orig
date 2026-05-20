@@ -25,6 +25,9 @@ func SetupHPC() error {
 	// These functions will be implemented in bash package and called from main,
 	// or we can call them here. Let's return error if they fail.
 	// But actually the instructions say "setupmjr hpc Executes the following internal functions sequentially: SetupBashRCD(), SetupBashLogin(), SetupHPCScratch(withR = false), SetupHPCApptainer(), SetupHPCSlurm()"
+	if err := SetupHPCGit(); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -134,18 +137,6 @@ func SetupHPCLoginGit() error {
 		return fmt.Errorf("configure github credential helper: %w", err)
 	}
 	fmt.Println("Configured git credential helper for https://github.com")
-
-	hfHelperScript := `!f() { \
-        sleep 1; \
-        echo username="${HF_USER:-${HUGGINGFACE_USER:-TOKEN}}"; \
-        echo password="${HF_TOKEN:-$HUGGINGFACE_TOKEN}"; \
-        }; f`
-
-	hfCmd := exec.Command("git", "config", "--global", "credential.https://huggingface.co.helper", hfHelperScript)
-	if err := hfCmd.Run(); err != nil {
-		return fmt.Errorf("configure huggingface credential helper: %w", err)
-	}
-	fmt.Println("Configured git credential helper for https://huggingface.co")
 
 	return nil
 }

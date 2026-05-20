@@ -71,6 +71,12 @@ func SetupBashLogin() error {
 	}
 
 	dst := filepath.Join(bashrcd, "login.sh")
+	// Check if login.sh already exists, if so skip overwriting it
+	if _, err := os.Stat(dst); err == nil {
+		fmt.Printf("login.sh already exists at %s, skipping copy\n", dst)
+		return nil
+	}
+
 	if err := sysutil.CopyEmbedFile(assets.FS, "bashrc.d/login.sh", dst, 0755); err != nil {
 		return fmt.Errorf("copy login.sh: %w", err)
 	}

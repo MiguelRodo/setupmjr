@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/MiguelRodo/setupmjr/internal/bash"
+	"github.com/MiguelRodo/setupmjr/internal/gitcmd"
 	"github.com/MiguelRodo/setupmjr/internal/hpc"
 	"github.com/MiguelRodo/setupmjr/internal/r"
 )
@@ -36,6 +37,11 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
+	case "git":
+		if err := handleGit(os.Args[2:]); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
 	case "version":
 		fmt.Printf("setupmjr version %s\n", version)
 	default:
@@ -52,9 +58,17 @@ Commands:
   hpc scratch [--r]
   hpc apptainer
   hpc slurm
+  hpc login git
+  hpc git
   bash rc.d
   bash login
-  r radian`)
+  r radian
+  git
+  git user
+  git login
+  git login text
+  git login cache
+  git login mngr`)
 }
 
 func handleHPC(args []string) error {
@@ -67,6 +81,10 @@ func handleHPC(args []string) error {
 			return err
 		}
 		if err := bash.SetupBashLogin(); err != nil {
+			return err
+		}
+		// Execute SetupHPCGit AFTER SetupBashLogin so login.sh is not overwritten
+		if err := hpc.SetupHPCGit(); err != nil {
 			return err
 		}
 		if err := hpc.SetupHPCScratch(false); err != nil {
@@ -92,6 +110,13 @@ func handleHPC(args []string) error {
 		return hpc.SetupHPCApptainer()
 	case "slurm":
 		return hpc.SetupHPCSlurm()
+	case "git":
+		return hpc.SetupHPCGit()
+	case "login":
+		if len(args) > 1 && args[1] == "git" {
+			return hpc.SetupHPCLoginGit()
+		}
+		return fmt.Errorf("unknown hpc login subcommand")
 	default:
 		return fmt.Errorf("unknown hpc subcommand: %s", subcmd)
 	}
@@ -124,5 +149,34 @@ func handleR(args []string) error {
 		return r.SetupRRadian()
 	default:
 		return fmt.Errorf("unknown r subcommand: %s", subcmd)
+	}
+}
+
+func handleGit(args []string) error {
+	if len(args) == 0 {
+		return gitcmd.SetupGit()
+	}
+
+	subcmd := args[0]
+	switch subcmd {
+	case "user":
+		return gitcmd.SetupGitUser()
+	case "login":
+		if len(args) == 1 {
+			return gitcmd.SetupGitLogin()
+		}
+		loginSubcmd := args[1]
+		switch loginSubcmd {
+		case "text":
+			return gitcmd.SetupGitLoginText()
+		case "cache":
+			return gitcmd.SetupGitLoginCache()
+		case "mngr":
+			return gitcmd.SetupGitLoginMngr()
+		default:
+			return fmt.Errorf("unknown git login subcommand: %s", loginSubcmd)
+		}
+	default:
+		return fmt.Errorf("unknown git subcommand: %s", subcmd)
 	}
 }
