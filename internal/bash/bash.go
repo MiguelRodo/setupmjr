@@ -27,7 +27,16 @@ func SetupBashRCD() error {
 		return fmt.Errorf("read .bashrc: %w", err)
 	}
 
-	if !strings.Contains(string(b), `$HOME/.bashrc.d/*`) {
+	hasBashrcD := false
+	for _, line := range strings.Split(string(b), "\n") {
+		trimmed := strings.TrimSpace(line)
+		if !strings.HasPrefix(trimmed, "#") && strings.Contains(trimmed, ".bashrc.d") {
+			hasBashrcD = true
+			break
+		}
+	}
+
+	if !hasBashrcD {
 		f, err := os.OpenFile(bashrcPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			return fmt.Errorf("open .bashrc: %w", err)
