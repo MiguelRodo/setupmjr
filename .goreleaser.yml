@@ -42,6 +42,7 @@ nfpms:
     bindir: /usr/bin
     dependencies:
       - bash
+      - repos
     builds:
       - setupmjr-linux
 
@@ -50,6 +51,8 @@ scoops:
       owner: MiguelRodo
       name: scoop-bucket
       token: "{{ .Env.SCOOP_TAP_TOKEN }}"
+    dependencies:
+      - repos
     commit_author:
       name: github-actions[bot]
       email: github-actions[bot]@users.noreply.github.com
@@ -60,6 +63,8 @@ scoops:
 brews:
   - ids:
       - tarballs
+    dependencies:
+      - name: MiguelRodo/homebrew-tap/repos
     repository:
       owner: MiguelRodo
       name: homebrew-tap
