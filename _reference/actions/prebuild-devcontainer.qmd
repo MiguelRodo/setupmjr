@@ -1,0 +1,96 @@
+---
+title: "Pre-build Dev Container"
+---
+
+**Pre-build Dev Container** builds your `.devcontainer/Dockerfile`, pushes it to a container registry (GHCR by default), and optionally generates a `prebuild/devcontainer.json` so environments load instantly.
+
+## Quick Start
+
+Copy this to `.github/workflows/prebuild-devcontainer.yml`:
+
+```yaml
+name: 'Pre-build Dev Container'
+
+on:
+  push:
+    tags:
+      - 'v*'
+      - '*-v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to build (e.g. v1.2.3 or main-v1.2.3)'
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: MiguelRodo/actions/prebuild-devcontainer@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.event.inputs.tag }}
+```
+
+## Inputs
+
+| Input | Description | Required | Default |
+|---|---|---|---|
+| `github_token` | Token for logging into the container registry and pushing commits. | **Yes** | — |
+| `no_cache` | Disable Docker cache during build (`true`/`false`). | No | `false` |
+| `create_prebuild_json` | Generate and commit a `prebuild/devcontainer.json` (`true`/`false`). | No | `true` |
+| `devcontainer_path` | Path to the `.devcontainer` directory, relative to the repo root. | No | `.devcontainer` |
+| `image_name` | Full image name without tag (e.g. `ghcr.io/myorg/myimage`). Defaults to `{registry}/{repo}-{branch}`. | No | `{registry}/{repo}-{branch}` |
+| `tag` | Git tag used as the primary container image tag. Auto-detected from `GITHUB_REF` on tag push; falls back to `latest`. | No | `""` |
+| `registry` | Container registry URL. | No | `ghcr.io` |
+| `registry_username` | Username for registry login. | No | Repository owner |
+
+## SemVer Alias Tags
+
+When the tag matches a semantic versioning pattern, the action automatically creates additional alias tags:
+
+| Tag format | Primary tag | Alias tags |
+|---|---|---|
+| `vX.Y.Z` (e.g. `v1.2.3`) | `v1.2.3` | `v1.2`, `v1` |
+| `{prefix}-vX.Y.Z` (e.g. `main-v1.2.3`) | `main-v1.2.3` | `main-v1.2`, `main-v1` |
+| Any other format (e.g. `latest`) | as-is | _(none)_ |
+
+## Examples
+
+### Custom image name
+
+```yaml
+- uses: MiguelRodo/actions/prebuild-devcontainer@v2
+  with:
+    github_token: ${{ secrets.GITHUB_TOKEN }}
+    image_name: 'ghcr.io/myorg/my-devcontainer'
+```
+
+### Non-default devcontainer path
+
+```yaml
+- uses: MiguelRodo/actions/prebuild-devcontainer@v2
+  with:
+    github_token: ${{ secrets.GITHUB_TOKEN }}
+    devcontainer_path: 'src/.devcontainer'
+```
+
+### Non-GitHub container registry
+
+When using a custom `image_name`, the `registry` input is used only for login — it is not prepended to the image name automatically.
+
+```yaml
+- uses: MiguelRodo/actions/prebuild-devcontainer@v2
+  with:
+    github_token: ${{ secrets.REGISTRY_TOKEN }}
+    registry: 'registry.example.com'
+    registry_username: 'my-username'
+    image_name: 'registry.example.com/myorg/my-devcontainer'
+```

@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  actionlint:
+    name: Lint workflow and action files (actionlint + shellcheck)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install shellcheck
+        run: sudo apt-get install -y shellcheck
+
+      - name: Install actionlint
+        run: |
+          bash <(curl -sSf https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+          sudo mv actionlint /usr/local/bin/actionlint
+
+      - name: Run actionlint (includes shellcheck for inline scripts)
+        # actionlint automatically delegates shell script linting to shellcheck
+        # when it is available on PATH, covering both workflow files and
+        # composite action.yml inline `run:` blocks.
+        run: actionlint
+
+      - name: Run shellcheck on standalone shell scripts
+        run: find . -name '*.sh' -not -path './.git/*' -print0 | xargs -0 -r shellcheck
+
+  bats:
+    name: BATS unit tests (shell scripts)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install BATS
+        run: |
+          sudo apt-get install -y bats
+
+      - name: Run BATS tests
+        run: bats scripts/tests/

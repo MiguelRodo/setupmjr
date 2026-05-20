@@ -1,0 +1,51 @@
+# .github/workflows/prebuild-devcontainer.yml
+#
+# Builds and pushes a pre-built Dev Container image to GHCR whenever a SemVer
+# tag (e.g. v1.2.3 or main-v1.2.3) is pushed, or on manual dispatch.
+#
+# Copy this file into your repository's .github/workflows/ directory.
+
+name: Pre-build Dev Container
+
+on:
+  push:
+    tags:
+      - 'v*'
+      - '*-v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to build (e.g. v1.2.3 or main-v1.2.3)'
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+    permissions:
+      contents: write   # push prebuild/devcontainer.json
+      packages: write   # push image to GHCR
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Pre-build Dev Container
+        id: prebuild
+        uses: MiguelRodo/actions/prebuild-devcontainer@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.event.inputs.tag }}
+          # Optional overrides:
+          # no_cache: "false"
+          # create_prebuild_json: "true"
+          # devcontainer_path: ".devcontainer"
+          # image_name: "ghcr.io/myorg/my-devcontainer"
+          # registry: "ghcr.io"
+
+      - name: Show outputs
+        run: |
+          echo "Image: ${{ steps.prebuild.outputs.image_ref }}"
+          echo "Alias tags: ${{ steps.prebuild.outputs.alias_tags }}"

@@ -1,0 +1,97 @@
+name: "Publish Quarto Site"
+description: "Publishes a Quarto site to the gh-pages branch, creating the branch if it does not already exist."
+author: "MiguelRodo"
+
+branding:
+  icon: "book-open"
+  color: "orange"
+
+inputs:
+  github_token:
+    description: "GitHub token used to push to the gh-pages branch."
+    required: true
+  path:
+    description: "Path to the Quarto project to publish."
+    required: false
+    default: "."
+  setup_r:
+    description: "Whether to install R and set up R dependencies before rendering."
+    required: false
+    default: "false"
+  renv_restore:
+    description: "Deprecated. renv is now restored automatically by r-lib/actions/setup-r-dependencies when a renv.lock file is present."
+    required: false
+    default: "true"
+  setup_python:
+    description: "Whether to install Python and set up Python dependencies before rendering."
+    required: false
+    default: "false"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Create gh-pages branch if it doesn't exist
+      shell: bash
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+        if git ls-remote --heads origin gh-pages | grep -q gh-pages; then
+          echo "gh-pages branch already exists"
+        else
+          echo "Creating gh-pages branch"
+          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          git checkout --orphan gh-pages
+          git rm -rf .
+          echo "# GitHub Pages" > README.md
+          git add README.md
+          git commit -m "Initialize gh-pages branch"
+          git push origin gh-pages
+          git checkout "$CURRENT_BRANCH"
+        fi
+
+    - name: Set up R
+      if: ${{ inputs.setup_r == 'true' }}
+      uses: r-lib/actions/setup-r@v2
+      with:
+        use-public-rspm: true
+
+    - name: Install R dependencies
+      if: ${{ inputs.setup_r == 'true' }}
+      uses: r-lib/actions/setup-r-dependencies@v2
+      with:
+        working-directory: ${{ inputs.path }}
+        needs: website
+
+    - name: Set up Python
+      if: ${{ inputs.setup_python == 'true' }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.x"
+        cache: "pip"
+        cache-dependency-path: |
+          **/requirements*.txt
+          **/pyproject.toml
+
+    - name: Install Python dependencies
+      if: ${{ inputs.setup_python == 'true' }}
+      shell: bash
+      env:
+        PROJ_PATH: ${{ inputs.path }}
+      run: |
+        if [ -f "${PROJ_PATH}/requirements.txt" ]; then
+          pip install -r "${PROJ_PATH}/requirements.txt"
+        elif [ -f "${PROJ_PATH}/pyproject.toml" ]; then
+          pip install "${PROJ_PATH}"
+        fi
+
+    - name: Set up Quarto
+      uses: quarto-dev/quarto-actions/setup@v2
+
+    - name: Publish Quarto site to gh-pages
+      uses: quarto-dev/quarto-actions/publish@v2
+      with:
+        target: gh-pages
+        path: ${{ inputs.path }}
+      env:
+        GITHUB_TOKEN: ${{ inputs.github_token }}

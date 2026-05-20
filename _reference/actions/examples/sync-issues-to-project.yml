@@ -1,0 +1,40 @@
+# .github/workflows/sync-issues.yml
+#
+# Syncs open issues from this repository to a GitHub Project (V2) board.
+# Runs automatically when issues are opened or reopened, and on manual dispatch.
+#
+# Prerequisites:
+#   1. Create a Personal Access Token (PAT) with `repo`, `project`, and
+#      `read:org` (if the project owner is an organisation) scopes.
+#   2. Save the PAT as a repository secret named ADD_ISSUES_TO_PROJECT_TOKEN.
+#
+# Copy this file into your repository's .github/workflows/ directory.
+
+name: Sync Issues to Project
+
+on:
+  workflow_dispatch:
+  issues:
+    types: [opened, reopened]
+
+jobs:
+  add-to-project:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Add Issues to Project
+        id: sync
+        uses: MiguelRodo/actions/add-issues-to-project@v2
+        with:
+          ADD_ISSUES_TO_PROJECT_TOKEN: ${{ secrets.ADD_ISSUES_TO_PROJECT_TOKEN }}
+          # Optional overrides:
+          # project_name: "My Custom Project Board"
+          # project_owner: "myorg"
+          # is_project_owner_org: "true"
+          # source_repo_name: "my-repo"
+          # source_repo_owner: "myorg"
+
+      - name: Report result
+        run: echo "Issues added this run: ${{ steps.sync.outputs.issues_added }}"

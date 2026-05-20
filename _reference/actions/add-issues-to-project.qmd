@@ -1,0 +1,71 @@
+---
+title: "Add Issues to Project"
+---
+
+**Add Issues to Project** automates syncing issues from a repository to a GitHub Project (V2) board. It includes duplicate detection so issues are only added once.
+
+## Quick Start
+
+1. Generate a Personal Access Token (PAT) with `repo`, `project`, and `read:org` scopes.
+2. Save the PAT as a repository secret named `ADD_ISSUES_TO_PROJECT_TOKEN`.
+3. Copy the workflow below to `.github/workflows/add-issues-to-project.yml`.
+
+```yaml
+name: Sync Issues to Project
+
+on:
+  workflow_dispatch:
+  issues:
+    types: [opened, reopened]
+
+jobs:
+  add-to-project:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: MiguelRodo/actions/add-issues-to-project@v2
+        with:
+          ADD_ISSUES_TO_PROJECT_TOKEN: ${{ secrets.ADD_ISSUES_TO_PROJECT_TOKEN }}
+          # project_name: "My Custom Project Board"
+          # is_project_owner_org: "true"
+```
+
+## Inputs
+
+| Input | Description | Required | Default |
+|---|---|---|---|
+| `ADD_ISSUES_TO_PROJECT_TOKEN` | PAT with permissions to read the source repo and write to the target project. | **Yes** | — |
+| `project_name` | Name of the target GitHub Project. | No | Current repository name |
+| `project_owner` | Username or organization owning the target project. | No | Current repository owner |
+| `is_project_owner_org` | Set to `"true"` if the project owner is an organization. | No | `"false"` |
+| `source_repo_name` | Repository to pull issues from. | No | Current repository name |
+| `source_repo_owner` | Owner of the source repository. | No | Current GitHub user |
+
+## How It Works
+
+1. Installs the GitHub CLI (`gh`) and the `gh-projects` extension.
+2. Authenticates with the provided `ADD_ISSUES_TO_PROJECT_TOKEN`.
+3. Validates the target project, organization/user, and source repository.
+4. Uses GraphQL to fetch the Project ID and all existing items.
+5. Cross-references the board's existing issue IDs against the repository's issue list.
+6. Appends only the missing issues via a GraphQL mutation.
+
+## Advanced Example
+
+Sync issues from a repository into a centrally managed organization project board:
+
+```yaml
+- uses: MiguelRodo/actions/add-issues-to-project@v2
+  with:
+    ADD_ISSUES_TO_PROJECT_TOKEN: ${{ secrets.ORG_PROJECT_PAT }}
+    project_name: "Q1 Engineering Roadmap"
+    project_owner: "MyAwesomeOrg"
+    is_project_owner_org: "true"
+    source_repo_name: "frontend-client"
+    source_repo_owner: "MyAwesomeOrg"
+```
+
+## Troubleshooting
+
+- **Authentication fails:** Ensure the PAT is active, unexpired, and has the `project` scope. Classic PATs are generally easier to configure for organization-wide boards than fine-grained tokens.
+- **Project not found:** Check the spelling of `project_name`. If the project belongs to an organization, you must set `is_project_owner_org: "true"`.

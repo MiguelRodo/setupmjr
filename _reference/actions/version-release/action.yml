@@ -1,0 +1,313 @@
+name: "Version and Release"
+description: >
+  Bumps versions for Python (pyproject.toml) and R (DESCRIPTION) packages when
+  present, creates a versioned git tag, updates floating major/minor tags, and
+  publishes a GitHub Release.
+author: "MiguelRodo"
+
+branding:
+  icon: "tag"
+  color: "purple"
+
+inputs:
+  github_token:
+    description: "GitHub token for pushing tags and creating releases."
+    required: true
+  version:
+    description: >
+      Exact version to apply to all packages (e.g. 1.2.3).
+      Overridden per-package by python_version or r_version.
+      Cannot be set together with bump_type.
+    required: false
+    default: ""
+  bump_type:
+    description: >
+      Version component to bump (major | minor | patch).
+      The new version is derived by bumping the most recent semver git tag.
+      Cannot be set together with version.
+    required: false
+    default: ""
+  python_version:
+    description: "Override: exact version to set for the Python package (e.g. 1.2.3)."
+    required: false
+    default: ""
+  r_version:
+    description: "Override: exact version to set for the R package (e.g. 1.2.3)."
+    required: false
+    default: ""
+  version_force:
+    description: >
+      When true (the default is false), skip strict version progression
+      checks (e.g., allowing downgrades or large version jumps).
+    required: false
+    default: "false"
+
+outputs:
+  version:
+    description: "Released version without a leading v (e.g. 1.2.3)."
+    value: ${{ steps.get_version.outputs.version }}
+  tag:
+    description: "Git tag that was created (e.g. v1.2.3)."
+    value: ${{ steps.get_version.outputs.tag }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Configure Git
+      shell: bash
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+    - name: Determine version
+      id: get_version
+      shell: bash
+      env:
+        RAW_VERSION: ${{ inputs.version }}
+        RAW_BUMP: ${{ inputs.bump_type }}
+      run: |
+        # Massage version (trim whitespace, lowercase)
+        VERSION_INPUT=$(echo "$RAW_VERSION" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+        if [ "$RAW_VERSION" != "$VERSION_INPUT" ] && [ -n "$RAW_VERSION" ]; then
+          echo "Note: Massaged version input from '$RAW_VERSION' to '$VERSION_INPUT'"
+        fi
+
+        # Massage bump_type (trim whitespace, lowercase)
+        BUMP_INPUT=$(echo "$RAW_BUMP" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+        if [ "$RAW_BUMP" != "$BUMP_INPUT" ] && [ -n "$RAW_BUMP" ]; then
+          echo "Note: Massaged bump_type input from '$RAW_BUMP' to '$BUMP_INPUT'"
+        fi
+
+        if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
+          # version and bump_type are mutually exclusive
+          if [ -n "$VERSION_INPUT" ] && [ -n "$BUMP_INPUT" ]; then
+            echo "Error: cannot set both 'version' and 'bump_type'." >&2
+            exit 1
+          fi
+
+          # Must provide at least one
+          if [ -z "$VERSION_INPUT" ] && [ -z "$BUMP_INPUT" ]; then
+            echo "Error: provide one of 'version' or 'bump_type'. Valid bump_type values: major, minor, patch." >&2
+            exit 1
+          fi
+
+          if [ -n "$BUMP_INPUT" ]; then
+            # Bump mode: derive next version from the most recent semver tag
+            PREV_TAG=$(git tag --sort=version:refname \
+              | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
+              | tail -1)
+            CURRENT="${PREV_TAG#v}"
+            if [ -z "$CURRENT" ]; then
+              CURRENT="0.0.0"
+            fi
+            VERSION=$("$GITHUB_ACTION_PATH/../scripts/apply-version-bump.sh" "$BUMP_INPUT" "$CURRENT")
+          else
+            VERSION="${VERSION_INPUT#v}"
+          fi
+
+        elif [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+          VERSION="${GITHUB_REF_NAME}"
+          VERSION="${VERSION#v}"
+        else
+          echo "Error: this action only runs on tag pushes or workflow_dispatch with version/bump_type." >&2
+          exit 1
+        fi
+
+        if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "Error: version '$VERSION' is not valid semver (X.Y.Z)." >&2
+          exit 1
+        fi
+
+        TAG="v${VERSION}"
+        echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+        echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+        echo "Resolved version: $VERSION"
+
+    - name: Check version progression
+      if: inputs.version_force != 'true'
+      shell: bash
+      env:
+        NEW_VERSION: ${{ steps.get_version.outputs.version }}
+      run: |
+        # Get the latest semver tag, ignoring the new tag if it already exists
+        PREV_TAG=$(git tag --sort=version:refname \
+          | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
+          | grep -vxF "v${NEW_VERSION}" \
+          | tail -1)
+
+        if [ -z "$PREV_TAG" ]; then
+          echo "No previous semver tag found; skipping version progression check."
+          exit 0
+        fi
+
+        PREV_VERSION="${PREV_TAG#v}"
+        "$GITHUB_ACTION_PATH/../scripts/check-version-progression.sh" "$NEW_VERSION" "$PREV_VERSION"
+
+    - name: Determine bump type
+      id: determine_bump_type
+      shell: bash
+      env:
+        RAW_BUMP: ${{ inputs.bump_type }}
+        NEW_VERSION: ${{ steps.get_version.outputs.version }}
+      run: |
+        BUMP_TYPE_INPUT=$(echo "$RAW_BUMP" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+        if [ -n "${BUMP_TYPE_INPUT}" ]; then
+          BUMP_TYPE="${BUMP_TYPE_INPUT}"
+        else
+          NEW_TAG="v${NEW_VERSION}"
+
+          # All full semver tags sorted by version, excluding the new one
+          PREV_TAG=$(git tag --sort=version:refname \
+            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
+            | grep -vF "$NEW_TAG" \
+            | tail -1)
+
+          if [ -z "$PREV_TAG" ]; then
+            BUMP_TYPE="patch"
+          else
+            PREV_VERSION="${PREV_TAG#v}"
+            BUMP_TYPE=$("$GITHUB_ACTION_PATH/../scripts/determine-bump-type.sh" "$NEW_VERSION" "$PREV_VERSION")
+          fi
+        fi
+
+        echo "bump_type=${BUMP_TYPE}" >> "$GITHUB_OUTPUT"
+        echo "Bump type: ${BUMP_TYPE}"
+
+    - name: Update Python version
+      id: update_python
+      shell: bash
+      env:
+        GLOBAL_VERSION_INPUT: ${{ inputs.version }}
+        PY_INPUT_RAW: ${{ inputs.python_version }}
+      run: |
+        if [ ! -f pyproject.toml ]; then
+          echo "No pyproject.toml found; skipping Python version update."
+          echo "updated=false" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        GLOBAL_VERSION=$(echo "${GLOBAL_VERSION_INPUT}" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+        GLOBAL_VERSION="${GLOBAL_VERSION#v}"
+        PY_INPUT=$(echo "${PY_INPUT_RAW}" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+        PY_INPUT="${PY_INPUT#v}"
+
+        if [ -n "$PY_INPUT" ]; then
+          NEW_PY_VERSION="$PY_INPUT"
+        elif [ -n "$GLOBAL_VERSION" ]; then
+          NEW_PY_VERSION="$GLOBAL_VERSION"
+        else
+          BUMP_TYPE="${{ steps.determine_bump_type.outputs.bump_type }}"
+          CURRENT_PY=$(sed -n "s/^version = [\"']\([^\"']*\)[\"']/\1/p" pyproject.toml | tr -d '[:space:]')
+          if [ -z "$CURRENT_PY" ]; then
+            echo "Error: could not read version from pyproject.toml" >&2
+            exit 1
+          fi
+          IFS='.' read -r py_major py_minor py_patch <<< "$CURRENT_PY"
+          py_major="${py_major:-0}"; py_minor="${py_minor:-0}"; py_patch="${py_patch:-0}"
+          case "$BUMP_TYPE" in
+            major) NEW_PY_VERSION="$((py_major + 1)).0.0" ;;
+            minor) NEW_PY_VERSION="${py_major}.$((py_minor + 1)).0" ;;
+            *)     NEW_PY_VERSION="${py_major}.${py_minor}.$((py_patch + 1))" ;;
+          esac
+        fi
+
+        sed -i "s/^version = \"[^\"]*\"/version = \"${NEW_PY_VERSION}\"/" pyproject.toml
+        echo "updated=true" >> "$GITHUB_OUTPUT"
+        echo "Python version → ${NEW_PY_VERSION}"
+
+    - name: Update R version
+      id: update_r
+      shell: bash
+      env:
+        GLOBAL_VERSION_INPUT: ${{ inputs.version }}
+        R_INPUT_RAW: ${{ inputs.r_version }}
+      run: |
+        if [ ! -f DESCRIPTION ]; then
+          echo "No DESCRIPTION found; skipping R version update."
+          echo "updated=false" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        GLOBAL_VERSION=$(echo "${GLOBAL_VERSION_INPUT}" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+        GLOBAL_VERSION="${GLOBAL_VERSION#v}"
+        R_INPUT=$(echo "${R_INPUT_RAW}" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+        R_INPUT="${R_INPUT#v}"
+
+        if [ -n "$R_INPUT" ]; then
+          NEW_R_VERSION="$R_INPUT"
+        elif [ -n "$GLOBAL_VERSION" ]; then
+          NEW_R_VERSION="$GLOBAL_VERSION"
+        else
+          BUMP_TYPE="${{ steps.determine_bump_type.outputs.bump_type }}"
+          CURRENT_R=$(sed -n 's/^Version: \([0-9][0-9.]*\).*/\1/p' DESCRIPTION | tr -d '[:space:]')
+          if [ -z "$CURRENT_R" ]; then
+            echo "Error: could not read Version from DESCRIPTION" >&2
+            exit 1
+          fi
+          IFS='.' read -r r_major r_minor r_patch <<< "$CURRENT_R"
+          r_major="${r_major:-0}"; r_minor="${r_minor:-0}"; r_patch="${r_patch:-0}"
+          case "$BUMP_TYPE" in
+            major) NEW_R_VERSION="$((r_major + 1)).0.0" ;;
+            minor) NEW_R_VERSION="${r_major}.$((r_minor + 1)).0" ;;
+            *)     NEW_R_VERSION="${r_major}.${r_minor}.$((r_patch + 1))" ;;
+          esac
+        fi
+
+        sed -i "s/^Version: .*/Version: ${NEW_R_VERSION}/" DESCRIPTION
+        echo "updated=true" >> "$GITHUB_OUTPUT"
+        echo "R version → ${NEW_R_VERSION}"
+
+    - name: Commit version changes
+      shell: bash
+      env:
+        NEW_VERSION: ${{ steps.get_version.outputs.version }}
+      run: |
+        if git diff --quiet; then
+          echo "No version file changes to commit."
+        else
+          FILES_TO_ADD=()
+          [ -f pyproject.toml ] && FILES_TO_ADD+=(pyproject.toml)
+          [ -f DESCRIPTION ] && FILES_TO_ADD+=(DESCRIPTION)
+          if [ ${#FILES_TO_ADD[@]} -gt 0 ]; then
+            git add "${FILES_TO_ADD[@]}"
+          fi
+          git commit -m "chore: bump version to ${NEW_VERSION}"
+          git push
+        fi
+
+    - name: Create or verify base tag
+      shell: bash
+      env:
+        TAG: ${{ steps.get_version.outputs.tag }}
+      run: |
+        if git show-ref --tags --verify --quiet "refs/tags/$TAG"; then
+          echo "Tag $TAG already exists."
+        else
+          echo "Creating tag $TAG"
+          git tag -a "$TAG" -m "Release $TAG"
+          git push origin "$TAG"
+        fi
+
+    - name: Update floating major, minor and latest tags
+      shell: bash
+      env:
+        TAG: ${{ steps.get_version.outputs.tag }}
+      run: |
+        MAJOR=$(echo "$TAG" | cut -d'.' -f1)
+        MINOR=$(echo "$TAG" | cut -d'.' -f1,2)
+
+        echo "Updating floating tags to $TAG..."
+        git tag -fa "$MINOR" -m "Update $MINOR to point to $TAG"
+        git tag -fa "$MAJOR" -m "Update $MAJOR to point to $TAG"
+        git tag -fa "latest" -m "Update latest to point to $TAG"
+        git push origin "$MINOR" --force
+        git push origin "$MAJOR" --force
+        git push origin "latest" --force
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ steps.get_version.outputs.tag }}
+        generate_release_notes: true
+        make_latest: true
+        token: ${{ inputs.github_token }}

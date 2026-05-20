@@ -1,0 +1,61 @@
+# .github/workflows/version-release.yml
+#
+# Bumps the package version, creates a versioned git tag with floating
+# major/minor aliases, and publishes a GitHub Release.
+#
+# Supports Python (pyproject.toml) and R (DESCRIPTION) packages.
+# Files not present in the repository root are silently skipped.
+#
+# Trigger options:
+#   - Push a semver tag (e.g. `git tag v1.2.3 && git push origin v1.2.3`).
+#   - Run manually via the Actions UI and supply either `version` or `bump_type`.
+#
+# Copy this file into your repository's .github/workflows/ directory.
+
+name: Version and Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Exact version to set (e.g. 1.2.3). Cannot be used with bump_type.'
+        required: false
+      bump_type:
+        description: 'Component to bump: major | minor | patch. Cannot be used with version.'
+        required: false
+      python_version:
+        description: 'Override: exact version for the Python package.'
+        required: false
+      r_version:
+        description: 'Override: exact version for the R package.'
+        required: false
+
+jobs:
+  version-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # push tags, version commits, and create releases
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # required to read all tags for bump mode
+
+      - name: Version and Release
+        id: release
+        uses: MiguelRodo/actions/version-release@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          version: ${{ inputs.version }}
+          bump_type: ${{ inputs.bump_type }}
+          python_version: ${{ inputs.python_version }}
+          r_version: ${{ inputs.r_version }}
+
+      - name: Show outputs
+        run: |
+          echo "Version: ${{ steps.release.outputs.version }}"
+          echo "Tag:     ${{ steps.release.outputs.tag }}"

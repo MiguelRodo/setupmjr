@@ -1,0 +1,27 @@
+name: Publish Documentation Site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Publish Quarto Site
+        uses: MiguelRodo/actions/publish-quarto-site@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,212 @@
+name: "R Version and Release"
+description: "Bumps the version in DESCRIPTION, builds the R package, pushes floating tags, and publishes a GitHub Release with the tarball."
+author: "MiguelRodo"
+
+branding:
+  icon: "tag"
+  color: "blue"
+
+inputs:
+  github_token:
+    description: "GitHub token for pushing tags and publishing releases."
+    required: true
+  version:
+    description: >
+      Exact version to set (e.g. v1.2.3).
+      Cannot be set together with bump_type.
+      Whitespace is ignored and case is insensitive.
+    required: false
+    default: ""
+  bump_type:
+    description: >
+      Version component to bump (major | minor | patch).
+      Cannot be set together with version.
+      Whitespace is ignored and case is insensitive.
+    required: false
+    default: ""
+  version_force:
+    description: >
+      When true (the default is false), skip strict version progression
+      checks (e.g., allowing downgrades or large version jumps).
+
+    required: false
+    default: "false"
+
+outputs:
+  version:
+    description: "Released version without a leading v (e.g. 1.2.3)."
+    value: ${{ steps.get_version.outputs.version }}
+  tag:
+    description: "Git tag that was created (e.g. v1.2.3)."
+    value: ${{ steps.get_version.outputs.tag }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Configure Git
+      shell: bash
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+    - name: Parse and validate inputs
+      id: get_version
+      shell: bash
+      env:
+        RAW_VERSION: ${{ inputs.version }}
+        RAW_BUMP: ${{ inputs.bump_type }}
+      run: |
+        # Massage version (trim whitespace, lowercase)
+        VERSION_INPUT=$(echo "$RAW_VERSION" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+        if [ "$RAW_VERSION" != "$VERSION_INPUT" ] && [ -n "$RAW_VERSION" ]; then
+          echo "Note: Massaged version input from '$RAW_VERSION' to '$VERSION_INPUT'"
+        fi
+
+        # Massage bump_type (trim whitespace, lowercase)
+        BUMP_INPUT=$(echo "$RAW_BUMP" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+        if [ "$RAW_BUMP" != "$BUMP_INPUT" ] && [ -n "$RAW_BUMP" ]; then
+          echo "Note: Massaged bump_type input from '$RAW_BUMP' to '$BUMP_INPUT'"
+        fi
+
+        if [ -n "$VERSION_INPUT" ] && [ -n "$BUMP_INPUT" ]; then
+          echo "Error: cannot set both 'version' and 'bump_type'." >&2
+          exit 1
+        fi
+
+        if [ -z "$VERSION_INPUT" ] && [ -z "$BUMP_INPUT" ]; then
+          echo "Error: provide one of 'version' or 'bump_type'. Valid bump_type values: major, minor, patch." >&2
+          exit 1
+        fi
+
+        if [ -n "$BUMP_INPUT" ]; then
+          if [ ! -f DESCRIPTION ]; then
+            echo "Error: No DESCRIPTION file found in the root directory. This action must be run in an R package repository." >&2
+            exit 1
+          fi
+
+          PREV_TAG=$(git tag --sort=version:refname \
+            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
+            | tail -1 || true)
+          CURRENT="${PREV_TAG#v}"
+          if [ -z "$CURRENT" ]; then
+            CURRENT=$(grep -E '^Version:' DESCRIPTION | awk '{print $2}' | tr -d '[:space:]')
+          fi
+          if [ -z "$CURRENT" ]; then
+            echo "Error: Could not determine current version from tags or DESCRIPTION file." >&2
+            exit 1
+          fi
+          VERSION=$("$GITHUB_ACTION_PATH/../scripts/apply-version-bump.sh" "$BUMP_INPUT" "$CURRENT")
+        else
+          if [ ! -f DESCRIPTION ]; then
+            echo "Error: No DESCRIPTION file found in the root directory. This action must be run in an R package repository." >&2
+            exit 1
+          fi
+          VERSION="${VERSION_INPUT#v}"
+        fi
+
+        if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "Error: version '$VERSION' is not valid semver (X.Y.Z)." >&2
+          exit 1
+        fi
+
+        TAG="v${VERSION}"
+        echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+        echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+        echo "Resolved version: $VERSION"
+
+    - name: Check version progression
+      if: inputs.version_force != 'true'
+      shell: bash
+      env:
+        NEW_VERSION: ${{ steps.get_version.outputs.version }}
+      run: |
+        PREV_TAG=$(git tag --sort=version:refname \
+          | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
+          | grep -vxF "v${NEW_VERSION}" \
+          | tail -1 || true)
+
+        if [ -z "$PREV_TAG" ]; then
+          echo "No previous semver tag found; skipping version progression check."
+          exit 0
+        fi
+
+        PREV_VERSION="${PREV_TAG#v}"
+
+        "$GITHUB_ACTION_PATH/../scripts/check-version-progression.sh" "$NEW_VERSION" "$PREV_VERSION"
+
+    - name: Update R version
+      shell: bash
+      env:
+        NEW_VERSION: ${{ steps.get_version.outputs.version }}
+      run: |
+        sed -i "s/^Version: .*/Version: ${NEW_VERSION}/" DESCRIPTION
+        echo "R version updated to ${NEW_VERSION}"
+
+    - name: Commit version changes
+      shell: bash
+      env:
+        NEW_VERSION: ${{ steps.get_version.outputs.version }}
+      run: |
+        if git diff --quiet DESCRIPTION; then
+          echo "No version file changes to commit."
+        else
+          git add DESCRIPTION
+          git commit -m "chore: bump R package version to ${NEW_VERSION}"
+          git push
+        fi
+
+    - name: Create or verify base tag
+      shell: bash
+      env:
+        TAG: ${{ steps.get_version.outputs.tag }}
+      run: |
+        if git show-ref --tags --verify --quiet "refs/tags/$TAG"; then
+          echo "Tag $TAG already exists."
+        else
+          echo "Creating tag $TAG"
+          git tag -a "$TAG" -m "Release $TAG"
+          git push origin "$TAG"
+        fi
+
+    - name: Update floating major, minor and latest tags
+      shell: bash
+      env:
+        TAG: ${{ steps.get_version.outputs.tag }}
+      run: |
+        MAJOR=$(echo "$TAG" | cut -d'.' -f1)
+        MINOR=$(echo "$TAG" | cut -d'.' -f1,2)
+
+        echo "Updating floating tags to $TAG..."
+        git tag -fa "$MINOR" -m "Update $MINOR to point to $TAG"
+        git tag -fa "$MAJOR" -m "Update $MAJOR to point to $TAG"
+        git tag -fa "latest" -m "Update latest tag"
+        git push origin "$MINOR" --force
+        git push origin "$MAJOR" --force
+        git push origin "latest" --force
+
+    - name: Set up R
+      uses: r-lib/actions/setup-r@v2
+      with:
+        use-public-rspm: true
+
+    - name: Setup R Dependencies
+      uses: r-lib/actions/setup-r-dependencies@v2
+      with:
+        extra-packages: any::rcmdcheck
+
+    - name: Build R Package
+      shell: bash
+      run: |
+        R CMD build .
+        # Find the generated tarball
+        TARBALL=$(ls *.tar.gz | head -n 1)
+        echo "tarball=$TARBALL" >> "$GITHUB_ENV"
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ steps.get_version.outputs.tag }}
+        generate_release_notes: true
+        make_latest: true
+        files: ${{ env.tarball }}
+        token: ${{ inputs.github_token }}

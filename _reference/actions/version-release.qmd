@@ -1,0 +1,98 @@
+---
+title: "Version and Release"
+---
+
+**Version and Release** determines the next version, updates version fields in Python (`pyproject.toml`) and/or R (`DESCRIPTION`) packages, creates a versioned git tag with floating aliases, and publishes a GitHub Release.
+
+## Quick Start
+
+Copy the following to `.github/workflows/version-release.yml`:
+
+```yaml
+name: Version and Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Exact version (e.g. 1.2.3). Cannot be used with bump_type.'
+        required: false
+      bump_type:
+        description: 'Component to bump: major | minor | patch. Cannot be used with version.'
+        required: false
+      python_version:
+        description: 'Override: exact version for the Python package.'
+        required: false
+      r_version:
+        description: 'Override: exact version for the R package.'
+        required: false
+
+jobs:
+  version-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: MiguelRodo/actions/version-release@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          version: ${{ inputs.version }}
+          bump_type: ${{ inputs.bump_type }}
+          python_version: ${{ inputs.python_version }}
+          r_version: ${{ inputs.r_version }}
+```
+
+## Inputs
+
+| Input | Description | Required |
+|---|---|---|
+| `github_token` | Token for pushing tags and creating releases. | **Yes** |
+| `version` | Exact version to apply to all packages (e.g. `1.2.3`). Cannot be used with `bump_type`. | No |
+| `bump_type` | Version component to bump: `major`, `minor`, or `patch`. Cannot be used with `version`. | No |
+| `python_version` | Per-package override: exact version for the Python package. | No |
+| `r_version` | Per-package override: exact version for the R package. | No |
+
+## Outputs
+
+| Output | Description |
+|---|---|
+| `version` | Released version without a leading `v` (e.g. `1.2.3`). |
+| `tag` | Git tag that was created (e.g. `v1.2.3`). |
+
+## How It Works
+
+### Tag push trigger (`v*`)
+
+The version is taken directly from the pushed tag (e.g. `v1.2.3` → `1.2.3`). The `version` and `bump_type` inputs are ignored.
+
+### `workflow_dispatch` trigger
+
+Exactly one of the following must be supplied:
+
+- **`version`** — use an explicit version for all packages.
+- **`bump_type`** — derive the new version by bumping the most recent semver git tag.
+
+The `python_version` and `r_version` inputs always override the global `version` for their respective packages.
+
+### Python package (`pyproject.toml`)
+
+If `pyproject.toml` is present at the repository root, the `version = "X.Y.Z"` field is updated to the resolved version. If absent, the step is silently skipped.
+
+### R package (`DESCRIPTION`)
+
+If `DESCRIPTION` is present at the repository root, the `Version: X.Y.Z` field is updated. If absent, the step is silently skipped.
+
+## Version Precedence
+
+| Priority | Source |
+|---|---|
+| 1 (highest) | `python_version` / `r_version` input |
+| 2 | Global `version` input |
+| 3 | Bump the current file version using `bump_type` |
+| 4 | Version from the pushed tag |

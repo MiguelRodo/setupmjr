@@ -1,0 +1,314 @@
+name: "Prune APT Repository"
+description: >
+  Removes superseded .deb package versions from a GitHub-hosted apt repository
+  and rewrites Git history so that the pruned binaries are fully eliminated.
+  After history rewrite the apt metadata (Packages, Release, optional
+  InRelease / Release.gpg) is regenerated and the result is force-pushed.
+author: "MiguelRodo"
+
+branding:
+  icon: "trash-2"
+  color: "red"
+
+inputs:
+  token:
+    description: "GitHub token with contents: write permission on the current repository."
+    required: true
+  retention:
+    description: >
+      Version retention policy (case-insensitive).
+      'latest' – keep only the newest version per (package, arch) pair.
+      'latest-per-minor' – keep the highest patch release for each major.minor series.
+      'latest-per-major' (default) – keep the highest minor.patch release for each major series.
+    required: false
+    default: "latest-per-major"
+  apt_signing_key:
+    description: >
+      Optional ASCII-armored GPG private key for signing the regenerated apt metadata.
+      When omitted only the unsigned Release file is written and any stale InRelease /
+      Release.gpg files are removed.
+    required: false
+    default: ""
+  apt_signing_key_passphrase:
+    description: "Optional passphrase for apt_signing_key."
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Validate Linux runner
+      shell: bash
+      run: |
+        if [ "${{ runner.os }}" != "Linux" ]; then
+          echo "Error: apt-repo-prune supports Linux runners only." >&2
+          exit 1
+        fi
+
+    - name: Validate inputs and check required tools
+      shell: bash
+      env:
+        RETENTION_RAW: ${{ inputs.retention }}
+        DEFAULT_BRANCH_INPUT: ${{ github.event.repository.default_branch }}
+      run: |
+        # Normalize to lowercase so the argument is case-agnostic.
+        RETENTION_INPUT="${RETENTION_RAW,,}"
+
+        case "$RETENTION_INPUT" in
+          latest | latest-per-minor | latest-per-major) ;;
+          *)
+            echo "Error: retention must be one of: latest, latest-per-minor, latest-per-major." >&2
+            exit 1
+            ;;
+        esac
+
+        for CMD in dpkg-deb dpkg-scanpackages apt-ftparchive; do
+          if ! command -v "$CMD" >/dev/null 2>&1; then
+            echo "Error: required command '$CMD' is not available on the runner." >&2
+            exit 1
+          fi
+        done
+
+    - name: Analyze prune plan
+      id: plan
+      shell: bash
+      env:
+        RETENTION_RAW: ${{ inputs.retention }}
+        DEFAULT_BRANCH_INPUT: ${{ github.event.repository.default_branch }}
+        PUSH_TOKEN: ${{ inputs.token }}
+      run: |
+        REPO_INPUT="${GITHUB_REPOSITORY}"
+        DEFAULT_BRANCH="${DEFAULT_BRANCH_INPUT:-${GITHUB_REF_NAME}}"
+        # Normalize to lowercase so the argument is case-agnostic.
+        RETENTION="${RETENTION_RAW,,}"
+
+        # ── Build the authenticated remote URL ────────────────────────────────
+        # Inject the token into the server URL so the action works on both
+        # GitHub.com and GitHub Enterprise Server.
+        SERVER_URL="${GITHUB_SERVER_URL}"
+        AUTHENTICATED_REMOTE="${SERVER_URL/https:\/\//https:\/\/x-access-token:${PUSH_TOKEN}@}/${REPO_INPUT}.git"
+
+        # ── Clone the apt repository with its full history ────────────────────
+        APT_REPO_DIR="$(mktemp -d "${RUNNER_TEMP:-/tmp}/apt-repo-prune-XXXXXX")"
+        git clone \
+          --branch "$DEFAULT_BRANCH" \
+          --single-branch \
+          "$AUTHENTICATED_REMOTE" \
+          "$APT_REPO_DIR"
+
+        # ── Validate expected repository structure ────────────────────────────
+        # The go-version-release action publishes .deb files under pool/main/
+        # and apt metadata under dists/stable.  When pool/main/ is absent the
+        # repository has no packages and already satisfies any retention policy.
+        if [ ! -d "$APT_REPO_DIR/pool/main" ]; then
+          echo "Nothing to prune: pool/main/ not found in '$REPO_INPUT' — repository has no packages."
+          rm -rf "$APT_REPO_DIR"
+          echo "should_prune=false" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        if [ ! -d "$APT_REPO_DIR/dists/stable" ]; then
+          echo "Error: expected dists/stable/ directory not found in '$REPO_INPUT'." >&2
+          echo "  This action is designed for repositories managed by the go-version-release action." >&2
+          rm -rf "$APT_REPO_DIR"
+          exit 1
+        fi
+
+        # ── Determine which .deb files should be removed ──────────────────────
+        PATHS_TO_REMOVE_FILE="$(mktemp "${RUNNER_TEMP:-/tmp}/apt-prune-paths-XXXXXX")"
+        bash "$GITHUB_ACTION_PATH/../scripts/apt-prune-select-versions.sh" \
+          "$RETENTION" "$APT_REPO_DIR" > "$PATHS_TO_REMOVE_FILE"
+
+        if [ ! -s "$PATHS_TO_REMOVE_FILE" ]; then
+          echo "Nothing to prune: apt repository already satisfies the '$RETENTION' retention policy."
+          rm -f "$PATHS_TO_REMOVE_FILE"
+          rm -rf "$APT_REPO_DIR"
+          echo "should_prune=false" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        echo "Pruning the following files from history:"
+        cat "$PATHS_TO_REMOVE_FILE"
+
+        echo "should_prune=true" >> "$GITHUB_OUTPUT"
+        echo "apt_repo_dir=$APT_REPO_DIR" >> "$GITHUB_OUTPUT"
+        echo "paths_to_remove_file=$PATHS_TO_REMOVE_FILE" >> "$GITHUB_OUTPUT"
+        echo "default_branch=$DEFAULT_BRANCH" >> "$GITHUB_OUTPUT"
+
+    - name: Nothing to prune
+      if: steps.plan.outputs.should_prune != 'true'
+      shell: bash
+      run: |
+        echo "No history rewrite or push required."
+
+    - name: Rewrite history and regenerate metadata
+      if: steps.plan.outputs.should_prune == 'true'
+      shell: bash
+      env:
+        RETENTION_RAW: ${{ inputs.retention }}
+        DEFAULT_BRANCH_INPUT: ${{ github.event.repository.default_branch }}
+        APT_SIGNING_KEY: ${{ inputs.apt_signing_key }}
+        APT_SIGNING_KEY_PASSPHRASE: ${{ inputs.apt_signing_key_passphrase }}
+        PUSH_TOKEN: ${{ inputs.token }}
+      run: |
+        APT_REPO_DIR="${{ steps.plan.outputs.apt_repo_dir }}"
+        PATHS_TO_REMOVE_FILE="${{ steps.plan.outputs.paths_to_remove_file }}"
+        DEFAULT_BRANCH="${{ steps.plan.outputs.default_branch }}"
+        REPO_INPUT="${GITHUB_REPOSITORY}"
+        RETENTION="${RETENTION_RAW,,}"
+
+        # ── Set up GPG signing when a signing key is supplied ────────────────
+        SIGNING_KEY_FINGERPRINT=""
+        GNUPGHOME=""
+        GPG_PASSPHRASE_FILE=""
+
+        if [ -n "$APT_SIGNING_KEY" ]; then
+          if ! command -v gpg >/dev/null 2>&1; then
+            echo "Error: 'gpg' is not available on the runner." >&2
+            exit 1
+          fi
+          # Isolated, ephemeral keyring so the key material never touches ~/.gnupg.
+          GNUPGHOME="$(mktemp -d "${RUNNER_TEMP:-/tmp}/gnupg-XXXXXX")"
+          chmod 700 "$GNUPGHOME"
+          export GNUPGHOME
+          { SIGNING_KEY_FINGERPRINT="$(printf '%s\n' "$APT_SIGNING_KEY" | gpg --batch --with-colons --import-options show-only --import 2>&3 | awk -F: '/^fpr:/ { print $10; exit }')"; } 3>&2
+          if [ -z "$SIGNING_KEY_FINGERPRINT" ]; then
+            echo "Error: could not extract fingerprint from apt_signing_key; ensure it is a valid ASCII-armored GPG private key." >&2
+            exit 1
+          fi
+          if ! printf '%s\n' "$APT_SIGNING_KEY" | gpg --batch --import; then
+            echo "Error: failed to import apt_signing_key into the GPG keyring." >&2
+            exit 1
+          fi
+          # Create passphrase file before entering the subshell so cleanup() can handle it.
+          if [ -n "$APT_SIGNING_KEY_PASSPHRASE" ]; then
+            GPG_PASSPHRASE_FILE="$(mktemp "${RUNNER_TEMP:-/tmp}/gpg-passphrase-XXXXXX")"
+            chmod 600 "$GPG_PASSPHRASE_FILE"
+            printf '%s' "$APT_SIGNING_KEY_PASSPHRASE" > "$GPG_PASSPHRASE_FILE"
+          fi
+        fi
+
+        # ── Cleanup on exit ───────────────────────────────────────────────────
+        cleanup() {
+          [ -n "$APT_REPO_DIR" ]        && rm -rf "$APT_REPO_DIR"
+          [ -n "$PATHS_TO_REMOVE_FILE" ] && rm -f  "$PATHS_TO_REMOVE_FILE"
+          [ -n "$GNUPGHOME" ]            && rm -rf "$GNUPGHOME"
+          [ -n "$GPG_PASSPHRASE_FILE" ]  && rm -f  "$GPG_PASSPHRASE_FILE"
+        }
+        trap cleanup EXIT
+
+        # ── Build the authenticated remote URL ────────────────────────────────
+        # Inject the token into the server URL so the action works on both
+        # GitHub.com and GitHub Enterprise Server.
+        SERVER_URL="${GITHUB_SERVER_URL}"
+        AUTHENTICATED_REMOTE="${SERVER_URL/https:\/\//https:\/\/x-access-token:${PUSH_TOKEN}@}/${REPO_INPUT}.git"
+
+        # ── Warn when any file to remove exists in the root commit ────────────
+        # git filter-repo rewrites every commit whose tree changes, including the
+        # root commit.  Warn the user when target files are present in the root
+        # commit so they know the root commit SHA will change, which requires a
+        # force-push to the remote.
+        (
+          cd "$APT_REPO_DIR"
+          ROOT_COMMIT="$(git rev-list --max-parents=0 HEAD)"
+          if git ls-tree -r --name-only "$ROOT_COMMIT" | grep -qFx -f "$PATHS_TO_REMOVE_FILE"; then
+            echo "Warning: one or more files to be pruned exist in the root commit." >&2
+            echo "  The root commit SHA will change after the history rewrite." >&2
+          fi
+        )
+
+        # ── Rewrite history to remove the pruned files ────────────────────────
+        (
+          cd "$APT_REPO_DIR"
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Install git-filter-repo if not already present.
+          if ! command -v git-filter-repo >/dev/null 2>&1; then
+            pip install git-filter-repo --quiet
+          fi
+
+          # --force is required when running on a freshly cloned (non-bare) repo.
+          git filter-repo \
+            --invert-paths \
+            --paths-from-file "$PATHS_TO_REMOVE_FILE" \
+            --force
+
+          # git filter-repo removes remote tracking refs; restore the authenticated
+          # remote URL so we can push.
+          if git remote get-url origin >/dev/null 2>&1; then
+            git remote set-url origin "$AUTHENTICATED_REMOTE"
+          else
+            git remote add origin "$AUTHENTICATED_REMOTE"
+          fi
+        )
+
+        # ── Regenerate apt metadata ───────────────────────────────────────────
+        (
+          cd "$APT_REPO_DIR"
+
+          REPO_OWNER="${REPO_INPUT%%/*}"
+          REPO_NAME="${REPO_INPUT##*/}"
+
+          # Discover architectures from the .deb files that remain after pruning.
+          declare -A ARCH_SEEN=()
+          while IFS= read -r -d '' DEB_FILE; do
+            PKG_ARCH="$(dpkg-deb -f "$DEB_FILE" Architecture 2>/dev/null | tr -d '\n')" || continue
+            [ -n "$PKG_ARCH" ] && ARCH_SEEN["$PKG_ARCH"]=1
+          done < <(find pool -type f -name '*.deb' -print0 2>/dev/null | sort -z)
+
+          rm -rf dists/stable/main/binary-*
+          mkdir -p dists/stable/main
+
+          if [ "${#ARCH_SEEN[@]}" -gt 0 ]; then
+            mapfile -t SORTED_ARCHES < <(printf '%s\n' "${!ARCH_SEEN[@]}" | sort)
+            for ARCH in "${SORTED_ARCHES[@]}"; do
+              BINARY_DIR="dists/stable/main/binary-${ARCH}"
+              mkdir -p "$BINARY_DIR"
+              dpkg-scanpackages --multiversion -a "$ARCH" pool /dev/null > "$BINARY_DIR/Packages"
+              gzip -9c "$BINARY_DIR/Packages" > "$BINARY_DIR/Packages.gz"
+            done
+
+            ARCH_LIST="$(printf '%s ' "${SORTED_ARCHES[@]}")"
+            ARCH_LIST="${ARCH_LIST% }"
+            apt-ftparchive \
+              -o APT::FTPArchive::Release::Origin="$REPO_OWNER" \
+              -o APT::FTPArchive::Release::Label="$REPO_NAME" \
+              -o APT::FTPArchive::Release::Suite="stable" \
+              -o APT::FTPArchive::Release::Codename="stable" \
+              -o APT::FTPArchive::Release::Architectures="$ARCH_LIST" \
+              -o APT::FTPArchive::Release::Components="main" \
+              release dists/stable > dists/stable/Release
+          else
+            echo "Warning: no .deb files remain after pruning; clearing apt metadata." >&2
+            rm -f dists/stable/main/*/Packages dists/stable/main/*/Packages.gz
+            rm -f dists/stable/Release
+          fi
+
+          # Remove any stale top-level symlinks/copies generated by older tooling.
+          rm -f Packages Packages.gz Release
+
+          # (Re-)generate signed metadata when a signing key was supplied.
+          if [ -n "$SIGNING_KEY_FINGERPRINT" ]; then
+            GPG_SIGN_OPTS=(--batch --yes --pinentry-mode loopback --default-key "$SIGNING_KEY_FINGERPRINT")
+            if [ -n "$GPG_PASSPHRASE_FILE" ]; then
+              GPG_SIGN_OPTS+=(--passphrase-file "$GPG_PASSPHRASE_FILE")
+            fi
+            gpg "${GPG_SIGN_OPTS[@]}" --armor --detach-sign \
+              -o dists/stable/Release.gpg dists/stable/Release
+            gpg "${GPG_SIGN_OPTS[@]}" --clearsign \
+              -o dists/stable/InRelease dists/stable/Release
+          else
+            rm -f InRelease Release.gpg dists/stable/InRelease dists/stable/Release.gpg
+          fi
+
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo "No apt metadata changes required after pruning."
+          else
+            git commit -m "Prune apt repository: apply '${RETENTION}' retention policy"
+          fi
+
+          git push --force origin "HEAD:${DEFAULT_BRANCH}"
+        )

@@ -1,0 +1,50 @@
+---
+title: "Publish Quarto Site"
+---
+
+**Publish Quarto Site** renders and publishes a Quarto website to the `gh-pages` branch of your repository. It automatically creates the branch if it does not already exist.
+
+## Quick Start
+
+Copy the following to `.github/workflows/publish-quarto-site.yml`:
+
+```yaml
+name: Publish Quarto Site
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pages: write
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: MiguelRodo/actions/publish-quarto-site@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+## Inputs
+
+| Input | Description | Required | Default |
+|---|---|---|---|
+| `github_token` | Token used to push to the `gh-pages` branch. Use `${{ secrets.GITHUB_TOKEN }}`. | **Yes** | — |
+
+## How It Works
+
+1. Configures git with the `github-actions[bot]` identity.
+2. Checks whether `gh-pages` exists on the remote. If not, creates an empty orphan branch and pushes it.
+3. Installs Quarto via [`quarto-dev/quarto-actions/setup@v2`](https://github.com/quarto-dev/quarto-actions).
+4. Publishes the rendered site to `gh-pages` via [`quarto-dev/quarto-actions/publish@v2`](https://github.com/quarto-dev/quarto-actions).
+
+## Troubleshooting
+
+- **Permission denied pushing to `gh-pages`:** Ensure the calling workflow sets `permissions: contents: write` (and `pages: write` if using GitHub Pages deployments).
+- **Quarto render errors:** Rendering is delegated to `quarto-dev/quarto-actions/publish`. See the [quarto-actions documentation](https://github.com/quarto-dev/quarto-actions) for render-related issues.

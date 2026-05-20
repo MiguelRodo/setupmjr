@@ -1,0 +1,434 @@
+name: "Go Version and Release"
+description: >
+  Determines a Go project release version, validates semver progression, creates
+  and pushes a git tag, then runs GoReleaser and can publish generated .deb artifacts to apt.
+author: "MiguelRodo"
+
+branding:
+  icon: "tag"
+  color: "blue"
+
+inputs:
+  github_token:
+    description: "GitHub token for pushing tags and publishing releases."
+    required: true
+  apt_repo_token:
+    description: "Optional GitHub token used only for cloning/fetching/pushing apt_repo. Falls back to github_token when omitted."
+    required: false
+    default: ""
+  apt_signing_key:
+    description: "Optional ASCII-armored GPG private key for signing apt repository metadata. When set, the action imports the key and generates signed InRelease and Release.gpg files alongside the unsigned Release file."
+    required: false
+    default: ""
+  apt_signing_key_passphrase:
+    description: "Optional passphrase for the apt_signing_key. When set, it is written to a secure temporary file and passed to GPG via --passphrase-file so passphrase-protected private keys can be used for signing."
+    required: false
+    default: ""
+  version:
+    description: "Exact version to apply (e.g. 1.2.3). Cannot be used with bump_type."
+    required: false
+    default: ""
+  bump_type:
+    description: "Version component to bump (major | minor | patch). Cannot be used with version."
+    required: false
+    default: ""
+  version_force:
+    description: >
+      When true (the default is false), skip strict version progression
+      checks (e.g., allowing downgrades or large version jumps).
+    required: false
+    default: "false"
+  go_version:
+    description: "Go version to install with actions/setup-go."
+    required: false
+    default: "1.22"
+  apt_repo:
+    description: "Optional target GitHub repository in owner/name form for publishing generated .deb artifacts as an apt repository."
+    required: false
+    default: ""
+  goreleaser_config:
+    description: "Optional path to the GoReleaser config file."
+    required: false
+    default: ".goreleaser.yml"
+  scoop_token:
+    description: "Optional token for pushing Scoop manifests to an external tap repository."
+    required: false
+    default: ""
+  homebrew_token:
+    description: "Optional token for pushing Homebrew formulas to an external tap repository."
+    required: false
+    default: ""
+outputs:
+  version:
+    description: "Released version without a leading v (e.g. 1.2.3)."
+    value: ${{ steps.get_version.outputs.version }}
+  tag:
+    description: "Git tag that was created or reused (e.g. v1.2.3)."
+    value: ${{ steps.get_version.outputs.tag }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Validate Linux runner
+      shell: bash
+      run: |
+        if [ "${{ runner.os }}" != "Linux" ]; then
+          echo "Error: go-version-release currently supports Linux runners only. Use a Linux runner such as ubuntu-latest." >&2
+          exit 1
+        fi
+
+    - name: Configure Git
+      shell: bash
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+    - name: Determine version
+      id: get_version
+      shell: bash
+      env:
+        RAW_VERSION: ${{ inputs.version }}
+        RAW_BUMP: ${{ inputs.bump_type }}
+      run: |
+        # Massage version (trim whitespace, lowercase)
+        VERSION_INPUT=$(echo "$RAW_VERSION" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+        if [ "$RAW_VERSION" != "$VERSION_INPUT" ] && [ -n "$RAW_VERSION" ]; then
+          echo "Note: Massaged version input from '$RAW_VERSION' to '$VERSION_INPUT'"
+        fi
+
+        # Massage bump_type (trim whitespace, lowercase)
+        BUMP_INPUT=$(echo "$RAW_BUMP" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+        if [ "$RAW_BUMP" != "$BUMP_INPUT" ] && [ -n "$RAW_BUMP" ]; then
+          echo "Note: Massaged bump_type input from '$RAW_BUMP' to '$BUMP_INPUT'"
+        fi
+
+        if [ -n "$VERSION_INPUT" ] && [ -n "$BUMP_INPUT" ]; then
+          echo "Error: cannot set both 'version' and 'bump_type'." >&2
+          exit 1
+        fi
+
+        if [ -n "$BUMP_INPUT" ]; then
+          PREV_TAG=$(git tag --sort=version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | tail -1 || true)
+          CURRENT="${PREV_TAG#v}"
+          if [ -z "$CURRENT" ]; then
+            CURRENT="0.0.0"
+          fi
+          VERSION=$("$GITHUB_ACTION_PATH/../scripts/apply-version-bump.sh" "$BUMP_INPUT" "$CURRENT")
+        elif [ -n "$VERSION_INPUT" ]; then
+          VERSION="${VERSION_INPUT#v}"
+        elif [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+          VERSION="${GITHUB_REF_NAME}"
+          VERSION="${VERSION#v}"
+        else
+          echo "Error: provide one of 'version' or 'bump_type', or run from a tag ref." >&2
+          exit 1
+        fi
+
+        if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "Error: version '$VERSION' is not valid semver (X.Y.Z)." >&2
+          exit 1
+        fi
+
+        echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+        echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+
+    - name: Check version progression
+      if: inputs.version_force != 'true'
+      shell: bash
+      env:
+        NEW_VERSION: ${{ steps.get_version.outputs.version }}
+      run: |
+        PREV_TAG=$(git tag --sort=version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | grep -vxF "v${NEW_VERSION}" | tail -1 || true)
+
+        if [ -z "$PREV_TAG" ]; then
+          echo "No previous semver tag found; skipping version progression check."
+          exit 0
+        fi
+
+        PREV_VERSION="${PREV_TAG#v}"
+        "$GITHUB_ACTION_PATH/../scripts/check-version-progression.sh" "$NEW_VERSION" "$PREV_VERSION"
+
+    - name: Create and push git tag
+      shell: bash
+      env:
+        TAG: ${{ steps.get_version.outputs.tag }}
+      run: |
+        HEAD_SHA="$(git rev-parse HEAD)"
+
+        if git ls-remote --exit-code --tags origin "refs/tags/${TAG}" >/dev/null 2>&1; then
+          git fetch --no-tags origin "refs/tags/${TAG}:refs/tags/${TAG}"
+          TAG_SHA="$(git rev-list -n 1 "${TAG}")"
+          if [ "$TAG_SHA" != "$HEAD_SHA" ]; then
+            echo "Error: tag ${TAG} already exists on origin but points to ${TAG_SHA}, not HEAD ${HEAD_SHA}." >&2
+            exit 1
+          fi
+          echo "Tag ${TAG} already exists on origin and points to HEAD."
+          exit 0
+        fi
+
+        if git show-ref --tags --verify --quiet "refs/tags/${TAG}"; then
+          TAG_SHA="$(git rev-list -n 1 "${TAG}")"
+          if [ "$TAG_SHA" != "$HEAD_SHA" ]; then
+            echo "Error: local tag ${TAG} points to ${TAG_SHA}, not HEAD ${HEAD_SHA}." >&2
+            exit 1
+          fi
+          echo "Tag ${TAG} already exists locally and points to HEAD."
+        else
+          git tag -a "$TAG" -m "Release $TAG"
+        fi
+
+        git push origin "refs/tags/${TAG}"
+
+    - name: Update floating major, minor and latest tags
+      shell: bash
+      env:
+        TAG: ${{ steps.get_version.outputs.tag }}
+      run: |
+        MAJOR=$(echo "$TAG" | cut -d'.' -f1)
+        MINOR=$(echo "$TAG" | cut -d'.' -f1,2)
+
+        echo "Updating floating tags to $TAG..."
+        git tag -fa "$MINOR" -m "Update $MINOR to point to $TAG"
+        git tag -fa "$MAJOR" -m "Update $MAJOR to point to $TAG"
+        git tag -fa "latest" -m "Update latest to point to $TAG"
+        git push origin "refs/tags/$MINOR" --force
+        git push origin "refs/tags/$MAJOR" --force
+        git push origin "refs/tags/latest" --force
+
+    - name: Setup Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: ${{ inputs.go_version }}
+
+    - name: Run GoReleaser
+      uses: goreleaser/goreleaser-action@v5
+      with:
+        args: release --clean --skip=announce --config "${{ inputs.goreleaser_config }}"
+      env:
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+        SCOOP_TAP_TOKEN: ${{ inputs.scoop_token }}
+        HOMEBREW_TAP_TOKEN: ${{ inputs.homebrew_token }}
+
+    - name: Publish Debian packages to apt repository
+      if: inputs.apt_repo != ''
+      shell: bash
+      env:
+        APT_REPO_INPUT: ${{ inputs.apt_repo }}
+        APT_REPO_TOKEN: ${{ inputs.apt_repo_token }}
+        GITHUB_TOKEN_INPUT: ${{ inputs.github_token }}
+        APT_SIGNING_KEY: ${{ inputs.apt_signing_key }}
+        APT_SIGNING_KEY_PASSPHRASE: ${{ inputs.apt_signing_key_passphrase }}
+      run: |
+        mapfile -d '' DEB_FILES < <(find dist -type f -name '*.deb' -print0 | sort -z)
+
+        if [ "${#DEB_FILES[@]}" -eq 0 ]; then
+          echo "Error: apt_repo was provided, but no .deb files were found in dist/." >&2
+          exit 1
+        fi
+
+        if [[ ! "$APT_REPO_INPUT" =~ ^[^/]+/[^/]+$ ]]; then
+          echo "Error: apt_repo must be in owner/name format." >&2
+          exit 1
+        fi
+
+        APT_PUSH_TOKEN="${APT_REPO_TOKEN}"
+        if [ -z "$APT_PUSH_TOKEN" ]; then
+          APT_PUSH_TOKEN="${GITHUB_TOKEN_INPUT}"
+        fi
+
+        for REQUIRED_COMMAND in dpkg-deb dpkg-scanpackages apt-ftparchive; do
+          if ! command -v "$REQUIRED_COMMAND" >/dev/null 2>&1; then
+            echo "Error: required command '$REQUIRED_COMMAND' is not available on the runner." >&2
+            exit 1
+          fi
+        done
+
+        SIGNING_KEY_FINGERPRINT=""
+        GNUPGHOME=""
+        if [ -n "$APT_SIGNING_KEY" ]; then
+          if ! command -v gpg >/dev/null 2>&1; then
+            echo "Error: required command 'gpg' is not available on the runner." >&2
+            exit 1
+          fi
+          # Use an isolated, ephemeral keyring so the key material never touches the
+          # default ~/.gnupg and cannot interact with pre-existing keyring state.
+          # RUNNER_TEMP is always set on GitHub Actions runners; /tmp is the fallback for local runs.
+          GNUPGHOME="$(mktemp -d "${RUNNER_TEMP:-/tmp}/gnupg-XXXXXX")"
+          chmod 700 "$GNUPGHOME"
+          export GNUPGHOME
+          # Extract the fingerprint using a dry-run import (--import-options show-only).
+          # The `{ ... } 3>&2` pattern routes GPG's stderr to the terminal (fd 2) while
+          # command substitution only captures stdout for fingerprint parsing.
+          { SIGNING_KEY_FINGERPRINT="$(printf '%s\n' "$APT_SIGNING_KEY" | gpg --batch --with-colons --import-options show-only --import 2>&3 | awk -F: '/^fpr:/ { print $10; exit }')"; } 3>&2
+          if [ -z "$SIGNING_KEY_FINGERPRINT" ]; then
+            echo "Error: could not extract fingerprint from apt_signing_key; ensure it is a valid ASCII-armored GPG private key." >&2
+            exit 1
+          fi
+          if ! printf '%s\n' "$APT_SIGNING_KEY" | gpg --batch --import; then
+            echo "Error: failed to import apt_signing_key into the GPG keyring." >&2
+            exit 1
+          fi
+        fi
+
+        APT_REPO_OWNER="${APT_REPO_INPUT%%/*}"
+        APT_REPO_NAME="${APT_REPO_INPUT##*/}"
+
+        APT_REPO_DIR=""
+        ASKPASS_SCRIPT=""
+        GPG_PASSPHRASE_FILE=""
+        cleanup() {
+          if [ -n "$APT_REPO_DIR" ]; then
+            rm -rf "$APT_REPO_DIR"
+          fi
+
+          if [ -n "$ASKPASS_SCRIPT" ]; then
+            rm -f "$ASKPASS_SCRIPT"
+          fi
+
+          if [ -n "$GNUPGHOME" ]; then
+            rm -rf "$GNUPGHOME"
+          fi
+
+          if [ -n "$GPG_PASSPHRASE_FILE" ]; then
+            rm -f "$GPG_PASSPHRASE_FILE"
+          fi
+        }
+        trap cleanup EXIT
+
+        APT_REPO_DIR="$(mktemp -d "${RUNNER_TEMP:-/tmp}/apt-repo-XXXXXX")"
+        ASKPASS_SCRIPT="$(mktemp "${RUNNER_TEMP:-/tmp}/git-askpass-XXXXXX")"
+        printf '%s\n' \
+          '#!/usr/bin/env bash' \
+          'case "$1" in' \
+          '  Username\ for\ *) printf '\''%s\n'\'' "x-access-token" ;;' \
+          '  Password\ for\ *) printf '\''%s\n'\'' "$GIT_TOKEN_FOR_ASKPASS" ;;' \
+          '  *) exit 1 ;;' \
+          'esac' > "$ASKPASS_SCRIPT"
+        # mktemp creates the file with private permissions; add owner execute permission so Git can run it.
+        chmod u+x "$ASKPASS_SCRIPT"
+        export GIT_TERMINAL_PROMPT=0
+        export GIT_ASKPASS="$ASKPASS_SCRIPT"
+        export GIT_TOKEN_FOR_ASKPASS="$APT_PUSH_TOKEN"
+
+        git clone \
+          --branch main \
+          --single-branch \
+          "${GITHUB_SERVER_URL}/${APT_REPO_INPUT}.git" \
+          "$APT_REPO_DIR"
+
+        declare -A ARCH_SEEN=()
+        publish_deb() {
+          local SOURCE_DEB="$1"
+          local COPY_MODE="$2"
+          local PACKAGE_NAME
+          local PACKAGE_ARCH
+          local BUCKET
+          local DEST_DIR
+          local DEST_FILE
+
+          PACKAGE_NAME="$(dpkg-deb -f "$SOURCE_DEB" Package | tr -d '\n')"
+          PACKAGE_ARCH="$(dpkg-deb -f "$SOURCE_DEB" Architecture | tr -d '\n')"
+
+          if [ -z "$PACKAGE_NAME" ]; then
+            echo "Error: could not determine package name from $SOURCE_DEB." >&2
+            exit 1
+          fi
+
+          if [ -z "$PACKAGE_ARCH" ]; then
+            echo "Error: could not determine package architecture from $SOURCE_DEB." >&2
+            exit 1
+          fi
+
+          BUCKET="$(printf '%s' "$PACKAGE_NAME" | cut -c1 | tr '[:upper:]' '[:lower:]')"
+          if [[ ! "$BUCKET" =~ ^[a-z0-9]$ ]]; then
+            BUCKET="_"
+          fi
+
+          DEST_DIR="$APT_REPO_DIR/pool/main/$BUCKET"
+          DEST_FILE="$DEST_DIR/$(basename "$SOURCE_DEB")"
+          mkdir -p "$DEST_DIR"
+
+          if [ "$COPY_MODE" = "move" ]; then
+            if [ "$SOURCE_DEB" != "$DEST_FILE" ]; then
+              mv -f "$SOURCE_DEB" "$DEST_FILE"
+            fi
+          else
+            cp -f "$SOURCE_DEB" "$DEST_FILE"
+          fi
+
+          ARCH_SEEN["$PACKAGE_ARCH"]=1
+        }
+
+        mapfile -d '' EXISTING_DEB_FILES < <(find "$APT_REPO_DIR" \( -path "$APT_REPO_DIR/.git" -prune \) -o \( -type f -name '*.deb' -print0 \) | sort -z)
+        for EXISTING_DEB_FILE in "${EXISTING_DEB_FILES[@]}"; do
+          publish_deb "$EXISTING_DEB_FILE" "move"
+        done
+
+        for DEB_FILE in "${DEB_FILES[@]}"; do
+          publish_deb "$DEB_FILE" "copy"
+        done
+
+        mapfile -t PUBLISHED_ARCHES < <(printf '%s\n' "${!ARCH_SEEN[@]}" | sort -u)
+        if [ "${#PUBLISHED_ARCHES[@]}" -eq 0 ]; then
+          echo "Error: no package architectures were detected while publishing apt repository contents." >&2
+          exit 1
+        fi
+
+        (
+          cd "$APT_REPO_DIR"
+
+          rm -rf dists/stable/main/binary-*
+          mkdir -p dists/stable/main
+
+          for ARCH in "${PUBLISHED_ARCHES[@]}"; do
+            BINARY_DIR="dists/stable/main/binary-${ARCH}"
+            mkdir -p "$BINARY_DIR"
+            dpkg-scanpackages --multiversion -a "$ARCH" pool /dev/null > "$BINARY_DIR/Packages"
+            gzip -9c "$BINARY_DIR/Packages" > "$BINARY_DIR/Packages.gz"
+          done
+
+          ARCH_LIST="$(printf '%s ' "${PUBLISHED_ARCHES[@]}")"
+          ARCH_LIST="${ARCH_LIST% }"
+          apt-ftparchive \
+            -o APT::FTPArchive::Release::Origin="$APT_REPO_OWNER" \
+            -o APT::FTPArchive::Release::Label="$APT_REPO_NAME" \
+            -o APT::FTPArchive::Release::Suite="stable" \
+            -o APT::FTPArchive::Release::Codename="stable" \
+            -o APT::FTPArchive::Release::Architectures="$ARCH_LIST" \
+            -o APT::FTPArchive::Release::Components="main" \
+            release dists/stable > dists/stable/Release
+
+          rm -f Packages Packages.gz Release
+
+          if [ -n "$SIGNING_KEY_FINGERPRINT" ]; then
+            GPG_SIGN_OPTS=(--batch --yes --pinentry-mode loopback --default-key "$SIGNING_KEY_FINGERPRINT")
+            if [ -n "$APT_SIGNING_KEY_PASSPHRASE" ]; then
+              # Write the passphrase to a mode-600 temp file so GPG can read it via
+              # --passphrase-file without exposing it on the command line or via stdin,
+              # which can mis-handle passphrases containing special characters.
+              # RUNNER_TEMP is set by GitHub Actions; /tmp is the fallback for local runs.
+              GPG_PASSPHRASE_FILE="$(mktemp "${RUNNER_TEMP:-/tmp}/gpg-passphrase-XXXXXX")"
+              chmod 600 "$GPG_PASSPHRASE_FILE"
+              printf '%s' "$APT_SIGNING_KEY_PASSPHRASE" > "$GPG_PASSPHRASE_FILE"
+              GPG_SIGN_OPTS+=(--passphrase-file "$GPG_PASSPHRASE_FILE")
+            fi
+            gpg "${GPG_SIGN_OPTS[@]}" --armor --detach-sign -o dists/stable/Release.gpg dists/stable/Release
+            gpg "${GPG_SIGN_OPTS[@]}" --clearsign -o dists/stable/InRelease dists/stable/Release
+          else
+            # Remove stale signed metadata because no signing key was configured.
+            rm -f InRelease Release.gpg dists/stable/InRelease dists/stable/Release.gpg
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo "No apt repository changes to publish."
+            exit 0
+          fi
+
+          git commit -m "Publish Debian packages for ${{ steps.get_version.outputs.tag }}"
+          git push origin HEAD:main
+        )

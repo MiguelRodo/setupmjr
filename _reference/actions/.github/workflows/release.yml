@@ -1,0 +1,105 @@
+name: Publish Release and Bump Floating Tags
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+' # Trigger on full semver tags
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag to create (must be format vX.Y.Z)'
+        required: true
+        type: string
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Needed to push tags and create releases
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # Required to fetch all tags for moving them
+
+      - name: Determine and Validate Version
+        id: vars
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          # Determine version based on trigger type
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            VERSION="${INPUT_VERSION}"
+          else
+            VERSION="${GITHUB_REF_NAME}"
+          fi
+
+          # Validate version format
+          if [[ ! "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Error: Version must be in the semantic format vX.Y.Z (e.g., v1.2.3)"
+            exit 1
+          fi
+
+          # For tag-push triggers, ensure the tag points to a commit on main
+          if [[ "${GITHUB_EVENT_NAME}" == "push" ]]; then
+            COMMIT_SHA="${GITHUB_SHA}"
+            if ! git merge-base --is-ancestor "$COMMIT_SHA" origin/main 2>/dev/null && \
+               ! git merge-base --is-ancestor origin/main "$COMMIT_SHA" 2>/dev/null; then
+              echo "❌ Error: Tagged commit is not on the main branch. Releases must originate from main."
+              exit 1
+            fi
+          fi
+
+          # Extract major and minor versions
+          MAJOR_VERSION=$(echo "$VERSION" | cut -d'.' -f1)
+          MINOR_VERSION=$(echo "$VERSION" | cut -d'.' -f1,2)
+
+          # Set outputs for subsequent steps
+          {
+            echo "version=$VERSION"
+            echo "major=$MAJOR_VERSION"
+            echo "minor=$MINOR_VERSION"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create Base Tag (Manual Trigger)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          VERSION="${{ steps.vars.outputs.version }}"
+
+          # Check if tag already exists to prevent errors
+          if git show-ref --tags --verify --quiet "refs/tags/$VERSION"; then
+            echo "Tag $VERSION already exists. Skipping base tag creation."
+          else
+            echo "🔖 Creating specific tag: $VERSION"
+            git tag -a "$VERSION" -m "Release $VERSION"
+            git push origin "$VERSION"
+          fi
+
+      - name: Update Floating Major and Minor Tags
+        run: |
+          VERSION="${{ steps.vars.outputs.version }}"
+          MAJOR="${{ steps.vars.outputs.major }}"
+          MINOR="${{ steps.vars.outputs.minor }}"
+
+          echo "Moving floating tags to point to $VERSION..."
+
+          # Force create/update the floating tags on the current commit
+          git tag -f "$MINOR"
+          git tag -f "$MAJOR"
+
+          # Force push the updated tags
+          git push origin "refs/tags/$MINOR" --force
+          git push origin "refs/tags/$MAJOR" --force
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ steps.vars.outputs.version }}
+          generate_release_notes: true
+          make_latest: true

@@ -1,0 +1,41 @@
+# .github/workflows/publish-quarto-site.yml
+#
+# Renders and publishes a Quarto site to the gh-pages branch whenever the main
+# branch is updated, or on manual dispatch.
+#
+# The gh-pages branch is created automatically if it does not already exist.
+#
+# Copy this file into your repository's .github/workflows/ directory.
+
+name: Publish Quarto Site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write   # push to gh-pages branch
+  pages: write      # deploy to GitHub Pages
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # required for quarto publish to detect changes
+
+      - name: Publish Quarto Site
+        uses: MiguelRodo/actions/publish-quarto-site@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Optional overrides:
+          # path: "."
+          # setup_r: "false"
+          # setup_python: "false"
