@@ -177,31 +177,18 @@ The `hpc apptainer` command sets up these tools by doing the following:
 
 ### `hpc r`
 
-On an HPC, one may often use a non-standard `R` terminal named `radian` because it is better than the standard `R` terminal and the `RStudio` terminal is not available.
-However, `radian` (in my experience) breaks without a key configuration setting.
-
-To configure this setting, run the following command (which is also part of `setupmjr hpc`):
+To configure `R` for the HPC environment, run the following command (which is also part of `setupmjr hpc`):
 
 ```bash
 setupmjr hpc r
 ```
 
-In addition to the above, object length and line linters are turned off (to prevent VS Code bothering you because your variable names or lines are "too long").
+This command simply calls `setupmjr r`, which configures `radian` and `lintr`.
 
-::: {.callout-info collapse="true"}
-## Details
+For full details on how this works and how it configures your environment, please refer to the [R setup documentation](r.qmd).
 
-The `~/.radian_profile` file is created if it does not exist, and the following line is added to it:
-
-```r
-options(radian.auto_match = FALSE)
-```
-
-The `~/.lintr` file is also created if it does not exist, and the following lines are added to it:
+You can also pass `--not-radian` or `--not-lintr` to opt out of those configurations:
 
 ```bash
-linters: linters_with_defaults(
-    object_length_linter = NULL,
-    object_name_linter = NULL)
+setupmjr hpc r --not-lintr
 ```
-:::

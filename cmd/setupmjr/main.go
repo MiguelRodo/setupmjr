@@ -73,7 +73,7 @@ Commands:
   bash rc.d
   bash path
   bash login
-  r radian
+  r [--not-radian] [--not-lintr]
   git
   git profile
   git auth
@@ -120,7 +120,7 @@ func handleHPC(args []string) error {
 		if err := hpc.SetupHPCSlurm(); err != nil {
 			return err
 		}
-		if err := r.SetupRRadian(); err != nil {
+		if err := handleR([]string{}); err != nil {
 			return err
 		}
 		fmt.Println("Please run 'source ~/.bashrc' to apply the changes.")
@@ -139,7 +139,7 @@ func handleHPC(args []string) error {
 	case "git":
 		err = hpc.SetupHPCGit()
 	case "r":
-		err = r.SetupRRadian()
+		err = handleR(args[1:])
 	default:
 		return fmt.Errorf("unknown hpc subcommand: %s", subcmd)
 	}
@@ -170,17 +170,12 @@ func handleBash(args []string) error {
 }
 
 func handleR(args []string) error {
-	if len(args) == 0 {
-		return fmt.Errorf("r requires a subcommand: radian")
-	}
+	fs := flag.NewFlagSet("r", flag.ExitOnError)
+	notRadian := fs.Bool("not-radian", false, "Do not configure radian")
+	notLintr := fs.Bool("not-lintr", false, "Do not configure lintr")
+	fs.Parse(args)
 
-	subcmd := args[0]
-	switch subcmd {
-	case "radian":
-		return r.SetupRRadian()
-	default:
-		return fmt.Errorf("unknown r subcommand: %s", subcmd)
-	}
+	return r.SetupR(*notRadian, *notLintr)
 }
 
 func handleGit(args []string) error {
