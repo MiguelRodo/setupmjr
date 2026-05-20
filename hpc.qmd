@@ -9,11 +9,11 @@ The `hpc` subcommand is used to configure HPC environments.
 
 ```
   hpc       Master HPC setup
+  hpc git
   hpc scratch [--r]
   hpc apptainer
   hpc slurm
-  hpc login git
-  hpc git
+  hpc r
 ```
 
 ## Installation
@@ -39,7 +39,7 @@ export PATH="$HOME/.local/bin:$PATH"
 Then run:
 
 ```
-source ~/.bashrc`.
+source ~/.bashrc
 ```
 
 At this point, the following should succeed:
@@ -65,6 +65,7 @@ Apart from needing to edit one file for Git authentication if this has not been 
 - *Helps store large files effectively*: Large files are stored in the `/scratch` space (if available) rather than `/home`, to respect HPC storage policies.
 - *Authenticates with Git*: Scripts are added to which the user needs to simply add their GitHub username and a personal access token (PAT) to enable seamless Git operations from the HPC environment.
 - *Add `Apptainer` and `SLURM` helpers*: If these tools are available on the HPC, helper scripts will be added to simplify their usage.
+- *Configures `radian`*: If you use `radian` as your R terminal, it is configured to work properly on the HPC.
 
 Each of these features can be configured independently via the respective subcommands (`hpc scratch`, `hpc apptainer`, `hpc slurm`, `hpc git`).
 
@@ -85,7 +86,7 @@ You will be prompted to enter your full name and email address (if these are not
 
 In addition, you will be prompted to enter your GitHub username and a personal access token (PAT). This allows Git to authenticate with GitHub when you push commits or perform other operations that require authentication.
 
-To get a GitHUB PAT, go to your GitHub account settings, navigate to "Developer settings" > "Personal access tokens", and generate a new token with the appropriate scopes (e.g. `repo` for full control of private repositories).
+To get a GitHub PAT, go to your GitHub account settings, navigate to "Developer settings" > "Personal access tokens", and generate a new token with the appropriate scopes (e.g. `repo` for full control of private repositories).
 
 If you skip entering any of the above information, you can always run `setupmjr hpc git` again to set it up later.
 
@@ -157,6 +158,16 @@ The commands are as follows (run `<command> --help` for usage information on eac
 - `slurm-sintx`: Starts an interactive SLURM session using `sintx`. By default, it requests 2 tasks (`--ntasks=2`) and 1 node (`--nodes=1`). You can specify the number of tasks as the first argument, and pass additional flags to `sintx` thereafter (e.g., `slurm-sintx 4 --mem=10G`).
 - `slurm-squeue`: Lists the current jobs for the logged-in user using `squeue -u $USER`.
 
+:::: {.callout-info collapse="true"}
+## Details
+
+The `hpc slurm` command sets up these tools by doing the following:
+
+1. It ensures that `~/.local/bin` is added to your system's `PATH` environment variable by (if required) adding an export statement to your `.bashrc`.
+
+2. It places the specific utility wrapper scripts (`slurm-sbatch`, `slurm-sintx`, `slurm-squeue`) directly into `~/.local/bin/`.
+::::
+
 ### `hpc apptainer`
 
 Apptainer (formerly Singularity) is a container system commonly used on HPCs to ensure reproducible software environments. 
@@ -180,12 +191,13 @@ The commands installed are as follows (run `<command> --help` for usage informat
 :::: {.callout-info collapse="true"}
 ## Details
 
-The `hpc slurm` command sets up these tools by doing the following:
+The `hpc apptainer` command sets up these tools by doing the following:
 
 1. It ensures that `~/.local/bin` is added to your system's `PATH` environment variable by (if required) adding an export statement to your `.bashrc`.
 
-2. It places the specific utility wrapper scripts (`slurm-sbatch`, `slurm-sintx`, `slurm-squeue`) directly into `~/.local/bin/`.
+2. It places the specific utility wrapper scripts directly into `~/.local/bin/`.
 ::::
+
 
 ### `hpc r`
 
@@ -205,7 +217,7 @@ In addition to the above, object length and line linters are turned off (to prev
 
 The `~/.radian_profile` file is created if it does not exist, and the following line is added to it:
 
-```bash
+```r
 options(radian.auto_match = FALSE)
 ```
 
