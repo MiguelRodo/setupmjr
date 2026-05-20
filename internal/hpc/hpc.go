@@ -3,7 +3,6 @@ package hpc
 import (
 	"fmt"
 	"io/fs"
-	"os/exec"
 	"path"
 	"path/filepath"
 	"runtime"
@@ -121,39 +120,7 @@ func SetupHPCSlurm() error {
 	return nil
 }
 
-// SetupHPCLoginGit configures the specific credential helper in .gitconfig for https://github.com
-func SetupHPCLoginGit() error {
-	helperScript := `!f() { \
-        sleep 1; \
-        echo username="${GITHUB_USER:-TOKEN}"; \
-        echo password="${GH_TOKEN:-$GITHUB_TOKEN}"; \
-        }; f`
-
-	cmd := exec.Command("git", "config", "--global", "credential.https://github.com.helper", helperScript)
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("configure github credential helper: %w", err)
-	}
-	fmt.Println("Configured git credential helper for https://github.com")
-
-	hfHelperScript := `!f() { \
-        sleep 1; \
-        echo username="${HF_USER:-${HUGGINGFACE_USER:-TOKEN}}"; \
-        echo password="${HF_TOKEN:-$HUGGINGFACE_TOKEN}"; \
-        }; f`
-
-	hfCmd := exec.Command("git", "config", "--global", "credential.https://huggingface.co.helper", hfHelperScript)
-	if err := hfCmd.Run(); err != nil {
-		return fmt.Errorf("configure huggingface credential helper: %w", err)
-	}
-	fmt.Println("Configured git credential helper for https://huggingface.co")
-
-	return nil
-}
-
-// SetupHPCGit executes SetupGit (first) and SetupHPCLoginGit (second).
+// SetupHPCGit executes SetupGit.
 func SetupHPCGit() error {
-	if err := gitcmd.SetupGit(); err != nil {
-		return err
-	}
-	return SetupHPCLoginGit()
+	return gitcmd.SetupGit()
 }

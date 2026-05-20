@@ -11,6 +11,7 @@ import (
 
 	"github.com/MiguelRodo/setupmjr/internal/bash"
 	"github.com/MiguelRodo/setupmjr/internal/sysutil"
+	"github.com/MiguelRodo/setupmjr/internal/zsh"
 )
 
 // RunCommand runs a command and returns its standard output and error.
@@ -20,7 +21,7 @@ func RunCommand(name string, args ...string) (string, error) {
 	return strings.TrimSpace(string(out)), err
 }
 
-func SetupGitUser() error {
+func SetupGitProfile() error {
 	name, _ := RunCommand("git", "config", "--global", "user.name")
 	email, _ := RunCommand("git", "config", "--global", "user.email")
 
@@ -57,7 +58,31 @@ func SetupGitUser() error {
 	return nil
 }
 
-func SetupGitLoginText() error {
+func SetupGitAuthText() error {
+	helperScript := `!f() { \
+        sleep 1; \
+        echo username="${GITHUB_USER:-TOKEN}"; \
+        echo password="${GH_TOKEN:-$GITHUB_TOKEN}"; \
+        }; f`
+
+	cmd := exec.Command("git", "config", "--global", "credential.https://github.com.helper", helperScript)
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("configure github credential helper: %w", err)
+	}
+	fmt.Println("Configured git credential helper for https://github.com")
+
+	hfHelperScript := `!f() { \
+        sleep 1; \
+        echo username="${HF_USER:-${HUGGINGFACE_USER:-TOKEN}}"; \
+        echo password="${HF_TOKEN:-$HUGGINGFACE_TOKEN}"; \
+        }; f`
+
+	hfCmd := exec.Command("git", "config", "--global", "credential.https://huggingface.co.helper", hfHelperScript)
+	if err := hfCmd.Run(); err != nil {
+		return fmt.Errorf("configure huggingface credential helper: %w", err)
+	}
+	fmt.Println("Configured git credential helper for https://huggingface.co")
+
 	reader := bufio.NewReader(os.Stdin)
 
 	fmt.Print("Enter GitHub username: ")
@@ -76,35 +101,43 @@ func SetupGitLoginText() error {
 	if err := bash.SetupBashRCD(); err != nil {
 		return err
 	}
-
-	// Make sure login.sh exists
 	if err := bash.SetupBashLogin(); err != nil {
 		return err
 	}
 
-	loginPath := filepath.Join(home, ".bashrc.d", "login.sh")
+	if err := zsh.SetupZshRCD(); err != nil {
+		return err
+	}
+	if err := zsh.SetupZshLogin(); err != nil {
+		return err
+	}
 
-	if user != "" || token != "" {
-		b, err := os.ReadFile(loginPath)
-		if err != nil {
-			return fmt.Errorf("read login.sh: %w", err)
-		}
-		content := string(b)
+	bashLoginPath := filepath.Join(home, ".bashrc.d", "login.sh")
+	zshLoginPath := filepath.Join(home, ".zshrc.d", "login.sh")
 
-		if user != "" {
-			content = injectVar(content, "GITHUB_USERNAME", user)
-			content = injectVar(content, "GITHUB_USER", user)
-		}
-		if token != "" {
-			content = injectVar(content, "GH_TOKEN", token)
-			content = injectVar(content, "GITHUB_TOKEN", token)
-			content = injectVar(content, "GITHUB_PAT", token)
-		}
+	for _, loginPath := range []string{bashLoginPath, zshLoginPath} {
+		if user != "" || token != "" {
+			b, err := os.ReadFile(loginPath)
+			if err != nil {
+				return fmt.Errorf("read %s: %w", loginPath, err)
+			}
+			content := string(b)
 
-		if err := os.WriteFile(loginPath, []byte(content), 0755); err != nil {
-			return fmt.Errorf("write login.sh: %w", err)
+			if user != "" {
+				content = injectVar(content, "GITHUB_USERNAME", user)
+				content = injectVar(content, "GITHUB_USER", user)
+			}
+			if token != "" {
+				content = injectVar(content, "GH_TOKEN", token)
+				content = injectVar(content, "GITHUB_TOKEN", token)
+				content = injectVar(content, "GITHUB_PAT", token)
+			}
+
+			if err := os.WriteFile(loginPath, []byte(content), 0755); err != nil {
+				return fmt.Errorf("write %s: %w", loginPath, err)
+			}
+			fmt.Printf("Injected credentials into %s\n", loginPath)
 		}
-		fmt.Println("Injected credentials into login.sh")
 	}
 
 	return nil
@@ -122,7 +155,7 @@ func injectVar(content, varName, val string) string {
 	return content + "\n" + replacement + "\n"
 }
 
-func SetupGitLoginCache() error {
+func SetupGitAuthCache() error {
 	if _, err := RunCommand("git", "config", "--global", "credential.helper", "cache"); err != nil {
 		return fmt.Errorf("set credential.helper cache: %w", err)
 	}
@@ -130,7 +163,7 @@ func SetupGitLoginCache() error {
 	return nil
 }
 
-func SetupGitLoginMngr() error {
+func SetupGitAuthMngr() error {
 	// Simple approach: we'll just try to set 'manager'
 	if _, err := RunCommand("git", "config", "--global", "credential.helper", "manager"); err != nil {
 		fmt.Printf("Warning: failed to set manager credential helper: %v\n", err)
@@ -140,24 +173,24 @@ func SetupGitLoginMngr() error {
 	return nil
 }
 
-func SetupGitLogin() error {
-	if err := SetupGitLoginText(); err != nil {
+func SetupGitAuth() error {
+	if err := SetupGitAuthText(); err != nil {
 		return err
 	}
-	if err := SetupGitLoginCache(); err != nil {
+	if err := SetupGitAuthCache(); err != nil {
 		return err
 	}
-	if err := SetupGitLoginMngr(); err != nil {
+	if err := SetupGitAuthMngr(); err != nil {
 		return err
 	}
 	return nil
 }
 
 func SetupGit() error {
-	if err := SetupGitUser(); err != nil {
+	if err := SetupGitProfile(); err != nil {
 		return err
 	}
-	if err := SetupGitLogin(); err != nil {
+	if err := SetupGitAuth(); err != nil {
 		return err
 	}
 	return nil
