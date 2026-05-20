@@ -22,6 +22,19 @@ Usage: $0 [-R <registry>] (-u <user> | -o <owner>) [-p <password>] [-i <images>]
   -F, --force      Force download & overwrite existing SIF
   -D, --debug      Enable debug output
   -h, --help       Show this help and exit
+
+Examples:
+  # Pull the default image based on the current directory and branch
+  $0
+
+  # Pull an image and save it to a specific file
+  $0 -f my-image.sif
+
+  # Pull an image specifying the owner and tag
+  $0 -o my-org -t v1.0
+
+  # Force download and specify the image name explicitly
+  $0 -F -i my-custom-image
 EOF
   exit 1
 }
@@ -208,6 +221,10 @@ get_current_branch() {
 }
 
 filename_from_uri() {
+  if [[ -n "$file" ]]; then
+    echo "$file"
+    return
+  fi
   debug_log "Deriving SIF filename from $1"
   local sel_uri="$1" base br part
   base="$2"
