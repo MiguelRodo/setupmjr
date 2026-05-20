@@ -15,3 +15,11 @@ The `hpc` subcommand is used to configure HPC environments.
   hpc login git
   hpc git
 ```
+
+### `hpc slurm`
+
+The `hpc slurm` command sets up several utility scripts for interacting with the Slurm workload manager, placing them in `~/.local/bin`:
+
+- `slurm-sbatch`: Submits a Slurm job using `sbatch` and logs the submission details, including the submitted script contents and standard output, into a specified or default log directory (`_tmp/log/sbatch`).
+- `slurm-sintx`: Starts an interactive Slurm session using `sintx`. By default, it requests 2 tasks (`--ntasks=2`) and 1 node (`--nodes=1`). You can specify the number of tasks as the first argument, and pass additional flags to `sintx` thereafter (e.g., `slurm-sintx 4 --mem=10G`).
+- `slurm-squeue`: Lists the current jobs for the logged-in user using `squeue -u $USER`. You can pass additional flags to `squeue` by providing them as arguments (e.g., `slurm-squeue --format="%.18i %.9P %.8j %.8u %.2t %.10M %.6D %R"`).
