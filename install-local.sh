@@ -1,16 +1,15 @@
 #!/usr/bin/env bash
-# install-local.sh - Install repos CLI to a writable directory already in PATH
+# install-local.sh - Install setupmjr CLI to a writable directory already in PATH
 
 set -euo pipefail
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m'
-
-RELEASE_REPO="${REPOS_RELEASE_REPO:-MiguelRodo/repos}"
-BINARY_NAME="${REPOS_BINARY_NAME:-repos}"
+RELEASE_REPO="${REPOS_RELEASE_REPO:-MiguelRodo/setupmjr}"
+BINARY_NAME="${REPOS_BINARY_NAME:-setupmjr}"
 DOWNLOAD_BASE_URL="${REPOS_DOWNLOAD_BASE_URL:-https://github.com/${RELEASE_REPO}/releases/latest/download}"
-STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/repos"
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/setupmjr"
 STATE_FILE="${STATE_DIR}/install-dir"
 
 map_os() {
@@ -47,7 +46,7 @@ find_writable_path_dir() {
     [ -d "$dir" ] || continue
     [ -x "$dir" ] || continue
     [ -w "$dir" ] || continue
-    probe_file="$(mktemp "${dir}/.repos-write-test.XXXXXX" 2>/dev/null || true)"
+    probe_file="$(mktemp "${dir}/.setupmjr-write-test.XXXXXX" 2>/dev/null || true)"
     [ -n "$probe_file" ] || continue
     rm -f "$probe_file"
     echo "$dir"
@@ -56,7 +55,7 @@ find_writable_path_dir() {
   return 1
 }
 
-echo -e "${GREEN}Installing repos CLI...${NC}"
+echo -e "${GREEN}Installing setupmjr CLI...${NC}"
 echo
 
 if ! command -v curl >/dev/null 2>&1; then
@@ -88,8 +87,8 @@ ASSET_CANDIDATES=(
   "${BINARY_NAME}-${OS_NAME}-${ARCH_NAME}"
 )
 
-TMP_BIN="$(mktemp "${TMPDIR:-/tmp}/repos-install.XXXXXX")"
-TMP_SUM="$(mktemp "${TMPDIR:-/tmp}/repos-install-sum.XXXXXX")"
+TMP_BIN="$(mktemp "${TMPDIR:-/tmp}/setupmjr-install.XXXXXX")"
+TMP_SUM="$(mktemp "${TMPDIR:-/tmp}/setupmjr-install-sum.XXXXXX")"
 trap 'rm -f "$TMP_BIN" "$TMP_SUM"' EXIT
 
 DOWNLOADED_ASSET=""

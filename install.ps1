@@ -1,5 +1,5 @@
 #!/usr/bin/env pwsh
-# install.ps1 - Install repos CLI binary into a writable directory already in PATH
+# install.ps1 - Install setupmjr CLI binary into a writable directory already in PATH
 
 param(
     [switch]$Uninstall
@@ -13,7 +13,7 @@ $localAppData = if ($env:LOCALAPPDATA) {
 } else {
     [System.IO.Path]::GetTempPath()
 }
-$stateDir = Join-Path $localAppData "repos"
+$stateDir = Join-Path $localAppData "setupmjr"
 $stateFile = Join-Path $stateDir "install-dir.txt"
 
 function Get-ArchName {
@@ -34,7 +34,7 @@ function Test-WritableDirectory([string]$PathEntry) {
         return $false
     }
     try {
-        $probe = Join-Path $PathEntry ".repos-write-test-$([guid]::NewGuid().ToString()).tmp"
+        $probe = Join-Path $PathEntry ".setupmjr-write-test-$([guid]::NewGuid().ToString()).tmp"
         Set-Content -LiteralPath $probe -Value "ok" -Encoding ascii
         Remove-Item -LiteralPath $probe -Force
         return $true
@@ -60,7 +60,7 @@ if ($Uninstall) {
         $installDir = Get-Content -LiteralPath $stateFile -TotalCount 1
     }
     if ($installDir -and [System.IO.Path]::IsPathRooted($installDir)) {
-        $candidate = Join-Path $installDir "repos.exe"
+        $candidate = Join-Path $installDir "setupmjr.exe"
         if (Test-Path -LiteralPath $candidate -PathType Leaf) {
             try {
                 Remove-Item -LiteralPath $candidate -Force
@@ -73,7 +73,7 @@ if ($Uninstall) {
     }
 
     if (-not $removed) {
-        Write-Host "No repos.exe found at recorded install location." -ForegroundColor Yellow
+        Write-Host "No setupmjr.exe found at recorded install location." -ForegroundColor Yellow
     }
     if (Test-Path -LiteralPath $stateFile -PathType Leaf) {
         Remove-Item -LiteralPath $stateFile -Force -ErrorAction SilentlyContinue
@@ -81,13 +81,13 @@ if ($Uninstall) {
     exit 0
 }
 
-$releaseRepo = if ($env:REPOS_RELEASE_REPO) { $env:REPOS_RELEASE_REPO } else { "MiguelRodo/repos" }
-$binaryName = if ($env:REPOS_BINARY_NAME) { $env:REPOS_BINARY_NAME } else { "repos" }
+$releaseRepo = if ($env:SETUPMJR_RELEASE_REPO) { $env:SETUPMJR_RELEASE_REPO } else { "MiguelRodo/setupmjr" }
+$binaryName = if ($env:SETUPMJR_BINARY_NAME) { $env:SETUPMJR_BINARY_NAME } else { "setupmjr" }
 $osName = "windows"
 $archName = Get-ArchName
 $installDir = Get-WritablePathDirectory
-$downloadBase = if ($env:REPOS_DOWNLOAD_BASE_URL) {
-    $env:REPOS_DOWNLOAD_BASE_URL
+$downloadBase = if ($env:SETUPMJR_DOWNLOAD_BASE_URL) {
+    $env:SETUPMJR_DOWNLOAD_BASE_URL
 } else {
     "https://github.com/$releaseRepo/releases/latest/download"
 }
