@@ -1,0 +1,15 @@
+---
+title: "repo"
+toc: true
+---
+
+The `repo` subcommand is used to set up repositories.
+
+## Commands
+
+```
+  repo readme
+  repo devcontainer [--repo <owner/repo>] [--branch <branch>] [--no-prebuild]
+  repo action <action-name>
+  repo install repos
+```
