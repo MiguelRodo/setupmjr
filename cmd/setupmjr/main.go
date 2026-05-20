@@ -58,6 +58,11 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
+	case "multirepo":
+		if err := handleMultirepo(os.Args[2:]); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
 	case "version", "--version", "-v":
 		fmt.Printf("setupmjr version %s\n", version)
 	case "help", "--help", "-h":
@@ -94,7 +99,8 @@ Commands:
   repo readme
   repo devcontainer [--repo <owner/repo>@<branch>] [--build]
   repo action <action-name>
-  repo install repos`)
+  repo install repos
+  multirepo <command>`)
 }
 
 func handleHPC(args []string) error {
@@ -262,4 +268,17 @@ func handleRepo(args []string) error {
 	default:
 		return fmt.Errorf("unknown repo subcommand: %s", subcmd)
 	}
+}
+
+func handleMultirepo(args []string) error {
+	if len(args) == 0 {
+		return fmt.Errorf("multirepo requires a command")
+	}
+
+	subcmd := args[0]
+	if subcmd == "install-r-deps" || subcmd == "run" {
+		return fmt.Errorf("the '%s' command is excluded from the setupmjr wrapper. use it directly via 'repos %s'", subcmd, subcmd)
+	}
+
+	return repo.RunReposCommand(args)
 }

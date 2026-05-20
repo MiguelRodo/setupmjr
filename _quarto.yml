@@ -19,6 +19,8 @@ website:
         text: git
       - href: repo.qmd
         text: repo
+      - href: multirepo.qmd
+        text: multirepo
 
 format:
   html:

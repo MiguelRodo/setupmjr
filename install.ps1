@@ -140,4 +140,8 @@ Move-Item -LiteralPath $tmpFile -Destination $target -Force
 New-Item -ItemType Directory -Path $stateDir -Force | Out-Null
 Set-Content -LiteralPath $stateFile -Value $installDir -Encoding ascii
 Write-Host "Installed $binaryName ($downloadedAsset) to $target" -ForegroundColor Green
+
+Write-Host "Installing bundled dependencies..."
+& "$target" repo install repos
+
 Write-Host "Run: $binaryName --help"

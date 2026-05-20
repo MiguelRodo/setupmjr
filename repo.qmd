@@ -76,7 +76,7 @@ Under the hood, the command fetches the `.devcontainer` directory by downloading
 
 While `setupmjr` has a few subcommands like `repo`, the `repos` command is actually a dependency of `setupmjr`. The `setupmjr repo install repos` command downloads and installs this external `repos` utility into `~/.local/bin`.
 
-The core operations for managing repositories (cloning, configuring workspaces, etc.) are conceptually part of `repos`, which `setupmjr` uses or exposes (excluding certain tools like `run` or `setup-r`, which will be handled elsewhere or made directly available via `repos` instead of wrapped via `setupmjr repo comp`).
+The core operations for managing repositories (cloning, configuring workspaces, etc.) are conceptually part of `repos`, which `setupmjr` uses or exposes (excluding tools like `run` or `install-r-deps`, which can be made directly available via `repos`).
 
 ## `repo action`
 
