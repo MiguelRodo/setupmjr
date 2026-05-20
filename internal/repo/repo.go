@@ -2,6 +2,7 @@ package repo
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -14,6 +15,28 @@ import (
 	"github.com/MiguelRodo/setupmjr/internal/sysutil"
 )
 
+func getLatestGitHubReleaseTag(ownerRepo string) (string, error) {
+	url := fmt.Sprintf("https://api.github.com/repos/%s/releases/latest", ownerRepo)
+	resp, err := http.Get(url)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("failed to fetch latest release for %s: %s", ownerRepo, resp.Status)
+	}
+
+	var release struct {
+		TagName string `json:"tag_name"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&release); err != nil {
+		return "", err
+	}
+
+	return release.TagName, nil
+}
+
 func SetupRepoReadme() error {
 	reader := bufio.NewReader(os.Stdin)
 
@@ -21,7 +44,7 @@ func SetupRepoReadme() error {
 	title, _ := reader.ReadString('\n')
 	title = strings.TrimSpace(title)
 
-	fmt.Print("This repository ")
+	fmt.Print("Complete this sentence describing the purpose of the repo: This repository... and we'll ensure a single white space after this repository: ")
 	purpose, _ := reader.ReadString('\n')
 	purpose = strings.TrimSpace(purpose)
 
@@ -98,7 +121,11 @@ func SetupRepoDevcontainer(repo, branch string, build bool) error {
 		if err := sysutil.EnsureDirExists(".github/workflows", 0755); err != nil {
 			return err
 		}
-		url := "https://raw.githubusercontent.com/MiguelRodo/actions/main/examples/prebuild-devcontainer.yml"
+		tag, err := getLatestGitHubReleaseTag("MiguelRodo/actions")
+		if err != nil {
+			return fmt.Errorf("failed to fetch latest actions release: %w", err)
+		}
+		url := fmt.Sprintf("https://raw.githubusercontent.com/MiguelRodo/actions/%s/examples/prebuild-devcontainer.yml", tag)
 		dest := filepath.Join(".github", "workflows", "prebuild-devcontainer.yml")
 		if err := downloadFile(url, dest); err != nil {
 			return fmt.Errorf("failed to download prebuild-devcontainer.yml: %w", err)
@@ -168,7 +195,12 @@ func RunReposCommand(args []string) error {
 }
 
 func SetupRepoInstallRepos() error {
-	version := "2.5.5" // Could fetch dynamically if needed
+	tag, err := getLatestGitHubReleaseTag("MiguelRodo/repos")
+	if err != nil {
+		return fmt.Errorf("failed to fetch latest repos release: %w", err)
+	}
+	version := strings.TrimPrefix(tag, "v")
+
 	goos := runtime.GOOS
 	goarch := runtime.GOARCH
 
