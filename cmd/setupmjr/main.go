@@ -63,7 +63,7 @@ func printUsage() {
 	fmt.Println(`setupmjr - Cross-platform setup utility
 Commands:
   hpc       Master HPC setup
-  hpc scratch [--r]
+  hpc scratch
   hpc apptainer
   hpc slurm
   hpc login git
@@ -100,7 +100,7 @@ func handleHPC(args []string) error {
 		if err := hpc.SetupHPCGit(); err != nil {
 			return err
 		}
-		if err := hpc.SetupHPCScratch(false); err != nil {
+		if err := hpc.SetupHPCScratch(); err != nil {
 			return err
 		}
 		if err := hpc.SetupHPCApptainer(); err != nil {
@@ -120,10 +120,7 @@ func handleHPC(args []string) error {
 	var err error
 	switch subcmd {
 	case "scratch":
-		fs := flag.NewFlagSet("scratch", flag.ExitOnError)
-		withR := fs.Bool("r", false, "Include R config")
-		fs.Parse(args[1:])
-		err = hpc.SetupHPCScratch(*withR)
+		err = hpc.SetupHPCScratch()
 	case "apptainer":
 		err = hpc.SetupHPCApptainer()
 	case "slurm":
