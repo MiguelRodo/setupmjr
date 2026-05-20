@@ -154,6 +154,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="./repo.html"> 
 <span class="menu-text">repo</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./multirepo.html"> 
+<span class="menu-text">multirepo</span></a>
+  </li>  
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -240,7 +244,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/MiguelRodo/setupmjr.git</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> setupmjr</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> install-local.sh</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>If no writable path entry exists, the installer will stop with guidance.</p>
+<p>The installer also automatically downloads the <code>repos</code> tool as a bundled dependency. If no writable path entry exists, the installer will stop with guidance.</p>
 <p>To uninstall:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> uninstall-local.sh</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
@@ -324,7 +328,7 @@ Warning
 <li><p>Run the installer:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode powershell code-with-copy"><code class="sourceCode powershell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="op">.</span>\install<span class="op">.</span><span class="fu">ps1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div></li>
 </ol>
-<p>The installer downloads the latest <code>setupmjr.exe</code> binary from GitHub releases and places it in the first writable directory in your current <code>PATH</code>.</p>
+<p>The installer downloads the latest <code>setupmjr.exe</code> binary from GitHub releases and places it in the first writable directory in your current <code>PATH</code>. It also automatically downloads the <code>repos</code> tool as a bundled dependency.</p>
 <p><strong>Requirements:</strong> PowerShell and network access to GitHub releases.</p>
 <p><em>(Note: Ensure you are executing this within a PowerShell console <code>pwsh</code> or <code>powershell.exe</code>, as native <code>cmd.exe</code> will not interpret the script correctly.)</em></p>
 <p>To uninstall:</p>

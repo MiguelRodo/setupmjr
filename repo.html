@@ -154,6 +154,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link active" href="./repo.html" aria-current="page"> 
 <span class="menu-text">repo</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./multirepo.html"> 
+<span class="menu-text">multirepo</span></a>
+  </li>  
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -260,7 +264,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="repo-install-repos" class="level2">
 <h2 class="anchored" data-anchor-id="repo-install-repos"><code>repo install repos</code></h2>
 <p>While <code>setupmjr</code> has a few subcommands like <code>repo</code>, the <code>repos</code> command is actually a dependency of <code>setupmjr</code>. The <code>setupmjr repo install repos</code> command downloads and installs this external <code>repos</code> utility into <code>~/.local/bin</code>.</p>
-<p>The core operations for managing repositories (cloning, configuring workspaces, etc.) are conceptually part of <code>repos</code>, which <code>setupmjr</code> uses or exposes (excluding certain tools like <code>run</code> or <code>setup-r</code>, which will be handled elsewhere or made directly available via <code>repos</code> instead of wrapped via <code>setupmjr repo comp</code>).</p>
+<p>The core operations for managing repositories (cloning, configuring workspaces, etc.) are conceptually part of <code>repos</code>, which <code>setupmjr</code> uses or exposes (excluding tools like <code>run</code> or <code>install-r-deps</code>, which can be made directly available via <code>repos</code>).</p>
 </section>
 <section id="repo-action" class="level2">
 <h2 class="anchored" data-anchor-id="repo-action"><code>repo action</code></h2>
