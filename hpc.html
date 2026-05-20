@@ -183,7 +183,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#hpc-apptainer" id="toc-hpc-apptainer" class="nav-link" data-scroll-target="#hpc-apptainer"><code>hpc apptainer</code></a></li>
   <li><a href="#details-2" id="toc-details-2" class="nav-link" data-scroll-target="#details-2">Details</a></li>
   <li><a href="#hpc-r" id="toc-hpc-r" class="nav-link" data-scroll-target="#hpc-r"><code>hpc r</code></a></li>
-  <li><a href="#details-3" id="toc-details-3" class="nav-link" data-scroll-target="#details-3">Details</a></li>
   </ul>
 </nav>
     </div>
@@ -332,22 +331,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="hpc-r" class="level3">
 <h3 class="anchored" data-anchor-id="hpc-r"><code>hpc r</code></h3>
-<p>On an HPC, one may often use a non-standard <code>R</code> terminal named <code>radian</code> because it is better than the standard <code>R</code> terminal and the <code>RStudio</code> terminal is not available. However, <code>radian</code> (in my experience) breaks without a key configuration setting.</p>
-<p>To configure this setting, run the following command (which is also part of <code>setupmjr hpc</code>):</p>
+<p>To configure <code>R</code> for the HPC environment, run the following command (which is also part of <code>setupmjr hpc</code>):</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>In addition to the above, object length and line linters are turned off (to prevent VS Code bothering you because your variable names or lines are “too long”).</p>
-</section>
-<section id="details-3" class="level2 callout-info" data-collapse="true">
-<h2 class="anchored" data-anchor-id="details-3">Details</h2>
-<p>The <code>~/.radian_profile</code> file is created if it does not exist, and the following line is added to it:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">radian.auto_match =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The <code>~/.lintr</code> file is also created if it does not exist, and the following lines are added to it:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">linters:</span> linters_with_defaults<span class="er">(</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="ex">object_length_linter</span> = NULL,</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="ex">object_name_linter</span> = NULL<span class="kw">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
+<p>This command simply calls <code>setupmjr r</code>, which configures <code>radian</code> and <code>lintr</code>.</p>
+<p>For full details on how this works and how it configures your environment, please refer to the <a href="./r.html">R setup documentation</a>.</p>
+<p>You can also pass <code>--not-radian</code> or <code>--not-lintr</code> to opt out of those configurations:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc r <span class="at">--not-lintr</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

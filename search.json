@@ -39,7 +39,21 @@
     "href": "r.html#commands",
     "title": "r",
     "section": "Commands",
-    "text": "Commands\n  r radian"
+    "text": "Commands\n  r [--not-radian] [--not-lintr]"
+  },
+  {
+    "objectID": "r.html#setup",
+    "href": "r.html#setup",
+    "title": "r",
+    "section": "Setup",
+    "text": "Setup\nOne may often use a non-standard R terminal named radian because it offers many enhancements over the standard R terminal. However, radian (in some experiences) breaks without a key configuration setting.\nTo configure this setting, run the following command:\nsetupmjr r\nIn addition to configuring radian, this command also turns off object length and line linters for lintr (to prevent VS Code or other editors from bothering you because your variable names or lines are “too long”).\n\nFlags\nYou can opt out of configuring radian or lintr by passing the respective flags:\n\n--not-radian: Do not configure ~/.radian_profile.\n--not-lintr: Do not configure ~/.lintr.\n\nFor example, to only configure radian and not lintr:\nsetupmjr r --not-lintr"
+  },
+  {
+    "objectID": "r.html#details",
+    "href": "r.html#details",
+    "title": "r",
+    "section": "Details",
+    "text": "Details\nIf not skipped via --not-radian, the ~/.radian_profile file is created if it does not exist, and the following line is added to it:\noptions(radian.auto_match = FALSE)\nIf not skipped via --not-lintr, the ~/.lintr file is created if it does not exist, and the following lines are added to it:\nlinters: linters_with_defaults(\n    object_length_linter = NULL,\n    object_name_linter = NULL)"
   },
   {
     "objectID": "git.html",
@@ -257,12 +271,5 @@
     "title": "hpc",
     "section": "Details",
     "text": "Details\nThe hpc apptainer command sets up these tools by doing the following:\n\nIt ensures that ~/.local/bin is added to your system’s PATH environment variable by (if required) adding an export statement to your .bashrc.\nIt places the specific utility wrapper scripts directly into ~/.local/bin/."
-  },
-  {
-    "objectID": "hpc.html#details-3",
-    "href": "hpc.html#details-3",
-    "title": "hpc",
-    "section": "Details",
-    "text": "Details\nThe ~/.radian_profile file is created if it does not exist, and the following line is added to it:\noptions(radian.auto_match = FALSE)\nThe ~/.lintr file is also created if it does not exist, and the following lines are added to it:\nlinters: linters_with_defaults(\n    object_length_linter = NULL,\n    object_name_linter = NULL)"
   }
 ]
