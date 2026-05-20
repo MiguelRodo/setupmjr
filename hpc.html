@@ -135,7 +135,10 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#commands" id="toc-commands" class="nav-link active" data-scroll-target="#commands">Commands</a></li>
+  <li><a href="#commands" id="toc-commands" class="nav-link active" data-scroll-target="#commands">Commands</a>
+  <ul class="collapse">
+  <li><a href="#hpc-slurm" id="toc-hpc-slurm" class="nav-link" data-scroll-target="#hpc-slurm"><code>hpc slurm</code></a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -170,8 +173,17 @@ ul.task-list li input[type="checkbox"] {
   hpc slurm
   hpc login git
   hpc git</code></pre>
+<section id="hpc-slurm" class="level3">
+<h3 class="anchored" data-anchor-id="hpc-slurm"><code>hpc slurm</code></h3>
+<p>The <code>hpc slurm</code> command sets up several utility scripts for interacting with the Slurm workload manager, placing them in <code>~/.local/bin</code>:</p>
+<ul>
+<li><code>slurm-sbatch</code>: Submits a Slurm job using <code>sbatch</code> and logs the submission details, including the submitted script contents and standard output, into a specified or default log directory (<code>_tmp/log/sbatch</code>).</li>
+<li><code>slurm-sintx</code>: Starts an interactive Slurm session using <code>sintx</code>. By default, it requests 2 tasks (<code>--ntasks=2</code>) and 1 node (<code>--nodes=1</code>). You can specify the number of tasks as the first argument, and pass additional flags to <code>sintx</code> thereafter (e.g., <code>slurm-sintx 4 --mem=10G</code>).</li>
+<li><code>slurm-squeue</code>: Lists the current jobs for the logged-in user using <code>squeue -u $USER</code>. You can pass additional flags to <code>squeue</code> by providing them as arguments (e.g., <code>slurm-squeue --format="%.18i %.9P %.8j %.8u %.2t %.10M %.6D %R"</code>).</li>
+</ul>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->

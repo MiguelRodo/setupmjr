@@ -144,6 +144,6 @@
     "href": "hpc.html#commands",
     "title": "hpc",
     "section": "Commands",
-    "text": "Commands\n  hpc       Master HPC setup\n  hpc scratch [--r]\n  hpc apptainer\n  hpc slurm\n  hpc login git\n  hpc git"
+    "text": "Commands\n  hpc       Master HPC setup\n  hpc scratch [--r]\n  hpc apptainer\n  hpc slurm\n  hpc login git\n  hpc git\n\nhpc slurm\nThe hpc slurm command sets up several utility scripts for interacting with the Slurm workload manager, placing them in ~/.local/bin:\n\nslurm-sbatch: Submits a Slurm job using sbatch and logs the submission details, including the submitted script contents and standard output, into a specified or default log directory (_tmp/log/sbatch).\nslurm-sintx: Starts an interactive Slurm session using sintx. By default, it requests 2 tasks (--ntasks=2) and 1 node (--nodes=1). You can specify the number of tasks as the first argument, and pass additional flags to sintx thereafter (e.g., slurm-sintx 4 --mem=10G).\nslurm-squeue: Lists the current jobs for the logged-in user using squeue -u $USER. You can pass additional flags to squeue by providing them as arguments (e.g., slurm-squeue --format=\"%.18i %.9P %.8j %.8u %.2t %.10M %.6D %R\")."
   }
 ]
