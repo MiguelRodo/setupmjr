@@ -6,9 +6,9 @@ set -euo pipefail
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m'
-RELEASE_REPO="${REPOS_RELEASE_REPO:-MiguelRodo/setupmjr}"
-BINARY_NAME="${REPOS_BINARY_NAME:-setupmjr}"
-DOWNLOAD_BASE_URL="${REPOS_DOWNLOAD_BASE_URL:-https://github.com/${RELEASE_REPO}/releases/latest/download}"
+RELEASE_REPO="${SETUPMJR_RELEASE_REPO:-MiguelRodo/setupmjr}"
+BINARY_NAME="${SETUPMJR_BINARY_NAME:-setupmjr}"
+DOWNLOAD_BASE_URL="${SETUPMJR_DOWNLOAD_BASE_URL:-https://github.com/${RELEASE_REPO}/releases/latest/download}"
 STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/setupmjr"
 STATE_FILE="${STATE_DIR}/install-dir"
 
