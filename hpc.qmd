@@ -123,6 +123,22 @@ This configures your environment to preferentially use the `/scratch` space for 
   - The `R_LIBS_USER` environment variable is set to `/scratch/$USER/.local/lib/R` and created, so that R packages are installed in the scratch space instead of the home directory.
   - Similarly, various `RENV_*` environment variables configuring `renv` paths are set to point to the scratch space.
 
+::: {.callout-info collapse="true"}
+## Details
+
+The `hpc scratch` command configures the environment to use the `/scratch` directory by doing the following:
+
+1. It ensures that `.bashrc.d` files are sourced by `.bashrc`.
+
+2. A script is added to `~/.bashrc.d/hpc-scratch.sh`, which explicitly exports paths for Apptainer, Singularity, `renv`, and R libraries to use `/scratch/$USER`. Specifically, it sets the following environment variables:
+   - `RENV_CONFIG_PAK_ENABLED=false`
+   - `RENV_CONFIG_SANDBOX_ENABLED=false`
+   - `RENV_PATHS_LIBRARY_ROOT=/scratch/${USER}/.local/lib/R/library`
+   - `RENV_PATHS_CACHE=/scratch/${USER}/renv/cache:/renv/cache`
+   - `RENV_PATHS_ROOT=/scratch/${USER}/.local/lib/R/library`
+   - `R_LIBS=/scratch/${USER}/.local/lib/R`
+:::
+
 
 ### `hpc slurm`
 
@@ -144,7 +160,7 @@ The commands are as follows (run `<command> --help` for usage information on eac
 ### `hpc apptainer`
 
 Apptainer (formerly Singularity) is a container system commonly used on HPCs to ensure reproducible software environments. 
-The `hpc apptainer` command sets up several utility scripts for seamlessly pulling, locating, and interacting with Apptainer containers, placing them in `~/.local/bin`.
+The `hpc apptainer` command sets up several utility scripts for seamlessly pulling, locating, and interacting with Apptainer containers.
 It is designed to work tightly with images built using the `MiguelRodo/devcontainer-prebuild` GitHub Action, sharing many of the same conventions (but is compatible with containers from both Docker Hub and GitHub Container Registry).
 
 To set this up, run the following command (also part of `setupmjr hpc`):
@@ -161,9 +177,14 @@ The commands installed are as follows (run `<command> --help` for usage informat
 - `apptainer-run`: Executes a given command inside the project's Apptainer container. If no command is passed, it falls back to opening an interactive shell (`apptainer shell`) within the container.
 - `apptainer-rscript`: A specialized wrapper to easily pass and execute R expressions (via `Rscript -e`) directly inside the project's container without needing to manually spin up an interactive shell.
 
-::::{.callout-info collapse="true"}
+:::: {.callout-info collapse="true"}
 ## Details
-During installation, `setupmjr` iterates through embedded scripts and copies all files starting with `apptainer-` to your local bin directory.
+
+The `hpc slurm` command sets up these tools by doing the following:
+
+1. It ensures that `~/.local/bin` is added to your system's `PATH` environment variable by (if required) adding an export statement to your `.bashrc`.
+
+2. It places the specific utility wrapper scripts (`slurm-sbatch`, `slurm-sintx`, `slurm-squeue`) directly into `~/.local/bin/`.
 ::::
 
 ### `hpc r`

@@ -47,7 +47,17 @@ use_scratch() {
     export APPTAINER_CACHE_DIR="/scratch/$USER/.cache/apptainer"
 
     # Force renv to use /scratch
-    export RENV_PATHS_ROOT="/scratch/$USER/.local/renv"
+    export RENV_CONFIG_PAK_ENABLED=false
+    export RENV_CONFIG_SANDBOX_ENABLED=false
+    export RENV_PATHS_LIBRARY_ROOT="/scratch/$USER/.local/lib/R/library"
+    export RENV_PATHS_CACHE="/scratch/$USER/renv/cache:/renv/cache"
+    export RENV_PATHS_ROOT="/scratch/$USER/.local/lib/R/library"
+    mkdir -p "$RENV_PATHS_LIBRARY_ROOT" || {
+        echo "Failed to create RENV_PATHS_LIBRARY_ROOT directory: $RENV_PATHS_LIBRARY_ROOT"
+    }
+    mkdir -p "/scratch/$USER/renv/cache" || {
+        echo "Failed to create RENV_PATHS_CACHE directory: /scratch/$USER/renv/cache"
+    }
     mkdir -p "$RENV_PATHS_ROOT" || {
         echo "Failed to create RENV_PATHS_ROOT directory: $RENV_PATHS_ROOT"
     }
