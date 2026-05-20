@@ -114,12 +114,20 @@ func SetupRepoAction(actionName string) error {
 	if err := sysutil.EnsureDirExists(".github/workflows", 0755); err != nil {
 		return err
 	}
-	url := fmt.Sprintf("https://raw.githubusercontent.com/MiguelRodo/actions/main/examples/%s.yml", actionName)
+
 	dest := filepath.Join(".github", "workflows", actionName+".yml")
 
-	if err := downloadFile(url, dest); err != nil {
-		return fmt.Errorf("failed to download action %s: %w", actionName, err)
+	if content, exists := actionWorkflows[actionName]; exists {
+		if err := os.WriteFile(dest, []byte(content), 0644); err != nil {
+			return fmt.Errorf("failed to write action %s: %w", actionName, err)
+		}
+	} else {
+		url := fmt.Sprintf("https://raw.githubusercontent.com/MiguelRodo/actions/main/examples/%s.yml", actionName)
+		if err := downloadFile(url, dest); err != nil {
+			return fmt.Errorf("failed to download action %s: %w", actionName, err)
+		}
 	}
+
 	fmt.Printf("Successfully added %s to .github/workflows\n", actionName)
 	return nil
 }
