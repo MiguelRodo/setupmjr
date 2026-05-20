@@ -114,7 +114,7 @@ brew install setupmjr
 
 ## Windows
 
-### Option 1: Installer Script (Recommended)
+### Option 1: Installer Script
 
 Download and install the pre-compiled `setupmjr.exe` into the first writable directory
 already present in your `PATH`:
@@ -143,10 +143,6 @@ To uninstall:
 ```
 
 ### Option 2: Scoop
-
-::::{.callout-warning}
-The Scoop bucket is an upcoming feature and not yet fully configured.
-::::
 
 ```powershell
 scoop bucket add setupmjr https://github.com/MiguelRodo/scoop-bucket
