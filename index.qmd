@@ -16,6 +16,7 @@ Commands:
   hpc slurm
   hpc login git
   hpc git
+  hpc r
   bash rc.d
   bash login
   r radian

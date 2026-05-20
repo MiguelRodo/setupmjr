@@ -14,6 +14,7 @@ The `hpc` subcommand is used to configure HPC environments.
   hpc slurm
   hpc login git
   hpc git
+  hpc r
 ```
 
 ## Installation
@@ -66,7 +67,7 @@ Apart from needing to edit one file for Git authentication if this has not been 
 - *Authenticates with Git*: Scripts are added to which the user needs to simply add their GitHub username and a personal access token (PAT) to enable seamless Git operations from the HPC environment.
 - *Add `Apptainer` and `SLURM` helpers*: If these tools are available on the HPC, helper scripts will be added to simplify their usage.
 
-Each of these features can be configured independently via the respective subcommands (`hpc scratch`, `hpc apptainer`, `hpc slurm`, `hpc git`).
+Each of these features can be configured independently via the respective subcommands (`hpc scratch`, `hpc apptainer`, `hpc slurm`, `hpc git`, `hpc r`).
 
 ### Setting up Git
 
@@ -131,3 +132,34 @@ The `hpc slurm` command sets up several utility scripts for interacting with the
 - `slurm-sbatch`: Submits a Slurm job using `sbatch` and logs the submission details, including the submitted script contents and standard output, into a specified or default log directory (`_tmp/log/sbatch`).
 - `slurm-sintx`: Starts an interactive Slurm session using `sintx`. By default, it requests 2 tasks (`--ntasks=2`) and 1 node (`--nodes=1`). You can specify the number of tasks as the first argument, and pass additional flags to `sintx` thereafter (e.g., `slurm-sintx 4 --mem=10G`).
 - `slurm-squeue`: Lists the current jobs for the logged-in user using `squeue -u $USER`. You can pass additional flags to `squeue` by providing them as arguments (e.g., `slurm-squeue --format="%.18i %.9P %.8j %.8u %.2t %.10M %.6D %R"`).
+
+### `hpc r`
+
+On an HPC, one may often use a non-standard `R` terminal named `radian` because it is better than the standard `R` terminal and the `RStudio` terminal is not available.
+However, `radian` (in my experience) breaks without a key configuration setting.
+
+To configure this setting, run the following command (which is also part of `setupmjr hpc`):
+
+```bash
+setupmjr hpc r
+```
+
+In addition to the above, object length and line linters are turned off (to prevent VS Code bothering you because your variable names or lines are "too long").
+
+::::{.callout-info collapse="true"}
+## Details
+
+The `~/.radian_profile` file is created if it does not exist, and the following line is added to it:
+
+```bash
+options(radian.auto_match = FALSE)
+```
+
+The `~/.lintr` file is also created if it does not exist, and the following lines are added to it:
+
+```bash
+linters: linters_with_defaults(
+    object_length_linter = NULL,
+    object_name_linter = NULL)
+```
+::::
