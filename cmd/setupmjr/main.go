@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/MiguelRodo/setupmjr/internal/bash"
 	"github.com/MiguelRodo/setupmjr/internal/gitcmd"
@@ -79,7 +80,7 @@ Commands:
   git login cache
   git login mngr
   repo readme
-  repo devcontainer [--repo <owner/repo>] [--branch <branch>] [--no-prebuild]
+  repo devcontainer [--repo <owner/repo>@<branch>] [--build]
   repo action <action-name>
   repo install repos`)
 }
@@ -216,11 +217,19 @@ func handleRepo(args []string) error {
 		return repo.SetupRepoReadme()
 	case "devcontainer":
 		fs := flag.NewFlagSet("devcontainer", flag.ExitOnError)
-		repoFlag := fs.String("repo", "MiguelRodo/comp", "Repository to copy .devcontainer from")
-		branchFlag := fs.String("branch", "main", "Branch to copy .devcontainer from")
-		noPrebuild := fs.Bool("no-prebuild", false, "Copy devcontainer prebuild action")
+		repoFlag := fs.String("repo", "MiguelRodo/comp@main", "Repository and branch to copy .devcontainer from, formatted as <owner/repo>@<branch>")
+		buildFlag := fs.Bool("build", false, "Copy devcontainer prebuild action")
 		fs.Parse(args[1:])
-		return repo.SetupRepoDevcontainer(*repoFlag, *branchFlag, *noPrebuild)
+
+		repoStr := *repoFlag
+		branchStr := "main"
+		if strings.Contains(repoStr, "@") {
+			parts := strings.SplitN(repoStr, "@", 2)
+			repoStr = parts[0]
+			branchStr = parts[1]
+		}
+
+		return repo.SetupRepoDevcontainer(repoStr, branchStr, *buildFlag)
 	case "action":
 		if len(args) < 2 {
 			return fmt.Errorf("repo action requires an action name")
