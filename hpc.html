@@ -175,16 +175,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#setup" id="toc-setup" class="nav-link" data-scroll-target="#setup">Setup</a>
   <ul class="collapse">
   <li><a href="#setting-up-git" id="toc-setting-up-git" class="nav-link" data-scroll-target="#setting-up-git">Setting up Git</a></li>
+  <li><a href="#using-scratch-space" id="toc-using-scratch-space" class="nav-link" data-scroll-target="#using-scratch-space">Using scratch space</a></li>
   </ul></li>
   <li><a href="#details" id="toc-details" class="nav-link" data-scroll-target="#details">Details</a></li>
-  <li><a href="#using-scratch-space" id="toc-using-scratch-space" class="nav-link" data-scroll-target="#using-scratch-space">Using scratch space</a></li>
-  <li><a href="#details-1" id="toc-details-1" class="nav-link" data-scroll-target="#details-1">Details</a></li>
   <li><a href="#hpc-slurm" id="toc-hpc-slurm" class="nav-link" data-scroll-target="#hpc-slurm"><code>hpc slurm</code></a></li>
-  <li><a href="#details-2" id="toc-details-2" class="nav-link" data-scroll-target="#details-2">Details</a></li>
+  <li><a href="#details-1" id="toc-details-1" class="nav-link" data-scroll-target="#details-1">Details</a></li>
   <li><a href="#hpc-apptainer" id="toc-hpc-apptainer" class="nav-link" data-scroll-target="#hpc-apptainer"><code>hpc apptainer</code></a></li>
-  <li><a href="#details-3" id="toc-details-3" class="nav-link" data-scroll-target="#details-3">Details</a></li>
+  <li><a href="#details-2" id="toc-details-2" class="nav-link" data-scroll-target="#details-2">Details</a></li>
   <li><a href="#hpc-r" id="toc-hpc-r" class="nav-link" data-scroll-target="#hpc-r"><code>hpc r</code></a></li>
-  <li><a href="#details-4" id="toc-details-4" class="nav-link" data-scroll-target="#details-4">Details</a></li>
+  <li><a href="#details-3" id="toc-details-3" class="nav-link" data-scroll-target="#details-3">Details</a></li>
   </ul>
 </nav>
     </div>
@@ -249,34 +248,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Each of these features can be configured independently via the respective subcommands (<code>hpc scratch</code>, <code>hpc apptainer</code>, <code>hpc slurm</code>, <code>hpc git</code>, <code>hpc r</code>).</p>
 <section id="setting-up-git" class="level3">
 <h3 class="anchored" data-anchor-id="setting-up-git">Setting up Git</h3>
-<p>To work with Git, you need to do two things:</p>
-<ol type="1">
-<li>Supply Git with your name and email (if not already configured).</li>
-<li>Provide Git with credentials to authenticate with remote repositories, e.g.&nbsp;GitHub.</li>
-</ol>
-<p>To set this up, run the following command (which is also part of the <code>setupmjr hpc</code> command):</p>
+<p>To configure Git, run the following command (which is also part of the <code>setupmjr hpc</code> command):</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc git</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>You will be prompted to enter your full name and email address (if these are not already set), which Git uses to identify you as the author of commits.</p>
-<p>In addition, you will be prompted to enter your GitHub username and a personal access token (PAT). This allows Git to authenticate with GitHub when you push commits or perform other operations that require authentication.</p>
-<p>To get a GitHub PAT, go to your GitHub account settings, navigate to “Developer settings” &gt; “Personal access tokens”, and generate a new token with the appropriate scopes (e.g.&nbsp;<code>repo</code> for full control of private repositories).</p>
-<p>If you skip entering any of the above information, you can always run <code>setupmjr hpc git</code> again to set it up later.</p>
-</section>
-</section>
-<section id="details" class="level2 callout-info" data-collapse="true">
-<h2 class="anchored" data-anchor-id="details">Details</h2>
-<p>Git authentication is configured by the following:</p>
-<ol type="1">
-<li><p>It is ensured that <code>.bashrc.d</code> files are sourced by <code>.bashrc</code>.</p></li>
-<li><p>The credential helper is set to the following:</p>
-<pre><code>!f() { sleep 1; echo "username=${GITHUB_USER:-TOKEN}"; echo "password=${GH_TOKEN:-$GITHUB_TOKEN}"; }; f</code></pre></li>
-<li><p>A script is added to <code>~/.bashrc.d/login.sh</code>, which has space for the user to add their GitHub username and PAT, and then exports these as environment variables (<code>GITHUB_USER</code> and <code>GITHUB_USERNAME</code> for the user name and <code>GITHUB_TOKEN</code>, <code>GH_TOKEN</code> and <code>GITHUB_PAT</code> for the token).</p></li>
-</ol>
+<p>This command simply calls <code>setupmjr git</code>, which configures your Git profile (name and email) via <code>setupmjr git profile</code> and sets up authentication credentials via <code>setupmjr git auth</code>.</p>
+<p>For full details on how this works and how it configures your environment (including setting up <code>.bashrc.d</code> and <code>.zshrc.d</code> files for seamless GitHub authentication), please refer to the <a href="./git.html">git setup documentation</a>.</p>
 </section>
 <section id="using-scratch-space" class="level3">
 <h3 class="anchored" data-anchor-id="using-scratch-space">Using scratch space</h3>
 <p>HPCs typically have a separate scratch space for storing large files (i.e.&nbsp;<code>/scratch/$USER</code>), which is often faster and has different quotas than the home directory. The <code>setupmjr hpc scratch</code> command helps you configure your environment to use this scratch space effectively.</p>
 <p>To set this up, run the following command (also part of <code>setupmjr hpc</code>):</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc scratch</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc scratch</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>This configures your environment to preferentially use the <code>/scratch</code> space for the following:</p>
 <ul>
 <li>Apptainer and Singularity images
@@ -290,8 +271,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ul></li>
 </ul>
 </section>
-<section id="details-1" class="level2 callout-info" data-collapse="true">
-<h2 class="anchored" data-anchor-id="details-1">Details</h2>
+</section>
+<section id="details" class="level2 callout-info" data-collapse="true">
+<h2 class="anchored" data-anchor-id="details">Details</h2>
 <p>The <code>hpc scratch</code> command configures the environment to use the <code>/scratch</code> directory by doing the following:</p>
 <ol type="1">
 <li><p>It ensures that <code>.bashrc.d</code> files are sourced by <code>.bashrc</code>.</p></li>
@@ -310,7 +292,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="hpc-slurm"><code>hpc slurm</code></h3>
 <p>SLURM is a popular program used by HPCs to allocate compute resources. The <code>hpc slurm</code> command sets up several utility scripts for interacting with the Slurm workload manager, placing them in <code>~/.local/bin</code>.</p>
 <p>To set this up, run the following command (also part of <code>setupmjr hpc</code>):</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc slurm</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc slurm</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The commands are as follows (run <code>&lt;command&gt; --help</code> for usage information on each, e.g.&nbsp;<code>slurm-sbatch --help</code>):</p>
 <ul>
 <li><code>slurm-sbatch</code>: Submits a SLURM job using <code>sbatch</code> and logs the submission details, including the submitted script contents and standard output, into a specified or default log directory (<code>_tmp/log/sbatch</code>).</li>
@@ -318,8 +300,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>slurm-squeue</code>: Lists the current jobs for the logged-in user using <code>squeue -u $USER</code>.</li>
 </ul>
 </section>
-<section id="details-2" class="level2 callout-info" data-collapse="true">
-<h2 class="anchored" data-anchor-id="details-2">Details</h2>
+<section id="details-1" class="level2 callout-info" data-collapse="true">
+<h2 class="anchored" data-anchor-id="details-1">Details</h2>
 <p>The <code>hpc slurm</code> command sets up these tools by doing the following:</p>
 <ol type="1">
 <li><p>It ensures that <code>~/.local/bin</code> is added to your system’s <code>PATH</code> environment variable by (if required) adding an export statement to your <code>.bashrc</code>.</p></li>
@@ -330,7 +312,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="hpc-apptainer"><code>hpc apptainer</code></h3>
 <p>Apptainer (formerly Singularity) is a container system commonly used on HPCs to ensure reproducible software environments. The <code>hpc apptainer</code> command sets up several utility scripts for seamlessly pulling, locating, and interacting with Apptainer containers. It is designed to work tightly with images built using the <code>MiguelRodo/devcontainer-prebuild</code> GitHub Action, sharing many of the same conventions (but is compatible with containers from both Docker Hub and GitHub Container Registry).</p>
 <p>To set this up, run the following command (also part of <code>setupmjr hpc</code>):</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc apptainer</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc apptainer</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The commands installed are as follows (run <code>&lt;command&gt; --help</code> for usage information on each, e.g.&nbsp;<code>apptainer-run --help</code>):</p>
 <ul>
 <li><code>apptainer-pull</code>: Downloads Docker or GitHub Container Registry (GHCR) images and saves them as <code>.sif</code> files. It cleverly infers the appropriate repository owner, image name, and tag dynamically based on your current directory’s Git remote and active branch.</li>
@@ -340,8 +322,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>apptainer-rscript</code>: A specialized wrapper to easily pass and execute R expressions (via <code>Rscript -e</code>) directly inside the project’s container without needing to manually spin up an interactive shell.</li>
 </ul>
 </section>
-<section id="details-3" class="level2 callout-info" data-collapse="true">
-<h2 class="anchored" data-anchor-id="details-3">Details</h2>
+<section id="details-2" class="level2 callout-info" data-collapse="true">
+<h2 class="anchored" data-anchor-id="details-2">Details</h2>
 <p>The <code>hpc apptainer</code> command sets up these tools by doing the following:</p>
 <ol type="1">
 <li><p>It ensures that <code>~/.local/bin</code> is added to your system’s <code>PATH</code> environment variable by (if required) adding an export statement to your <code>.bashrc</code>.</p></li>
@@ -352,17 +334,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="hpc-r"><code>hpc r</code></h3>
 <p>On an HPC, one may often use a non-standard <code>R</code> terminal named <code>radian</code> because it is better than the standard <code>R</code> terminal and the <code>RStudio</code> terminal is not available. However, <code>radian</code> (in my experience) breaks without a key configuration setting.</p>
 <p>To configure this setting, run the following command (which is also part of <code>setupmjr hpc</code>):</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>In addition to the above, object length and line linters are turned off (to prevent VS Code bothering you because your variable names or lines are “too long”).</p>
 </section>
-<section id="details-4" class="level2 callout-info" data-collapse="true">
-<h2 class="anchored" data-anchor-id="details-4">Details</h2>
+<section id="details-3" class="level2 callout-info" data-collapse="true">
+<h2 class="anchored" data-anchor-id="details-3">Details</h2>
 <p>The <code>~/.radian_profile</code> file is created if it does not exist, and the following line is added to it:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">radian.auto_match =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">radian.auto_match =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The <code>~/.lintr</code> file is also created if it does not exist, and the following lines are added to it:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">linters:</span> linters_with_defaults<span class="er">(</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="ex">object_length_linter</span> = NULL,</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="ex">object_name_linter</span> = NULL<span class="kw">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">linters:</span> linters_with_defaults<span class="er">(</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="ex">object_length_linter</span> = NULL,</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="ex">object_name_linter</span> = NULL<span class="kw">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 
 

@@ -53,7 +53,21 @@
     "href": "git.html#commands",
     "title": "git",
     "section": "Commands",
-    "text": "Commands\n  git\n  git user\n  git login\n  git login text\n  git login cache\n  git login mngr"
+    "text": "Commands\n  git\n  git profile\n  git auth\n  git auth text\n  git auth cache\n  git auth mngr"
+  },
+  {
+    "objectID": "git.html#setting-up-git",
+    "href": "git.html#setting-up-git",
+    "title": "git",
+    "section": "Setting up Git",
+    "text": "Setting up Git\nTo work with Git, you need to do two things:\n\nSupply Git with your name and email (if not already configured).\nProvide Git with credentials to authenticate with remote repositories, e.g. GitHub.\n\nTo set this up, run the following command (which is also part of the setupmjr hpc command):\nsetupmjr git\nYou will be prompted to enter your full name and email address (if these are not already set), which Git uses to identify you as the author of commits.\nIn addition, you will be prompted to enter your GitHub username and a personal access token (PAT). This allows Git to authenticate with GitHub when you push commits or perform other operations that require authentication.\nTo get a GitHub PAT, go to your GitHub account settings, navigate to “Developer settings” &gt; “Personal access tokens”, and generate a new token with the appropriate scopes (e.g. repo for full control of private repositories).\nIf you skip entering any of the above information, you can always run setupmjr git again to set it up later."
+  },
+  {
+    "objectID": "git.html#details",
+    "href": "git.html#details",
+    "title": "git",
+    "section": "Details",
+    "text": "Details\nGit authentication is configured by the following:\n\nIt is ensured that .bashrc.d and .zshrc.d files are sourced by .bashrc and .zshrc, respectively.\nThe credential helper is set to the following for GitHub:\n!f() { sleep 1; echo \"username=${GITHUB_USER:-TOKEN}\"; echo \"password=${GH_TOKEN:-$GITHUB_TOKEN}\"; }; f\nA script is added to ~/.bashrc.d/login.sh and ~/.zshrc.d/login.sh, which has space for the user to add their GitHub username and PAT, and then exports these as environment variables (GITHUB_USER and GITHUB_USERNAME for the user name and GITHUB_TOKEN, GH_TOKEN and GITHUB_PAT for the token)."
   },
   {
     "objectID": "install.html",
@@ -221,39 +235,32 @@
     "href": "hpc.html#setup",
     "title": "hpc",
     "section": "Setup",
-    "text": "Setup\nThe following command will configure the HPC environment:\nsetupmjr hpc\nApart from needing to edit one file for Git authentication if this has not been setup yet (see below), this command requires no other user input.\nsetupmjr hpc does the following:\n\nHelps store large files effectively: Large files are stored in the /scratch space (if available) rather than /home, to respect HPC storage policies.\nAuthenticates with Git: Scripts are added to which the user needs to simply add their GitHub username and a personal access token (PAT) to enable seamless Git operations from the HPC environment.\nAdd Apptainer and SLURM helpers: If these tools are available on the HPC, helper scripts will be added to simplify their usage.\nConfigures radian: If you use radian as your R terminal, it is configured to work properly on the HPC.\n\nEach of these features can be configured independently via the respective subcommands (hpc scratch, hpc apptainer, hpc slurm, hpc git, hpc r).\n\nSetting up Git\nTo work with Git, you need to do two things:\n\nSupply Git with your name and email (if not already configured).\nProvide Git with credentials to authenticate with remote repositories, e.g. GitHub.\n\nTo set this up, run the following command (which is also part of the setupmjr hpc command):\nsetupmjr hpc git\nYou will be prompted to enter your full name and email address (if these are not already set), which Git uses to identify you as the author of commits.\nIn addition, you will be prompted to enter your GitHub username and a personal access token (PAT). This allows Git to authenticate with GitHub when you push commits or perform other operations that require authentication.\nTo get a GitHub PAT, go to your GitHub account settings, navigate to “Developer settings” &gt; “Personal access tokens”, and generate a new token with the appropriate scopes (e.g. repo for full control of private repositories).\nIf you skip entering any of the above information, you can always run setupmjr hpc git again to set it up later."
+    "text": "Setup\nThe following command will configure the HPC environment:\nsetupmjr hpc\nApart from needing to edit one file for Git authentication if this has not been setup yet (see below), this command requires no other user input.\nsetupmjr hpc does the following:\n\nHelps store large files effectively: Large files are stored in the /scratch space (if available) rather than /home, to respect HPC storage policies.\nAuthenticates with Git: Scripts are added to which the user needs to simply add their GitHub username and a personal access token (PAT) to enable seamless Git operations from the HPC environment.\nAdd Apptainer and SLURM helpers: If these tools are available on the HPC, helper scripts will be added to simplify their usage.\nConfigures radian: If you use radian as your R terminal, it is configured to work properly on the HPC.\n\nEach of these features can be configured independently via the respective subcommands (hpc scratch, hpc apptainer, hpc slurm, hpc git, hpc r).\n\nSetting up Git\nTo configure Git, run the following command (which is also part of the setupmjr hpc command):\nsetupmjr hpc git\nThis command simply calls setupmjr git, which configures your Git profile (name and email) via setupmjr git profile and sets up authentication credentials via setupmjr git auth.\nFor full details on how this works and how it configures your environment (including setting up .bashrc.d and .zshrc.d files for seamless GitHub authentication), please refer to the git setup documentation.\n\n\nUsing scratch space\nHPCs typically have a separate scratch space for storing large files (i.e. /scratch/$USER), which is often faster and has different quotas than the home directory. The setupmjr hpc scratch command helps you configure your environment to use this scratch space effectively.\nTo set this up, run the following command (also part of setupmjr hpc):\nsetupmjr hpc scratch\nThis configures your environment to preferentially use the /scratch space for the following:\n\nApptainer and Singularity images\n\nAutomatically cached in /scratch/$USER/.cache/&lt;apptainer/singularity&gt; instead of the default location in the home directory.\n\nR libraries:\n\nThe R_LIBS_USER environment variable is set to /scratch/$USER/.local/lib/R and created, so that R packages are installed in the scratch space instead of the home directory.\nSimilarly, various RENV_* environment variables configuring renv paths are set to point to the scratch space."
   },
   {
     "objectID": "hpc.html#details",
     "href": "hpc.html#details",
     "title": "hpc",
     "section": "Details",
-    "text": "Details\nGit authentication is configured by the following:\n\nIt is ensured that .bashrc.d files are sourced by .bashrc.\nThe credential helper is set to the following:\n!f() { sleep 1; echo \"username=${GITHUB_USER:-TOKEN}\"; echo \"password=${GH_TOKEN:-$GITHUB_TOKEN}\"; }; f\nA script is added to ~/.bashrc.d/login.sh, which has space for the user to add their GitHub username and PAT, and then exports these as environment variables (GITHUB_USER and GITHUB_USERNAME for the user name and GITHUB_TOKEN, GH_TOKEN and GITHUB_PAT for the token)."
+    "text": "Details\nThe hpc scratch command configures the environment to use the /scratch directory by doing the following:\n\nIt ensures that .bashrc.d files are sourced by .bashrc.\nA script is added to ~/.bashrc.d/hpc-scratch.sh, which explicitly exports paths for Apptainer, Singularity, renv, and R libraries to use /scratch/$USER. Specifically, it sets the following environment variables:\n\nRENV_CONFIG_PAK_ENABLED=false\nRENV_CONFIG_SANDBOX_ENABLED=false\nRENV_PATHS_LIBRARY_ROOT=/scratch/${USER}/.local/lib/R/library\nRENV_PATHS_CACHE=/scratch/${USER}/renv/cache:/renv/cache\nRENV_PATHS_ROOT=/scratch/${USER}/.local/lib/R/library\nR_LIBS=/scratch/${USER}/.local/lib/R"
   },
   {
     "objectID": "hpc.html#details-1",
     "href": "hpc.html#details-1",
     "title": "hpc",
     "section": "Details",
-    "text": "Details\nThe hpc scratch command configures the environment to use the /scratch directory by doing the following:\n\nIt ensures that .bashrc.d files are sourced by .bashrc.\nA script is added to ~/.bashrc.d/hpc-scratch.sh, which explicitly exports paths for Apptainer, Singularity, renv, and R libraries to use /scratch/$USER. Specifically, it sets the following environment variables:\n\nRENV_CONFIG_PAK_ENABLED=false\nRENV_CONFIG_SANDBOX_ENABLED=false\nRENV_PATHS_LIBRARY_ROOT=/scratch/${USER}/.local/lib/R/library\nRENV_PATHS_CACHE=/scratch/${USER}/renv/cache:/renv/cache\nRENV_PATHS_ROOT=/scratch/${USER}/.local/lib/R/library\nR_LIBS=/scratch/${USER}/.local/lib/R"
+    "text": "Details\nThe hpc slurm command sets up these tools by doing the following:\n\nIt ensures that ~/.local/bin is added to your system’s PATH environment variable by (if required) adding an export statement to your .bashrc.\nIt places the specific utility wrapper scripts (slurm-sbatch, slurm-sintx, slurm-squeue) directly into ~/.local/bin/."
   },
   {
     "objectID": "hpc.html#details-2",
     "href": "hpc.html#details-2",
     "title": "hpc",
     "section": "Details",
-    "text": "Details\nThe hpc slurm command sets up these tools by doing the following:\n\nIt ensures that ~/.local/bin is added to your system’s PATH environment variable by (if required) adding an export statement to your .bashrc.\nIt places the specific utility wrapper scripts (slurm-sbatch, slurm-sintx, slurm-squeue) directly into ~/.local/bin/."
+    "text": "Details\nThe hpc apptainer command sets up these tools by doing the following:\n\nIt ensures that ~/.local/bin is added to your system’s PATH environment variable by (if required) adding an export statement to your .bashrc.\nIt places the specific utility wrapper scripts directly into ~/.local/bin/."
   },
   {
     "objectID": "hpc.html#details-3",
     "href": "hpc.html#details-3",
-    "title": "hpc",
-    "section": "Details",
-    "text": "Details\nThe hpc apptainer command sets up these tools by doing the following:\n\nIt ensures that ~/.local/bin is added to your system’s PATH environment variable by (if required) adding an export statement to your .bashrc.\nIt places the specific utility wrapper scripts directly into ~/.local/bin/."
-  },
-  {
-    "objectID": "hpc.html#details-4",
-    "href": "hpc.html#details-4",
     "title": "hpc",
     "section": "Details",
     "text": "Details\nThe ~/.radian_profile file is created if it does not exist, and the following line is added to it:\noptions(radian.auto_match = FALSE)\nThe ~/.lintr file is also created if it does not exist, and the following lines are added to it:\nlinters: linters_with_defaults(\n    object_length_linter = NULL,\n    object_name_linter = NULL)"
