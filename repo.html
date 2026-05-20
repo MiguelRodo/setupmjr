@@ -23,6 +23,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -136,6 +171,16 @@ ul.task-list li input[type="checkbox"] {
    
   <ul>
   <li><a href="#commands" id="toc-commands" class="nav-link active" data-scroll-target="#commands">Commands</a></li>
+  <li><a href="#repo-readme" id="toc-repo-readme" class="nav-link" data-scroll-target="#repo-readme"><code>repo readme</code></a></li>
+  <li><a href="#details" id="toc-details" class="nav-link" data-scroll-target="#details">Details</a></li>
+  <li><a href="#repo-devcontainer" id="toc-repo-devcontainer" class="nav-link" data-scroll-target="#repo-devcontainer"><code>repo devcontainer</code></a></li>
+  <li><a href="#details-1" id="toc-details-1" class="nav-link" data-scroll-target="#details-1">Details</a></li>
+  <li><a href="#repo-install-repos" id="toc-repo-install-repos" class="nav-link" data-scroll-target="#repo-install-repos"><code>repo install repos</code></a></li>
+  <li><a href="#repo-action" id="toc-repo-action" class="nav-link" data-scroll-target="#repo-action"><code>repo action</code></a>
+  <ul class="collapse">
+  <li><a href="#available-actions" id="toc-available-actions" class="nav-link" data-scroll-target="#available-actions">Available Actions</a></li>
+  </ul></li>
+  <li><a href="#details-2" id="toc-details-2" class="nav-link" data-scroll-target="#details-2">Details</a></li>
   </ul>
 </nav>
     </div>
@@ -165,12 +210,80 @@ ul.task-list li input[type="checkbox"] {
 <section id="commands" class="level2">
 <h2 class="anchored" data-anchor-id="commands">Commands</h2>
 <pre><code>  repo readme
-  repo devcontainer [--repo &lt;owner/repo&gt;] [--branch &lt;branch&gt;] [--no-prebuild]
+  repo devcontainer [--repo &lt;owner&gt;/&lt;repo&gt;@&lt;branch&gt;] [--build]
   repo action &lt;action-name&gt;
   repo install repos</code></pre>
-
-
 </section>
+<section id="repo-readme" class="level2">
+<h2 class="anchored" data-anchor-id="repo-readme"><code>repo readme</code></h2>
+<p>This command interacts with the user to scaffold a standardized <code>README.md</code> for a project repository.</p>
+<p>When executed, it prompts for the following information: - The project title. - A brief description of what the repository does. - The full names and email addresses of two primary contacts.</p>
+<p>It then generates a <code>README.md</code> using the provided inputs.</p>
+</section>
+<section id="details" class="level2 callout-info" data-collapse="true">
+<h2 class="anchored" data-anchor-id="details">Details</h2>
+<p>The generated <code>README.md</code> follows a clean template containing sections for the title, purpose, contact details, links (e.g.&nbsp;data sources, publications), and further details (e.g.&nbsp;methods, timeline, team, data sources).</p>
+<p>For example, the output might look like:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># My Project Title</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>This repository handles data processing for the survey data.</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">## Contact</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>For more information, please contact:</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Jane Doe:</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>jane.doe@example.com</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>John Smith:</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>john.smith@example.com</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="fu">## Links</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="co">[</span><span class="ot">URLs to data sources (e.g. OneDrive), GitHub repositories, publications, etc.</span><span class="co">]</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="fu">## Details</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Methods, timeline, team, data sources, software/tools, etc.</span><span class="co">]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="repo-devcontainer" class="level2">
+<h2 class="anchored" data-anchor-id="repo-devcontainer"><code>repo devcontainer</code></h2>
+<p>This command copies a reference <code>.devcontainer</code> configuration into your current repository.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> repo devcontainer [--repo <span class="op">&lt;</span>owner<span class="op">&gt;</span>/<span class="op">&lt;</span>repo<span class="op">&gt;</span>@<span class="op">&lt;</span>branch<span class="op">&gt;</span>] <span class="pp">[--</span><span class="ss">build</span><span class="pp">]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li><code>--repo</code>: Specifies the source repository and branch to copy the <code>.devcontainer</code> directory from (defaults to <code>MiguelRodo/comp@main</code>).</li>
+<li><code>--build</code>: If provided, the command will also download the relevant GitHub Action to automatically prebuild the devcontainer, fetching good default settings from the reference actions.</li>
+</ul>
+</section>
+<section id="details-1" class="level2 callout-info" data-collapse="true">
+<h2 class="anchored" data-anchor-id="details-1">Details</h2>
+<p>Under the hood, the command fetches the <code>.devcontainer</code> directory by downloading the tarball of the specified branch from GitHub. If the <code>--build</code> flag is passed, it pulls the <code>prebuild-devcontainer.yml</code> workflow from <code>MiguelRodo/actions</code> and places it in <code>.github/workflows/</code>.</p>
+</section>
+<section id="repo-install-repos" class="level2">
+<h2 class="anchored" data-anchor-id="repo-install-repos"><code>repo install repos</code></h2>
+<p>While <code>setupmjr</code> has a few subcommands like <code>repo</code>, the <code>repos</code> command is actually a dependency of <code>setupmjr</code>. The <code>setupmjr repo install repos</code> command downloads and installs this external <code>repos</code> utility into <code>~/.local/bin</code>.</p>
+<p>The core operations for managing repositories (cloning, configuring workspaces, etc.) are conceptually part of <code>repos</code>, which <code>setupmjr</code> uses or exposes (excluding certain tools like <code>run</code> or <code>setup-r</code>, which will be handled elsewhere or made directly available via <code>repos</code> instead of wrapped via <code>setupmjr repo comp</code>).</p>
+</section>
+<section id="repo-action" class="level2">
+<h2 class="anchored" data-anchor-id="repo-action"><code>repo action</code></h2>
+<p>This command simplifies adding pre-configured GitHub Actions to your repository.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> repo action <span class="op">&lt;</span>action-name<span class="op">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>It downloads the specified action workflow from the <a href="https://github.com/MiguelRodo/actions">MiguelRodo/actions</a> repository into your <code>.github/workflows/</code> directory.</p>
+<section id="available-actions" class="level3">
+<h3 class="anchored" data-anchor-id="available-actions">Available Actions</h3>
+<p>The following actions can be added:</p>
+<ul>
+<li><strong><code>prebuild-devcontainer</code></strong>: Builds and pushes a pre-built Dev Container image to GHCR whenever a SemVer tag is pushed. Read more <a href="https://github.com/MiguelRodo/actions/tree/main/prebuild-devcontainer">here</a>.</li>
+<li><strong><code>publish-quarto-site</code></strong>: Renders and publishes a Quarto site to the <code>gh-pages</code> branch whenever the main branch is updated. Read more <a href="https://github.com/MiguelRodo/actions/tree/main/publish-quarto-site">here</a>.</li>
+<li><strong><code>sync-issues-to-project</code></strong>: Syncs open issues from the repository to a GitHub Project (V2) board automatically. Read more <a href="https://github.com/MiguelRodo/actions/tree/main/add-issues-to-project">here</a>.</li>
+<li><strong><code>version-release</code></strong>: Bumps versions in Python or R packages, creates a versioned git tag, and publishes a GitHub Release. Read more <a href="https://github.com/MiguelRodo/actions/tree/main/version-release">here</a>.</li>
+</ul>
+</section>
+</section>
+<section id="details-2" class="level2 callout-info" data-collapse="true">
+<h2 class="anchored" data-anchor-id="details-2">Details</h2>
+<p>When running <code>repo action &lt;action-name&gt;</code>, the CLI fetches the corresponding YAML file from the <code>examples</code> directory of the <code>MiguelRodo/actions</code> repository, directly placing it in <code>.github/workflows/</code>.</p>
+</section>
+
+
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

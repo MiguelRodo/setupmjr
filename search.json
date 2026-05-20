@@ -109,7 +109,56 @@
     "href": "repo.html#commands",
     "title": "repo",
     "section": "Commands",
-    "text": "Commands\n  repo readme\n  repo devcontainer [--repo &lt;owner/repo&gt;] [--branch &lt;branch&gt;] [--no-prebuild]\n  repo action &lt;action-name&gt;\n  repo install repos"
+    "text": "Commands\n  repo readme\n  repo devcontainer [--repo &lt;owner&gt;/&lt;repo&gt;@&lt;branch&gt;] [--build]\n  repo action &lt;action-name&gt;\n  repo install repos"
+  },
+  {
+    "objectID": "repo.html#repo-readme",
+    "href": "repo.html#repo-readme",
+    "title": "repo",
+    "section": "repo readme",
+    "text": "repo readme\nThis command interacts with the user to scaffold a standardized README.md for a project repository.\nWhen executed, it prompts for the following information: - The project title. - A brief description of what the repository does. - The full names and email addresses of two primary contacts.\nIt then generates a README.md using the provided inputs."
+  },
+  {
+    "objectID": "repo.html#details",
+    "href": "repo.html#details",
+    "title": "repo",
+    "section": "Details",
+    "text": "Details\nThe generated README.md follows a clean template containing sections for the title, purpose, contact details, links (e.g. data sources, publications), and further details (e.g. methods, timeline, team, data sources).\nFor example, the output might look like:\n# My Project Title\n\nThis repository handles data processing for the survey data.\n\n## Contact\n\nFor more information, please contact:\n- Jane Doe:\n  - jane.doe@example.com\n- John Smith:\n  - john.smith@example.com\n\n## Links\n\n- [URLs to data sources (e.g. OneDrive), GitHub repositories, publications, etc.]\n\n## Details\n\n[Methods, timeline, team, data sources, software/tools, etc.]"
+  },
+  {
+    "objectID": "repo.html#repo-devcontainer",
+    "href": "repo.html#repo-devcontainer",
+    "title": "repo",
+    "section": "repo devcontainer",
+    "text": "repo devcontainer\nThis command copies a reference .devcontainer configuration into your current repository.\nsetupmjr repo devcontainer [--repo &lt;owner&gt;/&lt;repo&gt;@&lt;branch&gt;] [--build]\n\n--repo: Specifies the source repository and branch to copy the .devcontainer directory from (defaults to MiguelRodo/comp@main).\n--build: If provided, the command will also download the relevant GitHub Action to automatically prebuild the devcontainer, fetching good default settings from the reference actions."
+  },
+  {
+    "objectID": "repo.html#details-1",
+    "href": "repo.html#details-1",
+    "title": "repo",
+    "section": "Details",
+    "text": "Details\nUnder the hood, the command fetches the .devcontainer directory by downloading the tarball of the specified branch from GitHub. If the --build flag is passed, it pulls the prebuild-devcontainer.yml workflow from MiguelRodo/actions and places it in .github/workflows/."
+  },
+  {
+    "objectID": "repo.html#repo-install-repos",
+    "href": "repo.html#repo-install-repos",
+    "title": "repo",
+    "section": "repo install repos",
+    "text": "repo install repos\nWhile setupmjr has a few subcommands like repo, the repos command is actually a dependency of setupmjr. The setupmjr repo install repos command downloads and installs this external repos utility into ~/.local/bin.\nThe core operations for managing repositories (cloning, configuring workspaces, etc.) are conceptually part of repos, which setupmjr uses or exposes (excluding certain tools like run or setup-r, which will be handled elsewhere or made directly available via repos instead of wrapped via setupmjr repo comp)."
+  },
+  {
+    "objectID": "repo.html#repo-action",
+    "href": "repo.html#repo-action",
+    "title": "repo",
+    "section": "repo action",
+    "text": "repo action\nThis command simplifies adding pre-configured GitHub Actions to your repository.\nsetupmjr repo action &lt;action-name&gt;\nIt downloads the specified action workflow from the MiguelRodo/actions repository into your .github/workflows/ directory.\n\nAvailable Actions\nThe following actions can be added:\n\nprebuild-devcontainer: Builds and pushes a pre-built Dev Container image to GHCR whenever a SemVer tag is pushed. Read more here.\npublish-quarto-site: Renders and publishes a Quarto site to the gh-pages branch whenever the main branch is updated. Read more here.\nsync-issues-to-project: Syncs open issues from the repository to a GitHub Project (V2) board automatically. Read more here.\nversion-release: Bumps versions in Python or R packages, creates a versioned git tag, and publishes a GitHub Release. Read more here."
+  },
+  {
+    "objectID": "repo.html#details-2",
+    "href": "repo.html#details-2",
+    "title": "repo",
+    "section": "Details",
+    "text": "Details\nWhen running repo action &lt;action-name&gt;, the CLI fetches the corresponding YAML file from the examples directory of the MiguelRodo/actions repository, directly placing it in .github/workflows/."
   },
   {
     "objectID": "index.html",
