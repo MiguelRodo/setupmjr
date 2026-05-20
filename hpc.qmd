@@ -1,0 +1,17 @@
+---
+title: "hpc"
+toc: true
+---
+
+The `hpc` subcommand is used to configure HPC environments.
+
+## Commands
+
+```
+  hpc       Master HPC setup
+  hpc scratch [--r]
+  hpc apptainer
+  hpc slurm
+  hpc login git
+  hpc git
+```

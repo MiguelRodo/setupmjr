@@ -1,0 +1,12 @@
+---
+title: "r"
+toc: true
+---
+
+The `r` subcommand is used to set up R environments.
+
+## Commands
+
+```
+  r radian
+```

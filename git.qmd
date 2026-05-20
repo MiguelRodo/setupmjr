@@ -1,0 +1,17 @@
+---
+title: "git"
+toc: true
+---
+
+The `git` subcommand is used to set up git.
+
+## Commands
+
+```
+  git
+  git user
+  git login
+  git login text
+  git login cache
+  git login mngr
+```

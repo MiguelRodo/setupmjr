@@ -1,0 +1,13 @@
+---
+title: "bash"
+toc: true
+---
+
+The `bash` subcommand is used to set up bash.
+
+## Commands
+
+```
+  bash rc.d
+  bash login
+```
