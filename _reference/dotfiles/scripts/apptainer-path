@@ -59,7 +59,7 @@ get_default_candidates() {
 }
 
 get_candidates() {
-  if $file_specified; then
+  if [[ "$file_specified" == true ]]; then
     candidates=( "$sif_file" )
   else
     mapfile -t candidates < <(get_default_candidates)

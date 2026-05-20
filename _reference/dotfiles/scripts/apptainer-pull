@@ -140,7 +140,7 @@ get_owner_from_token() {
 }
 
 
-# Parse ‘owner’ from `git remote origin` URL
+# Parse 'owner' from `git remote origin` URL
 get_owner_from_remote() {
   local url owner
   url=$(git config --get remote.origin.url 2>/dev/null) || return
