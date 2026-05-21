@@ -33,9 +33,22 @@ jobs:
         run: |
           goreleaser release --snapshot --clean
 
+      - name: Install APT repository prerequisites for dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl gpg
+
+      - name: Add MiguelRodo APT repository
+        run: |
+          curl -fsSL https://miguelrodo.github.io/apt-miguelrodo/KEY.gpg \
+            | sudo gpg --dearmor -o /usr/share/keyrings/apt-miguelrodo.gpg
+          echo "deb [signed-by=/usr/share/keyrings/apt-miguelrodo.gpg] https://miguelrodo.github.io/apt-miguelrodo stable main" \
+            | sudo tee /etc/apt/sources.list.d/apt-miguelrodo.list >/dev/null
+          sudo apt-get update
+
       - name: Install Debian package
         run: |
-          sudo dpkg -i dist/*.deb || true
+          sudo dpkg -i dist/*_amd64.deb || true
           sudo apt-get install -f -y
 
       - name: Verify setupmjr command is available
@@ -77,6 +90,7 @@ jobs:
           mkdir -p "$HOME/.local/bin"
           export PATH="$HOME/.local/bin:$PATH"
           bash install-local.sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Verify setupmjr command is available
         run: |
