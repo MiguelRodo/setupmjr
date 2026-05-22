@@ -57,14 +57,14 @@ func SetupGitProfile() error {
 	return nil
 }
 
-func SetupGitAuthText() error {
+func SetupGitAuthText(scope string) error {
 	helperScript := `!f() { \
         sleep 1; \
         echo username="${GITHUB_USER:-TOKEN}"; \
         echo password="${GH_TOKEN:-$GITHUB_TOKEN}"; \
         }; f`
 
-	cmd := exec.Command("git", "config", "--global", "credential.https://github.com.helper", helperScript)
+	cmd := exec.Command("git", "config", scope, "credential.https://github.com.helper", helperScript)
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("configure github credential helper: %w", err)
 	}
@@ -76,7 +76,7 @@ func SetupGitAuthText() error {
         echo password="${HF_TOKEN:-$HUGGINGFACE_TOKEN}"; \
         }; f`
 
-	hfCmd := exec.Command("git", "config", "--global", "credential.https://huggingface.co.helper", hfHelperScript)
+	hfCmd := exec.Command("git", "config", scope, "credential.https://huggingface.co.helper", hfHelperScript)
 	if err := hfCmd.Run(); err != nil {
 		return fmt.Errorf("configure huggingface credential helper: %w", err)
 	}
@@ -163,17 +163,17 @@ func injectVar(content, varName, val string) string {
 	return content + "\n" + replacement + "\n"
 }
 
-func SetupGitAuthCache() error {
-	if _, err := RunCommand("git", "config", "--global", "credential.helper", "cache"); err != nil {
+func SetupGitAuthCache(scope string) error {
+	if _, err := RunCommand("git", "config", scope, "credential.helper", "cache"); err != nil {
 		return fmt.Errorf("set credential.helper cache: %w", err)
 	}
 	fmt.Println("Configured git to use cache credential helper")
 	return nil
 }
 
-func SetupGitAuthMngr() error {
+func SetupGitAuthMngr(scope string) error {
 	// Simple approach: we'll just try to set 'manager'
-	if _, err := RunCommand("git", "config", "--global", "credential.helper", "manager"); err != nil {
+	if _, err := RunCommand("git", "config", scope, "credential.helper", "manager"); err != nil {
 		fmt.Printf("Warning: failed to set manager credential helper: %v\n", err)
 	} else {
 		fmt.Println("Configured git to use manager credential helper")
@@ -181,14 +181,14 @@ func SetupGitAuthMngr() error {
 	return nil
 }
 
-func SetupGitAuth() error {
-	if err := SetupGitAuthText(); err != nil {
+func SetupGitAuth(scope string) error {
+	if err := SetupGitAuthText(scope); err != nil {
 		return err
 	}
-	if err := SetupGitAuthCache(); err != nil {
+	if err := SetupGitAuthCache(scope); err != nil {
 		return err
 	}
-	if err := SetupGitAuthMngr(); err != nil {
+	if err := SetupGitAuthMngr(scope); err != nil {
 		return err
 	}
 	return nil
@@ -198,7 +198,7 @@ func SetupGit() error {
 	if err := SetupGitProfile(); err != nil {
 		return err
 	}
-	if err := SetupGitAuth(); err != nil {
+	if err := SetupGitAuth("--global"); err != nil {
 		return err
 	}
 	return nil

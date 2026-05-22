@@ -212,17 +212,49 @@ func handleGit(args []string) error {
 	case "profile":
 		return gitcmd.SetupGitProfile()
 	case "auth":
-		if len(args) == 1 {
-			return gitcmd.SetupGitAuth()
+		fs := flag.NewFlagSet("auth", flag.ExitOnError)
+		system := fs.Bool("system", false, "Use system git config")
+		local := fs.Bool("local", false, "Use local git config")
+		remove := fs.Bool("remove", false, "Remove existing credential helpers in the selected scope")
+
+		// We need to parse flags. They could be before or after the subcommand.
+		// auth text --system OR auth --system text
+		loginSubcmd := ""
+		authArgs := args[1:]
+
+		if len(authArgs) > 0 && !strings.HasPrefix(authArgs[0], "-") {
+			loginSubcmd = authArgs[0]
+			fs.Parse(authArgs[1:])
+		} else {
+			fs.Parse(authArgs)
+			if len(fs.Args()) > 0 {
+				loginSubcmd = fs.Args()[0]
+			}
 		}
-		loginSubcmd := args[1]
+
+		scope := "--global"
+		if *system {
+			scope = "--system"
+		} else if *local {
+			scope = "--local"
+		}
+
+		if *remove {
+			gitcmd.RunCommand("git", "config", scope, "--unset-all", "credential.helper")
+			gitcmd.RunCommand("git", "config", scope, "--unset-all", "credential.https://github.com.helper")
+		}
+
+		if loginSubcmd == "" {
+			return gitcmd.SetupGitAuth(scope)
+		}
+
 		switch loginSubcmd {
 		case "text":
-			return gitcmd.SetupGitAuthText()
+			return gitcmd.SetupGitAuthText(scope)
 		case "cache":
-			return gitcmd.SetupGitAuthCache()
+			return gitcmd.SetupGitAuthCache(scope)
 		case "mngr":
-			return gitcmd.SetupGitAuthMngr()
+			return gitcmd.SetupGitAuthMngr(scope)
 		default:
 			return fmt.Errorf("unknown git auth subcommand: %s", loginSubcmd)
 		}
