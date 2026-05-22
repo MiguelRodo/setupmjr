@@ -81,7 +81,7 @@
     "href": "multirepo.html#commands",
     "title": "multirepo",
     "section": "Commands",
-    "text": "Commands\n  multirepo clone\n  multirepo workspace\n  multirepo codespace\n  multirepo create\n  multirepo &lt;other repos command&gt;\nAny command passed to setupmjr multirepo will be automatically proxied to the bundled repos tool.\n\nNote: The commands install-r-deps and run are deliberately excluded from this wrapper and must be called directly via repos instead."
+    "text": "Commands\n  multirepo clone\n  multirepo workspace\n  multirepo codespace\n  multirepo create\n  multirepo &lt;other repos command&gt;\nAny command passed to setupmjr multirepo will be automatically proxied to the bundled repos tool."
   },
   {
     "objectID": "multirepo.html#details",
@@ -137,7 +137,7 @@
     "href": "repo.html#repo-install-repos",
     "title": "repo",
     "section": "repo install repos",
-    "text": "repo install repos\nWhile setupmjr has a few subcommands like repo, the repos command is actually a dependency of setupmjr. The setupmjr repo install repos command downloads and installs this external repos utility into ~/.local/bin.\nThe core operations for managing repositories (cloning, configuring workspaces, etc.) are conceptually part of repos, which setupmjr uses or exposes (excluding tools like run or install-r-deps, which can be made directly available via repos)."
+    "text": "repo install repos\nWhile setupmjr has a few subcommands like repo, the repos command is actually a dependency of setupmjr. The setupmjr repo install repos command downloads and installs this external repos utility into ~/.local/bin.\nThe core operations for managing repositories (cloning, configuring workspaces, etc.) are conceptually part of repos, which setupmjr uses or exposes."
   },
   {
     "objectID": "repo.html#repo-action",
