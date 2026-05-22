@@ -307,10 +307,5 @@ func handleMultirepo(args []string) error {
 		return fmt.Errorf("multirepo requires a command")
 	}
 
-	subcmd := args[0]
-	if subcmd == "install-r-deps" || subcmd == "run" {
-		return fmt.Errorf("the '%s' command is excluded from the setupmjr wrapper. use it directly via 'repos %s'", subcmd, subcmd)
-	}
-
 	return repo.RunReposCommand(args)
 }
