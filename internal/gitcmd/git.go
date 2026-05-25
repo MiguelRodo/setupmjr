@@ -133,12 +133,9 @@ func SetupGitAuthText(scope string) error {
 
 			if user != "" {
 				content = injectVar(content, "GITHUB_USERNAME", user)
-				content = injectVar(content, "GITHUB_USER", user)
 			}
 			if token != "" {
 				content = injectVar(content, "GH_TOKEN", token)
-				content = injectVar(content, "GITHUB_TOKEN", token)
-				content = injectVar(content, "GITHUB_PAT", token)
 			}
 
 			if err := os.WriteFile(loginPath, []byte(content), 0755); err != nil {
