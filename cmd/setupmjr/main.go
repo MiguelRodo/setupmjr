@@ -89,7 +89,7 @@ Commands:
   bash rc.d
   bash path
   bash login
-  r [--not-radian] [--not-lintr]
+  r [--not-radian] [--not-lintr] [--switch-r]
   git
   git profile
   git auth
@@ -202,9 +202,10 @@ func handleR(args []string) error {
 	fs := flag.NewFlagSet("r", flag.ExitOnError)
 	notRadian := fs.Bool("not-radian", false, "Do not configure radian")
 	notLintr := fs.Bool("not-lintr", false, "Do not configure lintr")
+	switchR := fs.Bool("switch-r", false, "Configure the switch_r script and .Rprofile")
 	fs.Parse(args)
 
-	return r.SetupR(*notRadian, *notLintr)
+	return r.SetupR(*notRadian, *notLintr, *switchR)
 }
 
 func handleGit(args []string) error {
