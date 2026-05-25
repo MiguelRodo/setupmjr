@@ -106,7 +106,7 @@ func SetupGitAuthText(scope string) error {
 	}
 
 	// Make sure login.sh exists
-	if err := shell.SetupShellLogin("bash"); err != nil {
+	if err := shell.SetupShellLogin("bash", false); err != nil {
 		return err
 	}
 
@@ -116,7 +116,7 @@ func SetupGitAuthText(scope string) error {
 	if err := shell.SetupShellPath("zsh"); err != nil {
 		return err
 	}
-	if err := shell.SetupShellLogin("zsh"); err != nil {
+	if err := shell.SetupShellLogin("zsh", false); err != nil {
 		return err
 	}
 
