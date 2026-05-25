@@ -115,7 +115,7 @@ func handleHPC(args []string) error {
 		if err := shell.SetupShellPath("bash"); err != nil {
 			return err
 		}
-		if err := shell.SetupShellLogin("bash"); err != nil {
+		if err := shell.SetupShellLogin("bash", false); err != nil {
 			return err
 		}
 		if err := shell.SetupShellRCD("zsh"); err != nil {
@@ -124,7 +124,7 @@ func handleHPC(args []string) error {
 		if err := shell.SetupShellPath("zsh"); err != nil {
 			return err
 		}
-		if err := shell.SetupShellLogin("zsh"); err != nil {
+		if err := shell.SetupShellLogin("zsh", false); err != nil {
 			return err
 		}
 		// Execute SetupHPCGit AFTER SetupShellLogin so login.sh is not overwritten
@@ -187,7 +187,12 @@ func handleShellCmd(args []string, shellName string) error {
 	case "path":
 		return shell.SetupShellPath(shellName)
 	case "login":
-		return shell.SetupShellLogin(shellName)
+		// Parse the optional --not-profile flag for the login subcommand
+		fs := flag.NewFlagSet("login", flag.ExitOnError)
+		notProfile := fs.Bool("not-profile", false, "Do not configure profile files (~/.profile, etc.)")
+		fs.Parse(args[1:]) // parse arguments after 'login'
+
+		return shell.SetupShellLogin(shellName, *notProfile)
 	default:
 		return fmt.Errorf("unknown %s subcommand: %s", shellName, subcmd)
 	}

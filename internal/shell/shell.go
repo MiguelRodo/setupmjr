@@ -86,8 +86,8 @@ func SetupShellPath(shellName string) error {
 	return nil
 }
 
-// SetupShellLogin copies login.sh to ~/.<shell>rc.d.
-func SetupShellLogin(shellName string) error {
+// SetupShellLogin copies login.sh to ~/.<shell>rc.d and configures the login profile.
+func SetupShellLogin(shellName string, notProfile bool) error {
 	home, err := sysutil.HomeDir()
 	if err != nil {
 		return err
@@ -103,13 +103,88 @@ func SetupShellLogin(shellName string) error {
 	// Check if login.sh already exists, if so skip overwriting it
 	if _, err := os.Stat(dst); err == nil {
 		fmt.Printf("login.sh already exists at %s, skipping copy\n", dst)
+	} else {
+		if err := sysutil.CopyEmbedFile(assets.FS, "bashrc.d/login.sh", dst, 0755); err != nil {
+			return fmt.Errorf("copy login.sh: %w", err)
+		}
+		fmt.Printf("Copied login.sh to %s\n", dst)
+	}
+
+	// >>> CONNECT THE LINK HERE >>>
+	// Now wire up the profile file configuration seamlessly
+	if err := SetupShellProfile(shellName, notProfile); err != nil {
+		return err
+	}
+
+	return nil
+}
+// SetupShellProfile configures ~/.profile, ~/.bash_profile, or ~/.zprofile safely.
+func SetupShellProfile(shellName string, notProfile bool) error {
+	if notProfile {
+		fmt.Println("Skipping profile configuration due to --not-profile flag.")
 		return nil
 	}
 
-	if err := sysutil.CopyEmbedFile(assets.FS, "bashrc.d/login.sh", dst, 0755); err != nil {
-		return fmt.Errorf("copy login.sh: %w", err)
+	home, err := sysutil.HomeDir()
+	if err != nil {
+		return err
 	}
-	fmt.Printf("Copied login.sh to %s\n", dst)
+
+	// Determine proper file targets
+	var profileFile string
+	rcDir := fmt.Sprintf(".%src.d", shellName)
+
+	if shellName == "bash" {
+		profileFile = ".profile"
+		// If the user uses .bash_profile preferentially, respect it
+		if _, err := os.Stat(filepath.Join(home, ".bash_profile")); err == nil {
+			profileFile = ".bash_profile"
+		}
+	} else if shellName == "zsh" {
+		profileFile = ".zprofile"
+	} else {
+		return fmt.Errorf("unsupported shell for profile setup: %s", shellName)
+	}
+
+	profilePath := filepath.Join(home, profileFile)
+
+	// Smart conditional guard loop to prevent double sourcing paths or tokens
+	sourcingBlock := fmt.Sprintf(
+		"\n# Added by setupmjr\n"+
+			"if [ -z \"$SETUPMJR_ENV_SOURCED\" ] && [ -d \"$HOME/%s\" ]; then\n"+
+			"    export SETUPMJR_ENV_SOURCED=1\n"+
+			"    for i in \"$HOME/%s\"/*; do [ -r \"$i\" ] && source \"$i\"; done\n"+
+			"fi\n", rcDir, rcDir)
+
+	b, err := os.ReadFile(profilePath)
+	if err != nil && !os.IsNotExist(err) {
+		return fmt.Errorf("read %s: %w", profileFile, err)
+	}
+
+	// Check if this explicit directory or guard structure is already explicitly managed
+	hasProfileConfig := false
+	for _, line := range strings.Split(string(b), "\n") {
+		trimmed := strings.TrimSpace(line)
+		if !strings.HasPrefix(trimmed, "#") && strings.Contains(trimmed, rcDir) {
+			hasProfileConfig = true
+			break
+		}
+	}
+
+	if !hasProfileConfig {
+		f, err := os.OpenFile(profilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			return fmt.Errorf("open %s: %w", profileFile, err)
+		}
+		defer f.Close()
+
+		if _, err := f.WriteString(sourcingBlock); err != nil {
+			return fmt.Errorf("write to %s: %w", profileFile, err)
+		}
+		fmt.Printf("Added %s sourcing protection block to ~/%s\n", rcDir, profileFile)
+	} else {
+		fmt.Printf("~/%s already handles %s configuration\n", profileFile, rcDir)
+	}
 
 	return nil
 }
