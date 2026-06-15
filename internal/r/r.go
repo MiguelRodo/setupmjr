@@ -50,12 +50,7 @@ func SetupR(notRadian bool, notLintr bool, switchR bool) error {
 
 func setupSwitchR() error {
 	switchRScript := `
-switch_r <- function(bn) {
-  wd <- if (grepl("\\.\\.", bn)) {
-    bn
-  } else {
-    file.path("..", bn)
-  }
+switch_r <- function(wd) {
   if (!dir.exists(wd)) {
     stop("The specified directory does not exist.")
   }
