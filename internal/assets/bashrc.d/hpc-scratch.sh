@@ -34,6 +34,13 @@
 #   - Modify the hostname pattern in the script if your environment differs.
 ###############################################################################
 
+create_dir() {
+    mkdir -p "$1" || {
+        echo "Failed to create directory: $1"
+        exit 1
+    }
+}
+
 use_scratch() {
     # Use XDG relative directories, but
     # relative to /scratch/$USER
@@ -45,6 +52,10 @@ use_scratch() {
     # (Apptainer, at least, may ignore the XDG env vars)
     export SINGULARITY_CACHE_DIR="/scratch/$USER/.cache/singularity"
     export APPTAINER_CACHE_DIR="/scratch/$USER/.cache/apptainer"
+    export APPTAINER_TMPDIR="/scratch/$USER/.cache/apptainer"
+    create_dir "$SINGULARITY_CACHE_DIR"
+    create_dir "$APPTAINER_CACHE_DIR"
+    create_dir "$APPTAINER_TMPDIR"
 
     # Force renv to use /scratch
     export RENV_CONFIG_PAK_ENABLED=false
@@ -52,21 +63,13 @@ use_scratch() {
     export RENV_PATHS_LIBRARY_ROOT="/scratch/$USER/.local/lib/R/library"
     export RENV_PATHS_CACHE="/scratch/$USER/renv/cache:/renv/cache"
     export RENV_PATHS_ROOT="/scratch/$USER/.local/lib/R/library"
-    mkdir -p "$RENV_PATHS_LIBRARY_ROOT" || {
-        echo "Failed to create RENV_PATHS_LIBRARY_ROOT directory: $RENV_PATHS_LIBRARY_ROOT"
-    }
-    mkdir -p "/scratch/$USER/renv/cache" || {
-        echo "Failed to create RENV_PATHS_CACHE directory: /scratch/$USER/renv/cache"
-    }
-    mkdir -p "$RENV_PATHS_ROOT" || {
-        echo "Failed to create RENV_PATHS_ROOT directory: $RENV_PATHS_ROOT"
-    }
+    create_dir "$RENV_PATHS_LIBRARY_ROOT"
+    create_dir  "$RENV_PATHS_CACHE"
+    create_dir "$RENV_PATHS_ROOT"
 
     # Force R to use scratch
     export R_LIBS="/scratch/$USER/.local/lib/R"
-    mkdir -p "$R_LIBS" || {
-        echo "Failed to create R_LIBS directory: $R_LIBS"
-    }
+    create_dir "$R_LIBS"
 }
 
 # Don't run if if /scratch/$USER directory does not exist
