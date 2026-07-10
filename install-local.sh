@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
-# install-local.sh - Install setupmjr CLI to a writable directory already in PATH
+# install-local.sh - Install setupmjr CLI to a writable directory already in PATH, or fallback to ~/.local/bin
 
 set -euo pipefail
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
 NC='\033[0m'
+
 RELEASE_REPO="${SETUPMJR_RELEASE_REPO:-MiguelRodo/setupmjr}"
 BINARY_NAME="${SETUPMJR_BINARY_NAME:-setupmjr}"
 DOWNLOAD_BASE_URL="${SETUPMJR_DOWNLOAD_BASE_URL:-https://github.com/${RELEASE_REPO}/releases/latest/download}"
@@ -39,16 +41,25 @@ find_writable_path_dir() {
   IFS=':' read -r -a path_entries <<< "$PATH"
   for dir in "${path_entries[@]}"; do
     [ -n "$dir" ] || continue
+    
+    # Expand tilde (~) to $HOME if present
+    dir="${dir/#\~/$HOME}"
+
+    # Ensure absolute path
     case "$dir" in
       /*) ;;
       *) continue ;;
     esac
+    
+    # Ensure it exists, is searchable, and is writable by current user
     [ -d "$dir" ] || continue
     [ -x "$dir" ] || continue
     [ -w "$dir" ] || continue
+    
     probe_file="$(mktemp "${dir}/.setupmjr-write-test.XXXXXX" 2>/dev/null || true)"
     [ -n "$probe_file" ] || continue
     rm -f "$probe_file"
+    
     echo "$dir"
     return 0
   done
@@ -73,11 +84,31 @@ fi
 OS_NAME="$(map_os)"
 ARCH_NAME="$(map_arch)"
 
-if ! INSTALL_DIR="$(find_writable_path_dir)"; then
-  echo -e "${RED}Error: No writable directory found in PATH.${NC}" >&2
-  echo "Please create a writable directory in PATH and run the installer again." >&2
-  exit 1
+NEEDS_PATH_UPDATE=0
+
+# Add fallback
+if INSTALL_DIR="$(find_writable_path_dir)"; then
+  echo "Found writable directory in PATH: ${INSTALL_DIR}"
+else
+  echo -e "${YELLOW}Notice: No writable directory found in PATH.${NC}"
+  INSTALL_DIR="$HOME/.local/bin"
+  echo "Falling back to ${INSTALL_DIR}..."
+  
+  # Ensure the directory exists
+  mkdir -p "$INSTALL_DIR" || {
+    echo -e "${RED}Error: Failed to create fallback directory ${INSTALL_DIR}${NC}" >&2
+    exit 1
+  }
+  
+  # Double-check it is actually writable after creation
+  if [ ! -w "$INSTALL_DIR" ]; then
+    echo -e "${RED}Error: Cannot write to fallback directory ${INSTALL_DIR}${NC}" >&2
+    exit 1
+  fi
+  
+  NEEDS_PATH_UPDATE=1
 fi
+# -------------------------------
 
 echo "Detected platform: ${OS_NAME}/${ARCH_NAME}"
 echo "Install directory: ${INSTALL_DIR}"
@@ -148,3 +179,20 @@ if ! command -v repos >/dev/null 2>&1; then
 fi
 
 echo "Run: ${BINARY_NAME} --help"
+
+# --- USER PATH INSTRUCTIONS ---
+if [ "$NEEDS_PATH_UPDATE" -eq 1 ]; then
+  echo
+  echo -e "${YELLOW}======================================================================${NC}"
+  echo -e "${YELLOW}                             ACTION REQUIRED                          ${NC}"
+  echo -e "${YELLOW}======================================================================${NC}"
+  echo -e "The binary was installed to ${INSTALL_DIR}, which is not in your PATH."
+  echo -e "To use the '${BINARY_NAME}' command globally, add this to your ~/.bashrc"
+  echo -e "(or ~/.zshrc if you use zsh):"
+  echo
+  echo -e "  ${GREEN}export PATH=\"\$HOME/.local/bin:\$PATH\"${NC}"
+  echo
+  echo -e "Then reload your terminal or run:"
+  echo -e "  ${GREEN}source ~/.bashrc${NC}"
+  echo -e "${YELLOW}======================================================================${NC}"
+fi
