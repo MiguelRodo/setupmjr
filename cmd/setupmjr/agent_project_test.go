@@ -75,7 +75,7 @@ func TestHandleProjectGhSkillUsesUniversalUserScope(t *testing.T) {
 	}
 	wantArgs := []string{
 		"skill", "install",
-		"MiguelRodo/projects", "github-project-admin",
+		"MiguelRodo/github-projects-skill", "github-projects",
 		"--agent", "universal",
 		"--scope", "user",
 	}

@@ -32,7 +32,7 @@ To configure Codex so that explicitly authorised work can be delegated to Gemini
 setupmjr agent --subagent-agy
 ```
 
-To install the shared `github-project-admin` skill for universal agents at user scope:
+To install the shared `github-projects` skill for universal agents at user scope:
 
 ```bash
 setupmjr project --gh-skill
@@ -46,4 +46,4 @@ setupmjr project --gh-skill
 - `setupmjr git` — Manage Git configuration and authentication.
 - `setupmjr repo` — Manage repositories (e.g., `readme`, `devcontainer`, `action`, `install repos`).
 - `setupmjr agent --subagent-agy` — Add bounded Codex guidance for opt-in `agy` delegation and the narrow Codex execution rule required to invoke it. Existing Codex instructions are preserved outside the managed block.
-- `setupmjr project --gh-skill` — Run `gh skill install MiguelRodo/projects github-project-admin --agent universal --scope user`.
+- `setupmjr project --gh-skill` — Run `gh skill install MiguelRodo/github-projects-skill github-projects --agent universal --scope user`.
