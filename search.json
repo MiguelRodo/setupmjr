@@ -249,7 +249,7 @@
     "href": "project.html#install-the-github-projects-skill",
     "title": "project",
     "section": "Install the GitHub Projects skill",
-    "text": "Install the GitHub Projects skill\nsetupmjr project --gh-skill\nThis installs github-project-admin from MiguelRodo/projects for universal agents at user scope. It is equivalent to:\ngh skill install MiguelRodo/projects github-project-admin --agent universal --scope user\nThe command installs the shared skill only. Repository-specific Project onboarding and .projects configuration remain separate concerns."
+    "text": "Install the GitHub Projects skill\nsetupmjr project --gh-skill\nThis installs github-projects from MiguelRodo/github-projects-skill for universal agents at user scope. It is equivalent to:\ngh skill install MiguelRodo/github-projects-skill github-projects --agent universal --scope user\nThe command installs the shared skill only. Repository-specific Project onboarding and .projects configuration remain separate concerns."
   },
   {
     "objectID": "r.html",
