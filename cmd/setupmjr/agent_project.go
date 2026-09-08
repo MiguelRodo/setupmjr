@@ -47,7 +47,7 @@ func handleAgent(args []string) error {
 
 func handleProject(args []string) error {
 	fs := flag.NewFlagSet("project", flag.ContinueOnError)
-	ghSkill := fs.Bool("gh-skill", false, "Install the github-project-admin skill for universal agents at user scope")
+	ghSkill := fs.Bool("gh-skill", false, "Install the github-projects skill for universal agents at user scope")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -60,13 +60,13 @@ func handleProject(args []string) error {
 
 	if err := runExternalCommand(
 		"gh", "skill", "install",
-		"MiguelRodo/projects", "github-project-admin",
+		"MiguelRodo/github-projects-skill", "github-projects",
 		"--agent", "universal",
 		"--scope", "user",
 	); err != nil {
-		return fmt.Errorf("install github-project-admin skill: %w", err)
+		return fmt.Errorf("install github-projects skill: %w", err)
 	}
-	fmt.Println("Installed github-project-admin at universal user scope.")
+	fmt.Println("Installed github-projects at universal user scope.")
 	return nil
 }
 
