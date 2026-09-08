@@ -19,6 +19,10 @@ website:
         text: git
       - href: repo.qmd
         text: repo
+      - href: agent.qmd
+        text: agent
+      - href: project.qmd
+        text: project
       - href: multirepo.qmd
         text: multirepo
 
