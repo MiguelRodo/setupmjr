@@ -1,0 +1,19 @@
+---
+title: "project"
+---
+
+Use the `project` command for GitHub Project-related setup that is independent of agent configuration.
+
+## Install the GitHub Projects skill
+
+```bash
+setupmjr project --gh-skill
+```
+
+This installs `github-project-admin` from `MiguelRodo/projects` for universal agents at user scope. It is equivalent to:
+
+```bash
+gh skill install MiguelRodo/projects github-project-admin --agent universal --scope user
+```
+
+The command installs the shared skill only. Repository-specific Project onboarding and `.projects` configuration remain separate concerns.
