@@ -1,31 +1,52 @@
 [
   {
-    "objectID": "r.html",
-    "href": "r.html",
-    "title": "r",
+    "objectID": "hpc.html",
+    "href": "hpc.html",
+    "title": "hpc",
     "section": "",
-    "text": "The r subcommand is used to set up R environments."
+    "text": "The hpc subcommand is used to configure HPC environments."
   },
   {
-    "objectID": "r.html#commands",
-    "href": "r.html#commands",
-    "title": "r",
+    "objectID": "hpc.html#commands",
+    "href": "hpc.html#commands",
+    "title": "hpc",
     "section": "Commands",
-    "text": "Commands\n  r [--not-radian] [--not-lintr]"
+    "text": "Commands\n  hpc       Master HPC setup\n  hpc git\n  hpc scratch\n  hpc apptainer\n  hpc slurm\n  hpc r"
   },
   {
-    "objectID": "r.html#setup",
-    "href": "r.html#setup",
-    "title": "r",
+    "objectID": "hpc.html#installation",
+    "href": "hpc.html#installation",
+    "title": "hpc",
+    "section": "Installation",
+    "text": "Installation\nAssuming that the HPC is running on Linux, the following line will install setupmjr without requiring sudo permission:\ncurl -fsSL https://raw.githubusercontent.com/MiguelRodo/setupmjr/main/install-local.sh | bash\nConfirm that installation worked by running:\nsetupmjr --version\nIf the above does not work, then setupmjr may not be on your system PATH. In that case, you can add the following line to your shell profile (typically ~/.bashrc):\nexport PATH=\"$HOME/.local/bin:$PATH\"\nThen run:\nsource ~/.bashrc\nAt this point, the following should succeed:\nsetupmjr --version\nIf not, then the initial installation failed."
+  },
+  {
+    "objectID": "hpc.html#setup",
+    "href": "hpc.html#setup",
+    "title": "hpc",
     "section": "Setup",
-    "text": "Setup\nOne may often use a non-standard R terminal named radian because it offers many enhancements over the standard R terminal. However, radian (in some experiences) breaks without a key configuration setting.\nTo configure this setting, run the following command:\nsetupmjr r\nIn addition to configuring radian, this command also turns off object length and line linters for lintr (to prevent VS Code or other editors from bothering you because your variable names or lines are “too long”).\n\nFlags\nYou can opt out of configuring radian or lintr by passing the respective flags:\n\n--not-radian: Do not configure ~/.radian_profile.\n--not-lintr: Do not configure ~/.lintr.\n\nFor example, to only configure radian and not lintr:\nsetupmjr r --not-lintr"
+    "text": "Setup\nThe following command will configure the HPC environment:\nsetupmjr hpc\nApart from needing to edit one file for Git authentication if this has not been setup yet (see below), this command requires no other user input.\nsetupmjr hpc does the following:\n\nHelps store large files effectively: Large files are stored in the /scratch space (if available) rather than /home, to respect HPC storage policies.\nAuthenticates with Git: Scripts are added to which the user needs to simply add their GitHub username and a personal access token (PAT) to enable seamless Git operations from the HPC environment.\nAdd Apptainer and SLURM helpers: If these tools are available on the HPC, helper scripts will be added to simplify their usage.\nConfigures radian: If you use radian as your R terminal, it is configured to work properly on the HPC.\n\nEach of these features can be configured independently via the respective subcommands (hpc scratch, hpc apptainer, hpc slurm, hpc git, hpc r).\n\nSetting up Git\nTo configure Git, run the following command (which is also part of the setupmjr hpc command):\nsetupmjr hpc git\nThis command simply calls setupmjr git, which configures your Git profile (name and email) via setupmjr git profile and sets up authentication credentials via setupmjr git auth.\nFor full details on how this works and how it configures your environment (including setting up .bashrc.d and .zshrc.d files for seamless GitHub authentication), please refer to the git setup documentation.\n\n\nUsing scratch space\nHPCs typically have a separate scratch space for storing large files (i.e. /scratch/$USER), which is often faster and has different quotas than the home directory. The setupmjr hpc scratch command helps you configure your environment to use this scratch space effectively.\nTo set this up, run the following command (also part of setupmjr hpc):\nsetupmjr hpc scratch\nThis configures your environment to preferentially use the /scratch space for the following:\n\nApptainer and Singularity images\n\nAutomatically cached in /scratch/$USER/.cache/&lt;apptainer/singularity&gt; instead of the default location in the home directory.\n\nR libraries:\n\nThe R_LIBS_USER environment variable is set to /scratch/$USER/.local/lib/R and created, so that R packages are installed in the scratch space instead of the home directory.\nSimilarly, various RENV_* environment variables configuring renv paths are set to point to the scratch space."
   },
   {
-    "objectID": "r.html#details",
-    "href": "r.html#details",
-    "title": "r",
+    "objectID": "hpc.html#details",
+    "href": "hpc.html#details",
+    "title": "hpc",
     "section": "Details",
-    "text": "Details\nIf not skipped via --not-radian, the ~/.radian_profile file is created if it does not exist, and the following line is added to it:\noptions(radian.auto_match = FALSE)\nIf not skipped via --not-lintr, the ~/.lintr file is created if it does not exist, and the following lines are added to it:\nlinters: linters_with_defaults(\n    object_length_linter = NULL,\n    object_name_linter = NULL)"
+    "text": "Details\nThe hpc scratch command configures the environment to use the /scratch directory by doing the following:\n\nIt ensures that .bashrc.d files are sourced by .bashrc.\nA script is added to ~/.bashrc.d/hpc-scratch.sh, which explicitly exports paths for Apptainer, Singularity, renv, and R libraries to use /scratch/$USER. Specifically, it sets the following environment variables:\n\nRENV_CONFIG_PAK_ENABLED=false\nRENV_CONFIG_SANDBOX_ENABLED=false\nRENV_PATHS_LIBRARY_ROOT=/scratch/${USER}/.local/lib/R/library\nRENV_PATHS_CACHE=/scratch/${USER}/renv/cache:/renv/cache\nRENV_PATHS_ROOT=/scratch/${USER}/.local/lib/R/library\nR_LIBS=/scratch/${USER}/.local/lib/R"
+  },
+  {
+    "objectID": "hpc.html#details-1",
+    "href": "hpc.html#details-1",
+    "title": "hpc",
+    "section": "Details",
+    "text": "Details\nThe hpc slurm command sets up these tools by doing the following:\n\nIt ensures that ~/.local/bin is added to your system’s PATH environment variable by (if required) adding an export statement to your .bashrc.\nIt places the specific utility wrapper scripts (slurm-sbatch, slurm-sintx, slurm-squeue) directly into ~/.local/bin/."
+  },
+  {
+    "objectID": "hpc.html#details-2",
+    "href": "hpc.html#details-2",
+    "title": "hpc",
+    "section": "Details",
+    "text": "Details\nThe hpc apptainer command sets up these tools by doing the following:\n\nIt ensures that ~/.local/bin is added to your system’s PATH environment variable by (if required) adding an export statement to your .bashrc.\nIt places the specific utility wrapper scripts directly into ~/.local/bin/."
   },
   {
     "objectID": "repo.html",
@@ -91,6 +112,27 @@
     "text": "Details\nWhen running repo action &lt;action-name&gt;, the CLI fetches the corresponding YAML file from the examples directory of the MiguelRodo/actions repository, directly placing it in .github/workflows/."
   },
   {
+    "objectID": "multirepo.html",
+    "href": "multirepo.html",
+    "title": "multirepo",
+    "section": "",
+    "text": "The multirepo subcommand acts as a wrapper around the bundled repos utility, which is installed alongside setupmjr. It is designed to manage local workspaces and batch-process actions across multiple repositories."
+  },
+  {
+    "objectID": "multirepo.html#commands",
+    "href": "multirepo.html#commands",
+    "title": "multirepo",
+    "section": "Commands",
+    "text": "Commands\n  multirepo clone\n  multirepo workspace\n  multirepo codespace\n  multirepo create\n  multirepo &lt;other repos command&gt;\nAny command passed to setupmjr multirepo will be automatically proxied to the bundled repos tool."
+  },
+  {
+    "objectID": "multirepo.html#details",
+    "href": "multirepo.html#details",
+    "title": "multirepo",
+    "section": "Details",
+    "text": "Details\nThe core operations for managing multiple repositories collectively (e.g. cloning a list of repositories, configuring cross-repo VS Code workspaces) are powered by the repos utility. The multirepo subcommand simplifies their execution from the setupmjr CLI."
+  },
+  {
     "objectID": "install.html",
     "href": "install.html",
     "title": "Installation",
@@ -147,104 +189,6 @@
     "text": "Verify Installation\nsetupmjr --help"
   },
   {
-    "objectID": "hpc.html",
-    "href": "hpc.html",
-    "title": "hpc",
-    "section": "",
-    "text": "The hpc subcommand is used to configure HPC environments."
-  },
-  {
-    "objectID": "hpc.html#commands",
-    "href": "hpc.html#commands",
-    "title": "hpc",
-    "section": "Commands",
-    "text": "Commands\n  hpc       Master HPC setup\n  hpc git\n  hpc scratch\n  hpc apptainer\n  hpc slurm\n  hpc r"
-  },
-  {
-    "objectID": "hpc.html#installation",
-    "href": "hpc.html#installation",
-    "title": "hpc",
-    "section": "Installation",
-    "text": "Installation\nAssuming that the HPC is running on Linux, the following line will install setupmjr without requiring sudo permission:\ncurl -fsSL https://raw.githubusercontent.com/MiguelRodo/setupmjr/main/install-local.sh | bash\nConfirm that installation worked by running:\nsetupmjr --version\nIf the above does not work, then setupmjr may not be on your system PATH. In that case, you can add the following line to your shell profile (typically ~/.bashrc):\nexport PATH=\"$HOME/.local/bin:$PATH\"\nThen run:\nsource ~/.bashrc\nAt this point, the following should succeed:\nsetupmjr --version\nIf not, then the initial installation failed."
-  },
-  {
-    "objectID": "hpc.html#setup",
-    "href": "hpc.html#setup",
-    "title": "hpc",
-    "section": "Setup",
-    "text": "Setup\nThe following command will configure the HPC environment:\nsetupmjr hpc\nApart from needing to edit one file for Git authentication if this has not been setup yet (see below), this command requires no other user input.\nsetupmjr hpc does the following:\n\nHelps store large files effectively: Large files are stored in the /scratch space (if available) rather than /home, to respect HPC storage policies.\nAuthenticates with Git: Scripts are added to which the user needs to simply add their GitHub username and a personal access token (PAT) to enable seamless Git operations from the HPC environment.\nAdd Apptainer and SLURM helpers: If these tools are available on the HPC, helper scripts will be added to simplify their usage.\nConfigures radian: If you use radian as your R terminal, it is configured to work properly on the HPC.\n\nEach of these features can be configured independently via the respective subcommands (hpc scratch, hpc apptainer, hpc slurm, hpc git, hpc r).\n\nSetting up Git\nTo configure Git, run the following command (which is also part of the setupmjr hpc command):\nsetupmjr hpc git\nThis command simply calls setupmjr git, which configures your Git profile (name and email) via setupmjr git profile and sets up authentication credentials via setupmjr git auth.\nFor full details on how this works and how it configures your environment (including setting up .bashrc.d and .zshrc.d files for seamless GitHub authentication), please refer to the git setup documentation.\n\n\nUsing scratch space\nHPCs typically have a separate scratch space for storing large files (i.e. /scratch/$USER), which is often faster and has different quotas than the home directory. The setupmjr hpc scratch command helps you configure your environment to use this scratch space effectively.\nTo set this up, run the following command (also part of setupmjr hpc):\nsetupmjr hpc scratch\nThis configures your environment to preferentially use the /scratch space for the following:\n\nApptainer and Singularity images\n\nAutomatically cached in /scratch/$USER/.cache/&lt;apptainer/singularity&gt; instead of the default location in the home directory.\n\nR libraries:\n\nThe R_LIBS_USER environment variable is set to /scratch/$USER/.local/lib/R and created, so that R packages are installed in the scratch space instead of the home directory.\nSimilarly, various RENV_* environment variables configuring renv paths are set to point to the scratch space."
-  },
-  {
-    "objectID": "hpc.html#details",
-    "href": "hpc.html#details",
-    "title": "hpc",
-    "section": "Details",
-    "text": "Details\nThe hpc scratch command configures the environment to use the /scratch directory by doing the following:\n\nIt ensures that .bashrc.d files are sourced by .bashrc.\nA script is added to ~/.bashrc.d/hpc-scratch.sh, which explicitly exports paths for Apptainer, Singularity, renv, and R libraries to use /scratch/$USER. Specifically, it sets the following environment variables:\n\nRENV_CONFIG_PAK_ENABLED=false\nRENV_CONFIG_SANDBOX_ENABLED=false\nRENV_PATHS_LIBRARY_ROOT=/scratch/${USER}/.local/lib/R/library\nRENV_PATHS_CACHE=/scratch/${USER}/renv/cache:/renv/cache\nRENV_PATHS_ROOT=/scratch/${USER}/.local/lib/R/library\nR_LIBS=/scratch/${USER}/.local/lib/R"
-  },
-  {
-    "objectID": "hpc.html#details-1",
-    "href": "hpc.html#details-1",
-    "title": "hpc",
-    "section": "Details",
-    "text": "Details\nThe hpc slurm command sets up these tools by doing the following:\n\nIt ensures that ~/.local/bin is added to your system’s PATH environment variable by (if required) adding an export statement to your .bashrc.\nIt places the specific utility wrapper scripts (slurm-sbatch, slurm-sintx, slurm-squeue) directly into ~/.local/bin/."
-  },
-  {
-    "objectID": "hpc.html#details-2",
-    "href": "hpc.html#details-2",
-    "title": "hpc",
-    "section": "Details",
-    "text": "Details\nThe hpc apptainer command sets up these tools by doing the following:\n\nIt ensures that ~/.local/bin is added to your system’s PATH environment variable by (if required) adding an export statement to your .bashrc.\nIt places the specific utility wrapper scripts directly into ~/.local/bin/."
-  },
-  {
-    "objectID": "multirepo.html",
-    "href": "multirepo.html",
-    "title": "multirepo",
-    "section": "",
-    "text": "The multirepo subcommand acts as a wrapper around the bundled repos utility, which is installed alongside setupmjr. It is designed to manage local workspaces and batch-process actions across multiple repositories."
-  },
-  {
-    "objectID": "multirepo.html#commands",
-    "href": "multirepo.html#commands",
-    "title": "multirepo",
-    "section": "Commands",
-    "text": "Commands\n  multirepo clone\n  multirepo workspace\n  multirepo codespace\n  multirepo create\n  multirepo &lt;other repos command&gt;\nAny command passed to setupmjr multirepo will be automatically proxied to the bundled repos tool."
-  },
-  {
-    "objectID": "multirepo.html#details",
-    "href": "multirepo.html#details",
-    "title": "multirepo",
-    "section": "Details",
-    "text": "Details\nThe core operations for managing multiple repositories collectively (e.g. cloning a list of repositories, configuring cross-repo VS Code workspaces) are powered by the repos utility. The multirepo subcommand simplifies their execution from the setupmjr CLI."
-  },
-  {
-    "objectID": "git.html",
-    "href": "git.html",
-    "title": "git",
-    "section": "",
-    "text": "The git subcommand is used to set up git."
-  },
-  {
-    "objectID": "git.html#commands",
-    "href": "git.html#commands",
-    "title": "git",
-    "section": "Commands",
-    "text": "Commands\n  git\n  git profile\n  git auth\n  git auth text\n  git auth cache\n  git auth mngr"
-  },
-  {
-    "objectID": "git.html#setting-up-git",
-    "href": "git.html#setting-up-git",
-    "title": "git",
-    "section": "Setting up Git",
-    "text": "Setting up Git\nTo work with Git, you need to do two things:\n\nSupply Git with your name and email (if not already configured).\nProvide Git with credentials to authenticate with remote repositories, e.g. GitHub.\n\nTo set this up, run the following command (which is also part of the setupmjr hpc command):\nsetupmjr git\nYou will be prompted to enter your full name and email address (if these are not already set), which Git uses to identify you as the author of commits.\nIn addition, you will be prompted to enter your GitHub username and a personal access token (PAT). This allows Git to authenticate with GitHub when you push commits or perform other operations that require authentication.\nTo get a GitHub PAT, go to your GitHub account settings, navigate to “Developer settings” &gt; “Personal access tokens”, and generate a new token with the appropriate scopes (e.g. repo for full control of private repositories).\nIf you skip entering any of the above information, you can always run setupmjr git again to set it up later."
-  },
-  {
-    "objectID": "git.html#details",
-    "href": "git.html#details",
-    "title": "git",
-    "section": "Details",
-    "text": "Details\nGit authentication is configured by the following:\n\nIt is ensured that .bashrc.d and .zshrc.d files are sourced by .bashrc and .zshrc, respectively.\nThe credential helper is set to the following for GitHub:\n!f() { sleep 1; echo \"username=${GITHUB_USER:-TOKEN}\"; echo \"password=${GH_TOKEN:-$GITHUB_TOKEN}\"; }; f\nA script is added to ~/.bashrc.d/login.sh and ~/.zshrc.d/login.sh, which has space for the user to add their GitHub username and PAT, and then exports these as environment variables (GITHUB_USER and GITHUB_USERNAME for the user name and GITHUB_TOKEN, GH_TOKEN and GITHUB_PAT for the token)."
-  },
-  {
     "objectID": "shell.html",
     "href": "shell.html",
     "title": "shell",
@@ -292,5 +236,89 @@
     "title": "setupmjr",
     "section": "Subcommands",
     "text": "Subcommands\n\nhpc\nshell\nr\ngit\nrepo"
+  },
+  {
+    "objectID": "project.html",
+    "href": "project.html",
+    "title": "project",
+    "section": "",
+    "text": "Use the project command for GitHub Project-related setup that is independent of agent configuration."
+  },
+  {
+    "objectID": "project.html#install-the-github-projects-skill",
+    "href": "project.html#install-the-github-projects-skill",
+    "title": "project",
+    "section": "Install the GitHub Projects skill",
+    "text": "Install the GitHub Projects skill\nsetupmjr project --gh-skill\nThis installs github-project-admin from MiguelRodo/projects for universal agents at user scope. It is equivalent to:\ngh skill install MiguelRodo/projects github-project-admin --agent universal --scope user\nThe command installs the shared skill only. Repository-specific Project onboarding and .projects configuration remain separate concerns."
+  },
+  {
+    "objectID": "r.html",
+    "href": "r.html",
+    "title": "r",
+    "section": "",
+    "text": "The r subcommand is used to set up R environments."
+  },
+  {
+    "objectID": "r.html#commands",
+    "href": "r.html#commands",
+    "title": "r",
+    "section": "Commands",
+    "text": "Commands\n  r [--not-radian] [--not-lintr]"
+  },
+  {
+    "objectID": "r.html#setup",
+    "href": "r.html#setup",
+    "title": "r",
+    "section": "Setup",
+    "text": "Setup\nOne may often use a non-standard R terminal named radian because it offers many enhancements over the standard R terminal. However, radian (in some experiences) breaks without a key configuration setting.\nTo configure this setting, run the following command:\nsetupmjr r\nIn addition to configuring radian, this command also turns off object length and line linters for lintr (to prevent VS Code or other editors from bothering you because your variable names or lines are “too long”).\n\nFlags\nYou can opt out of configuring radian or lintr by passing the respective flags:\n\n--not-radian: Do not configure ~/.radian_profile.\n--not-lintr: Do not configure ~/.lintr.\n\nFor example, to only configure radian and not lintr:\nsetupmjr r --not-lintr"
+  },
+  {
+    "objectID": "r.html#details",
+    "href": "r.html#details",
+    "title": "r",
+    "section": "Details",
+    "text": "Details\nIf not skipped via --not-radian, the ~/.radian_profile file is created if it does not exist, and the following line is added to it:\noptions(radian.auto_match = FALSE)\nIf not skipped via --not-lintr, the ~/.lintr file is created if it does not exist, and the following lines are added to it:\nlinters: linters_with_defaults(\n    object_length_linter = NULL,\n    object_name_linter = NULL)"
+  },
+  {
+    "objectID": "agent.html",
+    "href": "agent.html",
+    "title": "agent",
+    "section": "",
+    "text": "Use the agent command for user-level agent configuration."
+  },
+  {
+    "objectID": "agent.html#configure-codex-to-delegate-to-agy",
+    "href": "agent.html#configure-codex-to-delegate-to-agy",
+    "title": "agent",
+    "section": "Configure Codex to delegate to agy",
+    "text": "Configure Codex to delegate to agy\nsetupmjr agent --subagent-agy\nThis adds a bounded managed block to Codex user instructions and a narrow Codex execution rule for the agy command. Existing Codex instructions outside the managed block are preserved, and rerunning the command refreshes the same block rather than duplicating it.\nThe installed guidance keeps agy opt-in: Codex may use it only when you explicitly authorise delegation for the current task or conversation. It recommends Gemini Flash High for bounded mechanical or investigative work, while Codex retains intent interpretation, design, consequential decisions, and final review.\nsetupmjr does not install or authenticate Google Antigravity CLI. If agy is not already on PATH, the command prints a note after configuring Codex."
+  },
+  {
+    "objectID": "git.html",
+    "href": "git.html",
+    "title": "git",
+    "section": "",
+    "text": "The git subcommand is used to set up git."
+  },
+  {
+    "objectID": "git.html#commands",
+    "href": "git.html#commands",
+    "title": "git",
+    "section": "Commands",
+    "text": "Commands\n  git\n  git profile\n  git auth\n  git auth text\n  git auth cache\n  git auth mngr"
+  },
+  {
+    "objectID": "git.html#setting-up-git",
+    "href": "git.html#setting-up-git",
+    "title": "git",
+    "section": "Setting up Git",
+    "text": "Setting up Git\nTo work with Git, you need to do two things:\n\nSupply Git with your name and email (if not already configured).\nProvide Git with credentials to authenticate with remote repositories, e.g. GitHub.\n\nTo set this up, run the following command (which is also part of the setupmjr hpc command):\nsetupmjr git\nYou will be prompted to enter your full name and email address (if these are not already set), which Git uses to identify you as the author of commits.\nIn addition, you will be prompted to enter your GitHub username and a personal access token (PAT). This allows Git to authenticate with GitHub when you push commits or perform other operations that require authentication.\nTo get a GitHub PAT, go to your GitHub account settings, navigate to “Developer settings” &gt; “Personal access tokens”, and generate a new token with the appropriate scopes (e.g. repo for full control of private repositories).\nIf you skip entering any of the above information, you can always run setupmjr git again to set it up later."
+  },
+  {
+    "objectID": "git.html#details",
+    "href": "git.html#details",
+    "title": "git",
+    "section": "Details",
+    "text": "Details\nGit authentication is configured by the following:\n\nIt is ensured that .bashrc.d and .zshrc.d files are sourced by .bashrc and .zshrc, respectively.\nThe credential helper is set to the following for GitHub:\n!f() { sleep 1; echo \"username=${GITHUB_USER:-TOKEN}\"; echo \"password=${GH_TOKEN:-$GITHUB_TOKEN}\"; }; f\nA script is added to ~/.bashrc.d/login.sh and ~/.zshrc.d/login.sh, which has space for the user to add their GitHub username and PAT, and then exports these as environment variables (GITHUB_USER and GITHUB_USERNAME for the user name and GITHUB_TOKEN, GH_TOKEN and GITHUB_PAT for the token)."
   }
 ]
