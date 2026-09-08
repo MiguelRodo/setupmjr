@@ -1,0 +1,17 @@
+---
+title: "agent"
+---
+
+Use the `agent` command for user-level agent configuration.
+
+## Configure Codex to delegate to `agy`
+
+```bash
+setupmjr agent --subagent-agy
+```
+
+This adds a bounded managed block to Codex user instructions and a narrow Codex execution rule for the `agy` command. Existing Codex instructions outside the managed block are preserved, and rerunning the command refreshes the same block rather than duplicating it.
+
+The installed guidance keeps `agy` opt-in: Codex may use it only when you explicitly authorise delegation for the current task or conversation. It recommends Gemini Flash High for bounded mechanical or investigative work, while Codex retains intent interpretation, design, consequential decisions, and final review.
+
+`setupmjr` does not install or authenticate Google Antigravity CLI. If `agy` is not already on `PATH`, the command prints a note after configuring Codex.

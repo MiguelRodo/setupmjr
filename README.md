@@ -4,7 +4,7 @@
 [![Test Suite](https://github.com/MiguelRodo/setupmjr/actions/workflows/test-suite.yml/badge.svg)](https://github.com/MiguelRodo/setupmjr/actions/workflows/test-suite.yml)
 [![ShellCheck](https://github.com/MiguelRodo/setupmjr/actions/workflows/shellcheck.yml/badge.svg)](https://github.com/MiguelRodo/setupmjr/actions/workflows/shellcheck.yml)
 
-`setupmjr` is a cross-platform Go setup CLI utility that automates the setup of HPC, Bash, R, Git, Slurm, and Apptainer environments.
+`setupmjr` is a cross-platform Go setup CLI utility that automates the setup of HPC, Bash, R, Git, Slurm, Apptainer, agent, and GitHub Project environments.
 
 ## Installation
 
@@ -26,11 +26,16 @@ You can use `setupmjr` to configure specific environments quickly. For instance,
 setupmjr hpc
 ```
 
-Or to configure Git user or login info:
+To configure Codex so that explicitly authorised work can be delegated to Gemini through `agy`:
 
 ```bash
-setupmjr git user
-setupmjr git login
+setupmjr agent --subagent-agy
+```
+
+To install the shared `github-project-admin` skill for universal agents at user scope:
+
+```bash
+setupmjr project --gh-skill
 ```
 
 ## Commands and capabilities
@@ -38,5 +43,7 @@ setupmjr git login
 - `setupmjr hpc` — Master HPC setup, with options for `scratch`, `apptainer`, `slurm`, `login git`, `git`, and `r`.
 - `setupmjr bash` — Manage Bash environments (`rc.d`, `login`).
 - `setupmjr r` — Set up R environments (e.g., `radian`).
-- `setupmjr git` — Manage Git configurations (`user`, `login`, `login text`, `login cache`, `login mngr`).
+- `setupmjr git` — Manage Git configuration and authentication.
 - `setupmjr repo` — Manage repositories (e.g., `readme`, `devcontainer`, `action`, `install repos`).
+- `setupmjr agent --subagent-agy` — Add bounded Codex guidance for opt-in `agy` delegation and the narrow Codex execution rule required to invoke it. Existing Codex instructions are preserved outside the managed block.
+- `setupmjr project --gh-skill` — Run `gh skill install MiguelRodo/projects github-project-admin --agent universal --scope user`.

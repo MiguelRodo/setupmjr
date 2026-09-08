@@ -58,6 +58,16 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
+	case "agent":
+		if err := handleAgent(os.Args[2:]); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+	case "project":
+		if err := handleProject(os.Args[2:]); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
 	case "multirepo":
 		if err := handleMultirepo(os.Args[2:]); err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
@@ -100,6 +110,8 @@ Commands:
   repo devcontainer [--repo <owner/repo>@<branch>] [--build]
   repo action <action-name>
   repo install repos
+  agent --subagent-agy
+  project --gh-skill
   multirepo <command>`)
 }
 
