@@ -111,7 +111,7 @@ Commands:
   repo action <action-name>
   repo install repos
   agent --subagent-agy
-  project --gh-skill
+  project [--gh-skill] [--pj]
   multirepo <command>`)
 }
 

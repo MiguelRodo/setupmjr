@@ -48,26 +48,54 @@ func handleAgent(args []string) error {
 func handleProject(args []string) error {
 	fs := flag.NewFlagSet("project", flag.ContinueOnError)
 	ghSkill := fs.Bool("gh-skill", false, "Install the github-projects skill for universal agents at user scope")
+	pj := fs.Bool("pj", false, "Install or update the pj launcher from MiguelRodo/pj")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
 	if fs.NArg() != 0 {
 		return fmt.Errorf("project does not accept positional arguments")
 	}
-	if !*ghSkill {
-		return fmt.Errorf("project requires --gh-skill")
+	if !*ghSkill && !*pj {
+		return fmt.Errorf("project requires --gh-skill and/or --pj")
 	}
 
-	if err := runExternalCommand(
-		"gh", "skill", "install",
-		"MiguelRodo/github-projects-skill", "github-projects",
-		"--agent", "universal",
-		"--scope", "user",
-		"--force",
-	); err != nil {
-		return fmt.Errorf("install github-projects skill: %w", err)
+	if *ghSkill {
+		if err := runExternalCommand(
+			"gh", "skill", "install",
+			"MiguelRodo/github-projects-skill", "github-projects",
+			"--agent", "universal",
+			"--scope", "user",
+			"--force",
+		); err != nil {
+			return fmt.Errorf("install github-projects skill: %w", err)
+		}
+		fmt.Println("Installed github-projects at universal user scope.")
 	}
-	fmt.Println("Installed github-projects at universal user scope.")
+
+	if *pj {
+		if err := installPj(); err != nil {
+			return fmt.Errorf("install pj launcher: %w", err)
+		}
+		fmt.Println("Installed or updated pj launcher from canonical source MiguelRodo/pj.")
+	}
+	return nil
+}
+
+func installPj() error {
+	tmpDir, err := os.MkdirTemp("", "setupmjr-pj-*")
+	if err != nil {
+		return fmt.Errorf("create temp dir: %w", err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	if err := runExternalCommand("git", "clone", "--depth", "1", "https://github.com/MiguelRodo/pj.git", tmpDir); err != nil {
+		return fmt.Errorf("clone pj repo: %w", err)
+	}
+
+	installScript := filepath.Join(tmpDir, "install.sh")
+	if err := runExternalCommand("bash", installScript); err != nil {
+		return fmt.Errorf("run pj install.sh: %w", err)
+	}
 	return nil
 }
 
