@@ -63,6 +63,7 @@ func handleProject(args []string) error {
 		"MiguelRodo/github-projects-skill", "github-projects",
 		"--agent", "universal",
 		"--scope", "user",
+		"--force",
 	); err != nil {
 		return fmt.Errorf("install github-projects skill: %w", err)
 	}

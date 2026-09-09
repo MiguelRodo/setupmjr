@@ -78,6 +78,7 @@ func TestHandleProjectGhSkillUsesUniversalUserScope(t *testing.T) {
 		"MiguelRodo/github-projects-skill", "github-projects",
 		"--agent", "universal",
 		"--scope", "user",
+		"--force",
 	}
 	if !reflect.DeepEqual(gotArgs, wantArgs) {
 		t.Fatalf("args = %#v, want %#v", gotArgs, wantArgs)
