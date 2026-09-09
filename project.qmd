@@ -13,7 +13,7 @@ setupmjr project --gh-skill
 This installs `github-projects` from `MiguelRodo/github-projects-skill` for universal agents at user scope. It is equivalent to:
 
 ```bash
-gh skill install MiguelRodo/github-projects-skill github-projects --agent universal --scope user
+gh skill install MiguelRodo/github-projects-skill github-projects --agent universal --scope user --force
 ```
 
 The command installs the shared skill only. Repository-specific Project onboarding and `.projects` configuration remain separate concerns.
