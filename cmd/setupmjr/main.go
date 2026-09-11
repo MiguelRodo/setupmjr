@@ -110,7 +110,7 @@ Commands:
   repo devcontainer [--repo <owner/repo>@<branch>] [--build]
   repo action <action-name>
   repo install repos
-  agent --subagent-agy
+  agent [-c [o|d]] [-s [agy|deepseek]] [--config] [--list]
   project [--gh-skill] [--pj]
   multirepo <command>`)
 }

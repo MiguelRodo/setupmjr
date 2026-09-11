@@ -26,11 +26,17 @@ You can use `setupmjr` to configure specific environments quickly. For instance,
 setupmjr hpc
 ```
 
-To configure Codex so that explicitly authorised work can be delegated to Gemini through `agy`:
+To inspect agent choices, switch Codex providers, or configure an opt-in subagent:
 
 ```bash
-setupmjr agent --subagent-agy
+setupmjr agent --list
+setupmjr agent -c d          # Codex -> DeepSeek
+setupmjr agent -c            # Codex -> OpenAI/ChatGPT
+setupmjr agent -s            # agy subagent (default)
+setupmjr agent -s deepseek   # DeepSeek subagent
 ```
+
+See [agent.qmd](agent.qmd) for provider switching, snapshots, credentials and subagent behaviour.
 
 To install the shared `github-projects` skill for universal agents at user scope:
 
@@ -45,5 +51,5 @@ setupmjr project --gh-skill
 - `setupmjr r` — Set up R environments (e.g., `radian`).
 - `setupmjr git` — Manage Git configuration and authentication.
 - `setupmjr repo` — Manage repositories (e.g., `readme`, `devcontainer`, `action`, `install repos`).
-- `setupmjr agent --subagent-agy` — Add bounded Codex guidance for opt-in `agy` delegation and the narrow Codex execution rule required to invoke it. Existing Codex instructions are preserved outside the managed block.
+- `setupmjr agent` — Inspect or configure coding agents: `-c` / `--codex-provider` switches the primary Codex provider (`openai` or `deepseek`), `-s` / `--subagent` configures the opt-in subagent (`agy` or `deepseek`), and `--config` / `--list` inspect the current or available configuration.
 - `setupmjr project --gh-skill` — Run `gh skill install MiguelRodo/github-projects-skill github-projects --agent universal --scope user`.

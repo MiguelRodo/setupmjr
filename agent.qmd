@@ -2,16 +2,85 @@
 title: "agent"
 ---
 
-Use the `agent` command for user-level agent configuration.
+Use the `agent` command for user-level coding-agent configuration. Provider setup belongs here; `pj` only launches already-configured agents.
 
-## Configure Codex to delegate to `agy`
+## Inspect agent configuration
+
+Show the effective Codex provider and configured opt-in subagent:
 
 ```bash
-setupmjr agent --subagent-agy
+setupmjr agent --config
 ```
 
-This adds a bounded managed block to Codex user instructions and a narrow Codex execution rule for the `agy` command. Existing Codex instructions outside the managed block are preserved, and rerunning the command refreshes the same block rather than duplicating it.
+List the available choices and short aliases:
 
-The installed guidance keeps `agy` opt-in: Codex may use it only when you explicitly authorise delegation for the current task or conversation. It recommends Gemini Flash High for bounded mechanical or investigative work, while Codex retains intent interpretation, design, consequential decisions, and final review.
+```bash
+setupmjr agent --list
+```
 
-`setupmjr` does not install or authenticate Google Antigravity CLI. If `agy` is not already on `PATH`, the command prints a note after configuring Codex.
+Running `setupmjr agent` without options prints command help.
+
+## Switch the primary Codex provider
+
+OpenAI/ChatGPT is the default value for `-c`, so these are equivalent:
+
+```bash
+setupmjr agent -c
+setupmjr agent -c o
+setupmjr agent --codex-provider openai
+```
+
+Switch Codex to DeepSeek:
+
+```bash
+setupmjr agent -c d
+setupmjr agent --codex-provider deepseek
+```
+
+The first DeepSeek setup uses DeepSeek's official Codex setup script and selects the Flash model. `setupmjr` reads `DEEPSEEK_API_KEY` when it is set, reuses a key from an existing managed DeepSeek configuration when possible, or prompts for the key without echoing it.
+
+Before changing provider, `setupmjr` stores private snapshots of the active Codex `config.toml` and `models.json` under:
+
+```text
+~/.config/setupmjr/agent/codex/
+```
+
+After both providers have been seen once, `-c d` and `-c o` switch by restoring those snapshots rather than rerunning the full DeepSeek installer.
+
+If DeepSeek was already installed manually with the official setup script before `setupmjr` started managing providers, the first switch back to OpenAI uses DeepSeek's official restore path once and then records the restored OpenAI state. Later switches are local snapshot restores.
+
+Provider changes affect the ordinary Codex home at `~/.codex`, so they apply to Codex clients that share that configuration. Restart active Codex clients after switching. A DeepSeek session may have logged Codex out of ChatGPT, so restoring the OpenAI configuration does not guarantee that the ChatGPT account is still authenticated.
+
+The automated DeepSeek bootstrap currently requires Bash and `curl`, and is intended for Linux, macOS and WSL environments.
+
+## Configure an opt-in subagent
+
+`agy` is the default value for `-s`:
+
+```bash
+setupmjr agent -s
+setupmjr agent -s agy
+setupmjr agent --subagent agy
+```
+
+This installs the bounded Codex guidance and narrow execution rule for delegating explicitly authorised work to Gemini through `agy`. Existing Codex instructions outside the managed block are preserved.
+
+To use DeepSeek instead:
+
+```bash
+setupmjr agent -s deepseek
+```
+
+The DeepSeek subagent uses an isolated Codex home:
+
+```text
+~/.codex-deepseek-subagent
+```
+
+It does not change the primary Codex provider. The managed guidance invokes the worker with `codex exec --sandbox workspace-write` and the isolated `CODEX_HOME`. As with `agy`, delegation remains opt-in: Codex may use the subagent only when you explicitly authorise it for the current task or conversation.
+
+Selecting one subagent replaces the managed configuration for the other. `--subagent-agy` remains as a deprecated compatibility alias for `--subagent agy`.
+
+## Credential storage
+
+DeepSeek's official Codex format stores the API key in `config.toml`. The saved DeepSeek provider snapshot therefore also contains that key. `setupmjr` creates its provider-state directory with mode `0700` and writes snapshot files with mode `0600`. Treat these files as credentials and do not commit or share them.
