@@ -11,6 +11,7 @@ import (
 type agentOptions struct {
 	codexProvider string
 	subagent      string
+	authEndpoint  string
 	showConfig    bool
 	list          bool
 	help          bool
@@ -33,6 +34,14 @@ func handleAgent(args []string) error {
 
 	if opts.list {
 		printAgentList()
+	}
+	if opts.authEndpoint != "" {
+		if err := setupAgentAuth(home, opts.authEndpoint); err != nil {
+			return err
+		}
+		if _, err := exec.LookPath("copilot"); err != nil {
+			fmt.Println("Note: Copilot CLI is not currently on PATH; install it before using this provider configuration.")
+		}
 	}
 	if opts.codexProvider != "" {
 		if err := switchCodexProvider(home, opts.codexProvider); err != nil {
@@ -77,6 +86,16 @@ func parseAgentArgs(args []string) (agentOptions, error) {
 			opts.list = true
 		case "--config":
 			opts.showConfig = true
+		case "-a", "--auth":
+			if i+1 >= len(args) || strings.HasPrefix(args[i+1], "-") {
+				return agentOptions{}, fmt.Errorf("%s requires an endpoint, for example: --auth deepseek", arg)
+			}
+			i++
+			normalised, err := normaliseAuthEndpoint(args[i])
+			if err != nil {
+				return agentOptions{}, err
+			}
+			opts.authEndpoint = normalised
 		case "-c", "--codex-provider":
 			value := "openai"
 			if i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
@@ -135,21 +154,26 @@ func printAgentUsage() {
 	fmt.Println(`Usage: setupmjr agent [options]
 
 Options:
-  -c, --codex-provider [provider]  Switch Codex provider. Defaults to openai when omitted.
-  -s, --subagent [subagent]        Configure opt-in subagent. Defaults to agy when omitted.
-      --config                     Show the current effective agent configuration.
-      --list                       List available providers and subagents.
-  -h, --help                       Show this help.
+  -a, --auth <endpoint>             Configure model-provider authentication for an endpoint.
+  -c, --codex-provider [provider]   Switch Codex provider. Defaults to openai when omitted.
+  -s, --subagent [subagent]         Configure opt-in subagent. Defaults to agy when omitted.
+      --config                      Show the current effective agent configuration.
+      --list                        List available endpoints, providers and subagents.
+  -h, --help                        Show this help.
 
 Examples:
-  setupmjr agent -c               Switch Codex back to OpenAI/ChatGPT
-  setupmjr agent -c d             Switch Codex to DeepSeek
-  setupmjr agent -s               Configure agy as the opt-in subagent
-  setupmjr agent -s deepseek      Configure DeepSeek as the opt-in subagent`)
+  setupmjr agent --auth deepseek   Configure DeepSeek auth and Copilot CLI BYOK
+  setupmjr agent -c                Switch Codex back to OpenAI/ChatGPT
+  setupmjr agent -c d              Switch Codex to DeepSeek
+  setupmjr agent -s                Configure agy as the opt-in subagent
+  setupmjr agent -s deepseek       Configure DeepSeek as the opt-in subagent`)
 }
 
 func printAgentList() {
-	fmt.Println(`Codex providers:
+	fmt.Println(`Auth endpoints:
+  d, deepseek          DeepSeek API; configures Copilot CLI BYOK through the Anthropic-compatible endpoint
+
+Codex providers:
   o, openai, chatgpt   OpenAI/ChatGPT (default for -c)
   d, deepseek          DeepSeek
 
@@ -167,8 +191,9 @@ func printAgentConfig(home string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Codex provider: %s\n", provider)
-	fmt.Printf("Subagent:       %s\n", subagent)
+	fmt.Printf("Codex provider:   %s\n", provider)
+	fmt.Printf("Copilot endpoint: %s\n", currentCopilotEndpoint(home))
+	fmt.Printf("Subagent:         %s\n", subagent)
 	return nil
 }
 
