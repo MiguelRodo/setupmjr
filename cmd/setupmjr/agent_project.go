@@ -17,34 +17,6 @@ var runExternalCommand = func(name string, args ...string) error {
 	return cmd.Run()
 }
 
-func handleAgent(args []string) error {
-	fs := flag.NewFlagSet("agent", flag.ContinueOnError)
-	subagentAgy := fs.Bool("subagent-agy", false, "Configure Codex to use agy as an explicitly authorised Gemini subagent")
-	if err := fs.Parse(args); err != nil {
-		return err
-	}
-	if fs.NArg() != 0 {
-		return fmt.Errorf("agent does not accept positional arguments")
-	}
-	if !*subagentAgy {
-		return fmt.Errorf("agent requires --subagent-agy")
-	}
-
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return fmt.Errorf("find home directory: %w", err)
-	}
-	if err := setupSubagentAgy(home); err != nil {
-		return err
-	}
-
-	fmt.Println("Configured Codex agy subagent guidance and execution rule.")
-	if _, err := exec.LookPath("agy"); err != nil {
-		fmt.Println("Note: agy is not currently on PATH; install and authenticate Google Antigravity CLI before using the subagent setup.")
-	}
-	return nil
-}
-
 func handleProject(args []string) error {
 	fs := flag.NewFlagSet("project", flag.ContinueOnError)
 	ghSkill := fs.Bool("gh-skill", false, "Install the github-projects skill for universal agents at user scope")
