@@ -270,6 +270,11 @@ func deepSeekAPIKey(home, codexHome string) (string, error) {
 	if key := strings.TrimSpace(os.Getenv("DEEPSEEK_API_KEY")); key != "" {
 		return key, nil
 	}
+	if keyBytes, err := os.ReadFile(deepSeekCredentialPath(home)); err == nil {
+		if key := strings.TrimSpace(string(keyBytes)); key != "" {
+			return key, nil
+		}
+	}
 	for _, path := range []string{
 		filepath.Join(codexHome, "config.toml"),
 		filepath.Join(home, ".codex", "config.toml"),
