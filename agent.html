@@ -185,7 +185,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#configure-codex-to-delegate-to-agy" id="toc-configure-codex-to-delegate-to-agy" class="nav-link active" data-scroll-target="#configure-codex-to-delegate-to-agy">Configure Codex to delegate to <code>agy</code></a></li>
+  <li><a href="#inspect-agent-configuration" id="toc-inspect-agent-configuration" class="nav-link active" data-scroll-target="#inspect-agent-configuration">Inspect agent configuration</a></li>
+  <li><a href="#switch-the-primary-codex-provider" id="toc-switch-the-primary-codex-provider" class="nav-link" data-scroll-target="#switch-the-primary-codex-provider">Switch the primary Codex provider</a></li>
+  <li><a href="#configure-an-opt-in-subagent" id="toc-configure-an-opt-in-subagent" class="nav-link" data-scroll-target="#configure-an-opt-in-subagent">Configure an opt-in subagent</a></li>
+  <li><a href="#credential-storage" id="toc-credential-storage" class="nav-link" data-scroll-target="#credential-storage">Credential storage</a></li>
   </ul>
 </nav>
     </div>
@@ -211,13 +214,49 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>Use the <code>agent</code> command for user-level agent configuration.</p>
-<section id="configure-codex-to-delegate-to-agy" class="level2">
-<h2 class="anchored" data-anchor-id="configure-codex-to-delegate-to-agy">Configure Codex to delegate to <code>agy</code></h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">--subagent-agy</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>This adds a bounded managed block to Codex user instructions and a narrow Codex execution rule for the <code>agy</code> command. Existing Codex instructions outside the managed block are preserved, and rerunning the command refreshes the same block rather than duplicating it.</p>
-<p>The installed guidance keeps <code>agy</code> opt-in: Codex may use it only when you explicitly authorise delegation for the current task or conversation. It recommends Gemini Flash High for bounded mechanical or investigative work, while Codex retains intent interpretation, design, consequential decisions, and final review.</p>
-<p><code>setupmjr</code> does not install or authenticate Google Antigravity CLI. If <code>agy</code> is not already on <code>PATH</code>, the command prints a note after configuring Codex.</p>
+<p>Use the <code>agent</code> command for user-level coding-agent configuration. Provider setup belongs here; <code>pj</code> only launches already-configured agents.</p>
+<section id="inspect-agent-configuration" class="level2">
+<h2 class="anchored" data-anchor-id="inspect-agent-configuration">Inspect agent configuration</h2>
+<p>Show the effective Codex provider and configured opt-in subagent:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">--config</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>List the available choices and short aliases:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">--list</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Running <code>setupmjr agent</code> without options prints command help.</p>
+</section>
+<section id="switch-the-primary-codex-provider" class="level2">
+<h2 class="anchored" data-anchor-id="switch-the-primary-codex-provider">Switch the primary Codex provider</h2>
+<p>OpenAI/ChatGPT is the default value for <code>-c</code>, so these are equivalent:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">-c</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">-c</span> o</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">--codex-provider</span> openai</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Switch Codex to DeepSeek:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">-c</span> d</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">--codex-provider</span> deepseek</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The first DeepSeek setup uses DeepSeek’s official Codex setup script and selects the Flash model. <code>setupmjr</code> reads <code>DEEPSEEK_API_KEY</code> when it is set, reuses a key from an existing managed DeepSeek configuration when possible, or prompts for the key without echoing it.</p>
+<p>Before changing provider, <code>setupmjr</code> stores private snapshots of the active Codex <code>config.toml</code> and <code>models.json</code> under:</p>
+<pre class="text"><code>~/.config/setupmjr/agent/codex/</code></pre>
+<p>After both providers have been seen once, <code>-c d</code> and <code>-c o</code> switch by restoring those snapshots rather than rerunning the full DeepSeek installer.</p>
+<p>If DeepSeek was already installed manually with the official setup script before <code>setupmjr</code> started managing providers, the first switch back to OpenAI uses DeepSeek’s official restore path once and then records the restored OpenAI state. Later switches are local snapshot restores.</p>
+<p>Provider changes affect the ordinary Codex home at <code>~/.codex</code>, so they apply to Codex clients that share that configuration. Restart active Codex clients after switching. A DeepSeek session may have logged Codex out of ChatGPT, so restoring the OpenAI configuration does not guarantee that the ChatGPT account is still authenticated.</p>
+<p>The automated DeepSeek bootstrap currently requires Bash and <code>curl</code>, and is intended for Linux, macOS and WSL environments.</p>
+</section>
+<section id="configure-an-opt-in-subagent" class="level2">
+<h2 class="anchored" data-anchor-id="configure-an-opt-in-subagent">Configure an opt-in subagent</h2>
+<p><code>agy</code> is the default value for <code>-s</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">-s</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">-s</span> agy</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">--subagent</span> agy</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This installs the bounded Codex guidance and narrow execution rule for delegating explicitly authorised work to Gemini through <code>agy</code>. Existing Codex instructions outside the managed block are preserved.</p>
+<p>To use DeepSeek instead:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">-s</span> deepseek</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The DeepSeek subagent uses an isolated Codex home:</p>
+<pre class="text"><code>~/.codex-deepseek-subagent</code></pre>
+<p>It does not change the primary Codex provider. The managed guidance invokes the worker with <code>codex exec --sandbox workspace-write</code> and the isolated <code>CODEX_HOME</code>. As with <code>agy</code>, delegation remains opt-in: Codex may use the subagent only when you explicitly authorise it for the current task or conversation.</p>
+<p>Selecting one subagent replaces the managed configuration for the other. <code>--subagent-agy</code> remains as a deprecated compatibility alias for <code>--subagent agy</code>.</p>
+</section>
+<section id="credential-storage" class="level2">
+<h2 class="anchored" data-anchor-id="credential-storage">Credential storage</h2>
+<p>DeepSeek’s official Codex format stores the API key in <code>config.toml</code>. The saved DeepSeek provider snapshot therefore also contains that key. <code>setupmjr</code> creates its provider-state directory with mode <code>0700</code> and writes snapshot files with mode <code>0600</code>. Treat these files as credentials and do not commit or share them.</p>
 
 
 </section>
