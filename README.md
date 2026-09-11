@@ -52,4 +52,4 @@ setupmjr project --gh-skill
 - `setupmjr git` — Manage Git configuration and authentication.
 - `setupmjr repo` — Manage repositories (e.g., `readme`, `devcontainer`, `action`, `install repos`).
 - `setupmjr agent` — Inspect or configure coding agents: `-c` / `--codex-provider` switches the primary Codex provider (`openai` or `deepseek`), `-s` / `--subagent` configures the opt-in subagent (`agy` or `deepseek`), and `--config` / `--list` inspect the current or available configuration.
-- `setupmjr project --gh-skill` — Run `gh skill install MiguelRodo/github-projects-skill github-projects --agent universal --scope user`.
+- `setupmjr project --gh-skill` — Run `gh skill install MiguelRodo/github-projects-skill github-projects --agent universal --scope user --force --pin main`.
