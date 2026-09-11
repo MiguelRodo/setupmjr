@@ -38,6 +38,7 @@ func handleProject(args []string) error {
 			"--agent", "universal",
 			"--scope", "user",
 			"--force",
+			"--pin", "main",
 		); err != nil {
 			return fmt.Errorf("install github-projects skill: %w", err)
 		}

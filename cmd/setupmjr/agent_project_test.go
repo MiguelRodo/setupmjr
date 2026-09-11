@@ -307,6 +307,7 @@ func TestHandleProjectGhSkillUsesUniversalUserScope(t *testing.T) {
 		"--agent", "universal",
 		"--scope", "user",
 		"--force",
+		"--pin", "main",
 	}
 	if !reflect.DeepEqual(gotArgs, wantArgs) {
 		t.Fatalf("args = %#v, want %#v", gotArgs, wantArgs)
