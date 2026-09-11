@@ -110,7 +110,7 @@ Commands:
   repo devcontainer [--repo <owner/repo>@<branch>] [--build]
   repo action <action-name>
   repo install repos
-  agent [-c [o|d]] [-s [agy|deepseek]] [--config] [--list]
+  agent [-a <endpoint>] [-c [o|d]] [-s [agy|deepseek]] [--config] [--list]
   project [--gh-skill] [--pj]
   multirepo <command>`)
 }

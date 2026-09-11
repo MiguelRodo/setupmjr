@@ -20,6 +20,48 @@ setupmjr agent --list
 
 Running `setupmjr agent` without options prints command help.
 
+## Configure model-provider authentication
+
+Configure the DeepSeek endpoint once for agent clients:
+
+```bash
+setupmjr agent --auth deepseek
+# short form
+setupmjr agent -a d
+```
+
+The command reuses `DEEPSEEK_API_KEY` when it is already set, then checks the managed DeepSeek credential and existing Codex DeepSeek configurations. If no key is available, it prompts for one without echoing it.
+
+The reusable key is stored at:
+
+```text
+~/.config/setupmjr/agent/auth/deepseek.key
+```
+
+with private permissions. This credential is also discoverable by the Codex DeepSeek setup, so a key entered for Copilot can be reused when switching Codex to DeepSeek later.
+
+For Copilot CLI, `--auth deepseek` writes a managed environment at:
+
+```text
+~/.config/setupmjr/agent/copilot.env
+```
+
+and sources it from Bash and Zsh startup files. It configures DeepSeek's documented Copilot BYOK path:
+
+```text
+COPILOT_PROVIDER_TYPE=anthropic
+COPILOT_PROVIDER_BASE_URL=https://api.deepseek.com/anthropic
+COPILOT_MODEL=deepseek-v4-pro
+COPILOT_PROVIDER_MAX_PROMPT_TOKENS=840000
+COPILOT_PROVIDER_MAX_OUTPUT_TOKENS=128000
+```
+
+The API key itself is not duplicated in the shell startup files. Restart the shell, or source the managed environment directly, before starting Copilot.
+
+DeepSeek BYOK does not itself sign Copilot into GitHub. If you want GitHub-hosted features such as remote control, authenticate Copilot with GitHub separately (for example, `copilot login`) while keeping the DeepSeek BYOK environment active.
+
+At present `deepseek` is the only managed `--auth` endpoint. The endpoint argument is explicit so additional providers can be added without changing the command shape.
+
 ## Switch the primary Codex provider
 
 OpenAI/ChatGPT is the default value for `-c`, so these are equivalent:
@@ -83,4 +125,6 @@ Selecting one subagent replaces the managed configuration for the other. `--suba
 
 ## Credential storage
 
-DeepSeek's official Codex format stores the API key in `config.toml`. The saved DeepSeek provider snapshot therefore also contains that key. `setupmjr` creates its provider-state directory with mode `0700` and writes snapshot files with mode `0600`. Treat these files as credentials and do not commit or share them.
+`setupmjr agent --auth deepseek` stores the reusable DeepSeek API key in `~/.config/setupmjr/agent/auth/deepseek.key` with private permissions. Copilot's managed environment reads that file at shell startup rather than embedding the key in `.bashrc` or `.zshrc`.
+
+DeepSeek's official Codex format also stores the API key in `config.toml`. The saved DeepSeek provider snapshot therefore contains that key as well. `setupmjr` creates its provider-state directories with mode `0700` and writes credential and snapshot files with mode `0600`. Treat these files as credentials and do not commit or share them.
