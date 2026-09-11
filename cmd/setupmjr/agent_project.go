@@ -73,6 +73,9 @@ func installPj() error {
 
 func setupSubagentAgy(home string) error {
 	codexInstructions := filepath.Join(home, ".codex", "AGENTS.md")
+	if err := removeManagedBlock(codexInstructions, "<!-- setupmjr-subagent-deepseek:start -->", "<!-- setupmjr-subagent-deepseek:end -->"); err != nil {
+		return err
+	}
 	if err := updateManagedBlock(
 		codexInstructions,
 		"<!-- setupmjr-subagent-agy:start -->",
@@ -83,6 +86,9 @@ func setupSubagentAgy(home string) error {
 	}
 
 	codexRules := filepath.Join(home, ".codex", "rules", "default.rules")
+	if err := removeManagedBlock(codexRules, "# setupmjr-subagent-deepseek:start", "# setupmjr-subagent-deepseek:end"); err != nil {
+		return err
+	}
 	if err := updateManagedBlock(
 		codexRules,
 		"# setupmjr-subagent-agy:start",
