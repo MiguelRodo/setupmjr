@@ -187,6 +187,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#inspect-agent-configuration" id="toc-inspect-agent-configuration" class="nav-link active" data-scroll-target="#inspect-agent-configuration">Inspect agent configuration</a></li>
   <li><a href="#configure-model-provider-authentication" id="toc-configure-model-provider-authentication" class="nav-link" data-scroll-target="#configure-model-provider-authentication">Configure model-provider authentication</a></li>
+  <li><a href="#switch-the-copilot-provider" id="toc-switch-the-copilot-provider" class="nav-link" data-scroll-target="#switch-the-copilot-provider">Switch the Copilot provider</a></li>
   <li><a href="#switch-the-primary-codex-provider" id="toc-switch-the-primary-codex-provider" class="nav-link" data-scroll-target="#switch-the-primary-codex-provider">Switch the primary Codex provider</a></li>
   <li><a href="#configure-an-opt-in-subagent" id="toc-configure-an-opt-in-subagent" class="nav-link" data-scroll-target="#configure-an-opt-in-subagent">Configure an opt-in subagent</a></li>
   <li><a href="#credential-storage" id="toc-credential-storage" class="nav-link" data-scroll-target="#credential-storage">Credential storage</a></li>
@@ -218,7 +219,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Use the <code>agent</code> command for user-level coding-agent configuration. Provider setup belongs here; <code>pj</code> only launches already-configured agents.</p>
 <section id="inspect-agent-configuration" class="level2">
 <h2 class="anchored" data-anchor-id="inspect-agent-configuration">Inspect agent configuration</h2>
-<p>Show the effective Codex provider and configured opt-in subagent:</p>
+<p>Show the effective Codex provider, Copilot provider and configured opt-in subagent:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">--config</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>List the available choices and short aliases:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">--list</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -226,35 +227,50 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="configure-model-provider-authentication" class="level2">
 <h2 class="anchored" data-anchor-id="configure-model-provider-authentication">Configure model-provider authentication</h2>
-<p>Configure the DeepSeek endpoint once for agent clients:</p>
+<p>Store the DeepSeek API credential without changing any agent’s active provider:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">--auth</span> deepseek</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># short form</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">-a</span> d</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The command reuses <code>DEEPSEEK_API_KEY</code> when it is already set, then checks the managed DeepSeek credential and existing Codex DeepSeek configurations. If no key is available, it prompts for one without echoing it.</p>
 <p>The reusable key is stored at:</p>
 <pre class="text"><code>~/.config/setupmjr/agent/auth/deepseek.key</code></pre>
-<p>with private permissions. This credential is also discoverable by the Codex DeepSeek setup, so a key entered for Copilot can be reused when switching Codex to DeepSeek later.</p>
-<p>For Copilot CLI, <code>--auth deepseek</code> writes a managed environment at:</p>
+<p>with private permissions. The credential can be reused by both the Codex and Copilot DeepSeek configurations.</p>
+<p>Crucially, <code>--auth</code> is credential-only. It does not set <code>COPILOT_PROVIDER_TYPE</code>, <code>COPILOT_PROVIDER_BASE_URL</code>, <code>COPILOT_MODEL</code>, or any other provider-selection variable, and it does not change the current Codex or Copilot provider.</p>
+<p>At present <code>deepseek</code> is the only managed <code>--auth</code> endpoint. The endpoint argument is explicit so additional credentials can be added without changing the command shape.</p>
+</section>
+<section id="switch-the-copilot-provider" class="level2">
+<h2 class="anchored" data-anchor-id="switch-the-copilot-provider">Switch the Copilot provider</h2>
+<p>GitHub-managed Copilot models are the default value for <code>-p</code>, so these are equivalent:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">-p</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">-p</span> g</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">--copilot-provider</span> github</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Switch Copilot to DeepSeek:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">-p</span> d</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">--copilot-provider</span> deepseek</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>DeepSeek provider selection requires the credential to have been stored first with:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">--auth</span> deepseek</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>When DeepSeek is selected, <code>setupmjr</code> writes the managed Copilot environment at:</p>
 <pre class="text"><code>~/.config/setupmjr/agent/copilot.env</code></pre>
-<p>and sources it from Bash and Zsh startup files. It configures DeepSeek’s documented Copilot BYOK path:</p>
+<p>and sources it from Bash and Zsh startup files. The active DeepSeek configuration is:</p>
 <pre class="text"><code>COPILOT_PROVIDER_TYPE=anthropic
 COPILOT_PROVIDER_BASE_URL=https://api.deepseek.com/anthropic
 COPILOT_MODEL=deepseek-v4-pro
 COPILOT_PROVIDER_MAX_PROMPT_TOKENS=840000
 COPILOT_PROVIDER_MAX_OUTPUT_TOKENS=128000</code></pre>
-<p>The API key itself is not duplicated in the shell startup files. Restart the shell, or source the managed environment directly, before starting Copilot.</p>
-<p>DeepSeek BYOK does not itself sign Copilot into GitHub. If you want GitHub-hosted features such as remote control, authenticate Copilot with GitHub separately (for example, <code>copilot login</code>) while keeping the DeepSeek BYOK environment active.</p>
-<p>At present <code>deepseek</code> is the only managed <code>--auth</code> endpoint. The endpoint argument is explicit so additional providers can be added without changing the command shape.</p>
+<p>Here, <code>COPILOT_PROVIDER_TYPE=anthropic</code> selects the Anthropic-compatible wire protocol used to communicate with DeepSeek’s endpoint. It does not select Anthropic as the model vendor.</p>
+<p>The raw DeepSeek key is not copied into the provider environment. The environment reads the private credential file only when DeepSeek is the active Copilot provider.</p>
+<p>Switching back to <code>github</code> writes an environment that unsets the BYOK provider variables, restoring GitHub-managed Copilot model selection in new shells. Restart the shell, or source <code>~/.config/setupmjr/agent/copilot.env</code>, after switching.</p>
+<p>DeepSeek BYOK does not itself sign Copilot into GitHub. GitHub authentication remains separate and can coexist with either provider choice.</p>
 </section>
 <section id="switch-the-primary-codex-provider" class="level2">
 <h2 class="anchored" data-anchor-id="switch-the-primary-codex-provider">Switch the primary Codex provider</h2>
 <p>OpenAI/ChatGPT is the default value for <code>-c</code>, so these are equivalent:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">-c</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">-c</span> o</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">--codex-provider</span> openai</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">-c</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">-c</span> o</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">--codex-provider</span> openai</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Switch Codex to DeepSeek:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">-c</span> d</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">--codex-provider</span> deepseek</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">-c</span> d</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">--codex-provider</span> deepseek</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The first DeepSeek setup uses DeepSeek’s official Codex setup script and selects the Flash model. <code>setupmjr</code> reads <code>DEEPSEEK_API_KEY</code> when it is set, reuses a key from an existing managed DeepSeek configuration when possible, or prompts for the key without echoing it.</p>
 <p>Before changing provider, <code>setupmjr</code> stores private snapshots of the active Codex <code>config.toml</code> and <code>models.json</code> under:</p>
 <pre class="text"><code>~/.config/setupmjr/agent/codex/</code></pre>
@@ -266,12 +282,12 @@ COPILOT_PROVIDER_MAX_OUTPUT_TOKENS=128000</code></pre>
 <section id="configure-an-opt-in-subagent" class="level2">
 <h2 class="anchored" data-anchor-id="configure-an-opt-in-subagent">Configure an opt-in subagent</h2>
 <p><code>agy</code> is the default value for <code>-s</code>:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">-s</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">-s</span> agy</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">--subagent</span> agy</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">-s</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">-s</span> agy</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">--subagent</span> agy</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>This installs the bounded Codex guidance and narrow execution rule for delegating explicitly authorised work to Gemini through <code>agy</code>. Existing Codex instructions outside the managed block are preserved.</p>
 <p>To use DeepSeek instead:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">-s</span> deepseek</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">-s</span> deepseek</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The DeepSeek subagent uses an isolated Codex home:</p>
 <pre class="text"><code>~/.codex-deepseek-subagent</code></pre>
 <p>It does not change the primary Codex provider. The managed guidance invokes the worker with <code>codex exec --sandbox workspace-write</code> and the isolated <code>CODEX_HOME</code>. As with <code>agy</code>, delegation remains opt-in: Codex may use the subagent only when you explicitly authorise it for the current task or conversation.</p>
@@ -279,7 +295,7 @@ COPILOT_PROVIDER_MAX_OUTPUT_TOKENS=128000</code></pre>
 </section>
 <section id="credential-storage" class="level2">
 <h2 class="anchored" data-anchor-id="credential-storage">Credential storage</h2>
-<p><code>setupmjr agent --auth deepseek</code> stores the reusable DeepSeek API key in <code>~/.config/setupmjr/agent/auth/deepseek.key</code> with private permissions. Copilot’s managed environment reads that file at shell startup rather than embedding the key in <code>.bashrc</code> or <code>.zshrc</code>.</p>
+<p><code>setupmjr agent --auth deepseek</code> stores the reusable DeepSeek API key in <code>~/.config/setupmjr/agent/auth/deepseek.key</code> with private permissions. Authentication alone does not alter provider selection. When Copilot is explicitly switched to DeepSeek, its managed environment reads that file rather than embedding the raw key in <code>.bashrc</code>, <code>.zshrc</code>, or the provider environment.</p>
 <p>DeepSeek’s official Codex format also stores the API key in <code>config.toml</code>. The saved DeepSeek provider snapshot therefore contains that key as well. <code>setupmjr</code> creates its provider-state directories with mode <code>0700</code> and writes credential and snapshot files with mode <code>0600</code>. Treat these files as credentials and do not commit or share them.</p>
 
 
