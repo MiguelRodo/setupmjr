@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -147,7 +148,7 @@ func TestSetupSubagentDeepSeekUsesIsolatedCodexHomeAndReplacesAgy(t *testing.T) 
 	if strings.Contains(text, "setupmjr-subagent-agy:start") {
 		t.Fatalf("agy block remained after DeepSeek switch:\n%s", text)
 	}
-	if !strings.Contains(text, "setupmjr-subagent-deepseek:start") || !strings.Contains(text, wantHome) {
+	if !strings.Contains(text, "setupmjr-subagent-deepseek:start") || !strings.Contains(text, strconv.Quote(wantHome)) {
 		t.Fatalf("DeepSeek block missing or wrong isolated home:\n%s", text)
 	}
 
@@ -156,7 +157,7 @@ func TestSetupSubagentDeepSeekUsesIsolatedCodexHomeAndReplacesAgy(t *testing.T) 
 		t.Fatal(err)
 	}
 	ruleText := string(rules)
-	if strings.Contains(ruleText, "setupmjr-subagent-agy:start") || !strings.Contains(ruleText, "CODEX_HOME="+wantHome) {
+	if strings.Contains(ruleText, "setupmjr-subagent-agy:start") || !strings.Contains(ruleText, strconv.Quote("CODEX_HOME="+wantHome)) {
 		t.Fatalf("DeepSeek execution rule not installed cleanly:\n%s", ruleText)
 	}
 
