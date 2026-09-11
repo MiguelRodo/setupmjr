@@ -30,7 +30,9 @@ To inspect agent choices, switch Codex providers, or configure an opt-in subagen
 
 ```bash
 setupmjr agent --list
-setupmjr agent --auth deepseek  # DeepSeek auth + Copilot CLI BYOK
+setupmjr agent --auth deepseek  # Store/reuse DeepSeek API credential only
+setupmjr agent -p d             # Copilot -> DeepSeek
+setupmjr agent -p               # Copilot -> GitHub-managed models
 setupmjr agent -c d             # Codex -> DeepSeek
 setupmjr agent -c               # Codex -> OpenAI/ChatGPT
 setupmjr agent -s               # agy subagent (default)
@@ -52,5 +54,5 @@ setupmjr project --gh-skill
 - `setupmjr r` — Set up R environments (e.g., `radian`).
 - `setupmjr git` — Manage Git configuration and authentication.
 - `setupmjr repo` — Manage repositories (e.g., `readme`, `devcontainer`, `action`, `install repos`).
-- `setupmjr agent` — Inspect or configure coding agents: `-a` / `--auth <endpoint>` configures model-provider authentication (currently DeepSeek, including Copilot CLI BYOK), `-c` / `--codex-provider` switches the primary Codex provider (`openai` or `deepseek`), `-s` / `--subagent` configures the opt-in subagent (`agy` or `deepseek`), and `--config` / `--list` inspect the current or available configuration.
+- `setupmjr agent` — Inspect or configure coding agents: `-a` / `--auth <endpoint>` stores endpoint credentials without changing providers, `-p` / `--copilot-provider` switches Copilot between GitHub-managed models and DeepSeek, `-c` / `--codex-provider` switches the primary Codex provider (`openai` or `deepseek`), `-s` / `--subagent` configures the opt-in subagent (`agy` or `deepseek`), and `--config` / `--list` inspect the current or available configuration.
 - `setupmjr project --gh-skill` — Run `gh skill install MiguelRodo/github-projects-skill github-projects --agent universal --scope user --force --pin main`.
