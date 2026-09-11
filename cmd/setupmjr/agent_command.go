@@ -9,9 +9,10 @@ import (
 )
 
 type agentOptions struct {
-	codexProvider string
-	subagent      string
-	authEndpoint  string
+	codexProvider   string
+	copilotProvider string
+	subagent        string
+	authEndpoint    string
 	showConfig    bool
 	list          bool
 	help          bool
@@ -37,6 +38,11 @@ func handleAgent(args []string) error {
 	}
 	if opts.authEndpoint != "" {
 		if err := setupAgentAuth(home, opts.authEndpoint); err != nil {
+			return err
+		}
+	}
+	if opts.copilotProvider != "" {
+		if err := switchCopilotProvider(home, opts.copilotProvider); err != nil {
 			return err
 		}
 		if _, err := exec.LookPath("copilot"); err != nil {
@@ -96,6 +102,17 @@ func parseAgentArgs(args []string) (agentOptions, error) {
 				return agentOptions{}, err
 			}
 			opts.authEndpoint = normalised
+		case "-p", "--copilot-provider":
+			value := "github"
+			if i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
+				value = args[i+1]
+				i++
+			}
+			normalised, err := normaliseCopilotProvider(value)
+			if err != nil {
+				return agentOptions{}, err
+			}
+			opts.copilotProvider = normalised
 		case "-c", "--codex-provider":
 			value := "openai"
 			if i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
@@ -154,24 +171,31 @@ func printAgentUsage() {
 	fmt.Println(`Usage: setupmjr agent [options]
 
 Options:
-  -a, --auth <endpoint>             Configure model-provider authentication for an endpoint.
-  -c, --codex-provider [provider]   Switch Codex provider. Defaults to openai when omitted.
-  -s, --subagent [subagent]         Configure opt-in subagent. Defaults to agy when omitted.
-      --config                      Show the current effective agent configuration.
-      --list                        List available endpoints, providers and subagents.
-  -h, --help                        Show this help.
+  -a, --auth <endpoint>              Store authentication for an endpoint.
+  -p, --copilot-provider [provider]  Switch Copilot provider. Defaults to github when omitted.
+  -c, --codex-provider [provider]    Switch Codex provider. Defaults to openai when omitted.
+  -s, --subagent [subagent]          Configure opt-in subagent. Defaults to agy when omitted.
+      --config                       Show the current effective agent configuration.
+      --list                         List available endpoints, providers and subagents.
+  -h, --help                         Show this help.
 
 Examples:
-  setupmjr agent --auth deepseek   Configure DeepSeek auth and Copilot CLI BYOK
-  setupmjr agent -c                Switch Codex back to OpenAI/ChatGPT
-  setupmjr agent -c d              Switch Codex to DeepSeek
-  setupmjr agent -s                Configure agy as the opt-in subagent
-  setupmjr agent -s deepseek       Configure DeepSeek as the opt-in subagent`)
+  setupmjr agent --auth deepseek     Store the DeepSeek API credential
+  setupmjr agent -p d                Switch Copilot to DeepSeek
+  setupmjr agent -p                  Switch Copilot back to GitHub-managed models
+  setupmjr agent -c                  Switch Codex back to OpenAI/ChatGPT
+  setupmjr agent -c d                Switch Codex to DeepSeek
+  setupmjr agent -s                  Configure agy as the opt-in subagent
+  setupmjr agent -s deepseek         Configure DeepSeek as the opt-in subagent`)
 }
 
 func printAgentList() {
 	fmt.Println(`Auth endpoints:
-  d, deepseek          DeepSeek API; configures Copilot CLI BYOK through the Anthropic-compatible endpoint
+  d, deepseek          Store/reuse the DeepSeek API credential only
+
+Copilot providers:
+  g, github, default   GitHub-managed Copilot models (default for -p)
+  d, deepseek          DeepSeek V4 Pro via DeepSeek's Anthropic-compatible endpoint
 
 Codex providers:
   o, openai, chatgpt   OpenAI/ChatGPT (default for -c)
@@ -192,7 +216,7 @@ func printAgentConfig(home string) error {
 		return err
 	}
 	fmt.Printf("Codex provider:   %s\n", provider)
-	fmt.Printf("Copilot endpoint: %s\n", currentCopilotEndpoint(home))
+	fmt.Printf("Copilot provider: %s\n", currentCopilotProvider(home))
 	fmt.Printf("Subagent:         %s\n", subagent)
 	return nil
 }
