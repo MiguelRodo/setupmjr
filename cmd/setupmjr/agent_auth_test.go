@@ -35,12 +35,39 @@ func TestParseAgentArgsAuthRejectsUnknownEndpoint(t *testing.T) {
 	}
 }
 
-func TestSetupCopilotDeepSeekAuthWritesSecureReusableConfiguration(t *testing.T) {
+func TestParseAgentArgsCopilotProvider(t *testing.T) {
+	tests := []struct {
+		args []string
+		want string
+	}{
+		{args: []string{"-p"}, want: "github"},
+		{args: []string{"-p", "d"}, want: "deepseek"},
+		{args: []string{"--copilot-provider", "github"}, want: "github"},
+		{args: []string{"--copilot-provider", "default"}, want: "github"},
+	}
+	for _, tt := range tests {
+		got, err := parseAgentArgs(tt.args)
+		if err != nil {
+			t.Fatalf("parseAgentArgs(%v): %v", tt.args, err)
+		}
+		if got.copilotProvider != tt.want {
+			t.Fatalf("parseAgentArgs(%v) Copilot provider = %q, want %q", tt.args, got.copilotProvider, tt.want)
+		}
+	}
+}
+
+func TestParseAgentArgsCopilotProviderRejectsUnknown(t *testing.T) {
+	if _, err := parseAgentArgs([]string{"--copilot-provider", "other"}); err == nil {
+		t.Fatal("unknown Copilot provider unexpectedly succeeded")
+	}
+}
+
+func TestSetupDeepSeekAuthStoresCredentialOnly(t *testing.T) {
 	home := t.TempDir()
 	t.Setenv("DEEPSEEK_API_KEY", "sk-test-deepseek")
 
-	if err := setupCopilotDeepSeekAuth(home); err != nil {
-		t.Fatalf("setupCopilotDeepSeekAuth failed: %v", err)
+	if err := setupDeepSeekAuth(home); err != nil {
+		t.Fatalf("setupDeepSeekAuth failed: %v", err)
 	}
 
 	keyPath := deepSeekCredentialPath(home)
@@ -59,6 +86,34 @@ func TestSetupCopilotDeepSeekAuthWritesSecureReusableConfiguration(t *testing.T)
 		if got := info.Mode().Perm(); got != 0600 {
 			t.Fatalf("key mode = %o, want 600", got)
 		}
+	}
+
+	if _, err := os.Stat(copilotEnvPath(home)); !os.IsNotExist(err) {
+		t.Fatalf("auth unexpectedly configured Copilot provider environment: %v", err)
+	}
+	for _, rc := range []string{".bashrc", ".zshrc"} {
+		if _, err := os.Stat(filepath.Join(home, rc)); !os.IsNotExist(err) {
+			t.Fatalf("auth unexpectedly modified %s: %v", rc, err)
+		}
+	}
+}
+
+func TestConfigureCopilotDeepSeekRequiresAuth(t *testing.T) {
+	home := t.TempDir()
+	if err := configureCopilotDeepSeek(home); err == nil {
+		t.Fatal("DeepSeek provider setup unexpectedly succeeded without stored auth")
+	}
+}
+
+func TestConfigureCopilotDeepSeekWritesProviderConfiguration(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("DEEPSEEK_API_KEY", "sk-test-deepseek")
+	if err := setupDeepSeekAuth(home); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := configureCopilotDeepSeek(home); err != nil {
+		t.Fatalf("configureCopilotDeepSeek failed: %v", err)
 	}
 
 	envBytes, err := os.ReadFile(copilotEnvPath(home))
@@ -81,8 +136,8 @@ func TestSetupCopilotDeepSeekAuthWritesSecureReusableConfiguration(t *testing.T)
 	if strings.Contains(env, "sk-test-deepseek") {
 		t.Fatal("Copilot environment duplicated the raw API key")
 	}
-	if got := currentCopilotEndpoint(home); got != "deepseek" {
-		t.Fatalf("currentCopilotEndpoint = %q, want deepseek", got)
+	if got := currentCopilotProvider(home); got != "deepseek" {
+		t.Fatalf("currentCopilotProvider = %q, want deepseek", got)
 	}
 
 	for _, rc := range []string{".bashrc", ".zshrc"} {
@@ -100,8 +155,8 @@ func TestSetupCopilotDeepSeekAuthWritesSecureReusableConfiguration(t *testing.T)
 		}
 	}
 
-	if err := setupCopilotDeepSeekAuth(home); err != nil {
-		t.Fatalf("second setupCopilotDeepSeekAuth failed: %v", err)
+	if err := configureCopilotDeepSeek(home); err != nil {
+		t.Fatalf("second configureCopilotDeepSeek failed: %v", err)
 	}
 	for _, rc := range []string{".bashrc", ".zshrc"} {
 		content, err := os.ReadFile(filepath.Join(home, rc))
@@ -111,6 +166,69 @@ func TestSetupCopilotDeepSeekAuthWritesSecureReusableConfiguration(t *testing.T)
 		if strings.Count(string(content), "# setupmjr-copilot-provider:start") != 1 {
 			t.Fatalf("%s duplicated managed block", rc)
 		}
+	}
+}
+
+func TestAuthDoesNotChangeExistingCopilotProvider(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("DEEPSEEK_API_KEY", "sk-first")
+	if err := setupDeepSeekAuth(home); err != nil {
+		t.Fatal(err)
+	}
+	if err := configureCopilotDeepSeek(home); err != nil {
+		t.Fatal(err)
+	}
+	before, err := os.ReadFile(copilotEnvPath(home))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Setenv("DEEPSEEK_API_KEY", "sk-second")
+	if err := setupDeepSeekAuth(home); err != nil {
+		t.Fatal(err)
+	}
+	after, err := os.ReadFile(copilotEnvPath(home))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(after) != string(before) {
+		t.Fatal("credential refresh changed Copilot provider configuration")
+	}
+}
+
+func TestConfigureCopilotGitHubClearsBYOKProvider(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("DEEPSEEK_API_KEY", "sk-test-deepseek")
+	if err := setupDeepSeekAuth(home); err != nil {
+		t.Fatal(err)
+	}
+	if err := configureCopilotDeepSeek(home); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := configureCopilotGitHub(home); err != nil {
+		t.Fatalf("configureCopilotGitHub failed: %v", err)
+	}
+	if got := currentCopilotProvider(home); got != "github" {
+		t.Fatalf("currentCopilotProvider = %q, want github", got)
+	}
+	envBytes, err := os.ReadFile(copilotEnvPath(home))
+	if err != nil {
+		t.Fatal(err)
+	}
+	env := string(envBytes)
+	for _, want := range []string{
+		"unset COPILOT_PROVIDER_TYPE",
+		"unset COPILOT_PROVIDER_BASE_URL",
+		"unset COPILOT_PROVIDER_API_KEY",
+		"unset COPILOT_MODEL",
+	} {
+		if !strings.Contains(env, want) {
+			t.Fatalf("GitHub provider environment missing %q:\n%s", want, env)
+		}
+	}
+	if strings.Contains(env, copilotDeepSeekBaseURL) || strings.Contains(env, copilotDeepSeekModel) {
+		t.Fatalf("DeepSeek provider configuration remained after switching to GitHub:\n%s", env)
 	}
 }
 
