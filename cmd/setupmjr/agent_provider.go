@@ -118,7 +118,7 @@ func codexStateDir(home string) string {
 }
 
 func codexProviderSnapshotExists(home, provider string) bool {
-	_, err := os.Stat(filepath.Join(codexStateDir(home), provider+"-config.toml"))
+	_, err := os.Stat(filepath.Join(codexStateDir(home), provider+"-config.state"))
 	return err == nil
 }
 
@@ -127,16 +127,26 @@ func saveCodexProviderSnapshot(home, provider string) error {
 	if err := os.MkdirAll(stateDir, 0700); err != nil {
 		return fmt.Errorf("create setupmjr Codex state directory: %w", err)
 	}
+	if err := os.Chmod(stateDir, 0700); err != nil {
+		return fmt.Errorf("secure setupmjr Codex state directory: %w", err)
+	}
 	codexHome := filepath.Join(home, ".codex")
 	configPath := filepath.Join(codexHome, "config.toml")
 	configSnapshot := filepath.Join(stateDir, provider+"-config.toml")
+	configState := filepath.Join(stateDir, provider+"-config.state")
 	if _, err := os.Stat(configPath); err == nil {
 		if err := copyFile(configPath, configSnapshot, 0600); err != nil {
 			return fmt.Errorf("save %s Codex config snapshot: %w", provider, err)
 		}
+		if err := os.WriteFile(configState, []byte("present\n"), 0600); err != nil {
+			return fmt.Errorf("save %s config state: %w", provider, err)
+		}
 	} else if os.IsNotExist(err) {
 		if err := os.Remove(configSnapshot); err != nil && !os.IsNotExist(err) {
 			return err
+		}
+		if err := os.WriteFile(configState, []byte("absent\n"), 0600); err != nil {
+			return fmt.Errorf("save %s config state: %w", provider, err)
 		}
 	} else {
 		return fmt.Errorf("stat Codex config: %w", err)
@@ -166,15 +176,22 @@ func saveCodexProviderSnapshot(home, provider string) error {
 func restoreCodexProviderSnapshot(home, provider string) error {
 	stateDir := codexStateDir(home)
 	configSnapshot := filepath.Join(stateDir, provider+"-config.toml")
+	configStatePath := filepath.Join(stateDir, provider+"-config.state")
 	codexHome := filepath.Join(home, ".codex")
 	if err := os.MkdirAll(codexHome, 0700); err != nil {
 		return fmt.Errorf("create Codex home: %w", err)
 	}
-	if _, err := os.Stat(configSnapshot); err != nil {
-		return fmt.Errorf("no saved %s Codex configuration", provider)
+	configStateBytes, err := os.ReadFile(configStatePath)
+	if err != nil {
+		return fmt.Errorf("no saved %s Codex configuration: %w", provider, err)
 	}
-	if err := copyFile(configSnapshot, filepath.Join(codexHome, "config.toml"), 0600); err != nil {
-		return fmt.Errorf("restore %s Codex config: %w", provider, err)
+	configPath := filepath.Join(codexHome, "config.toml")
+	if strings.TrimSpace(string(configStateBytes)) == "present" {
+		if err := copyFile(configSnapshot, configPath, 0600); err != nil {
+			return fmt.Errorf("restore %s Codex config: %w", provider, err)
+		}
+	} else if err := os.Remove(configPath); err != nil && !os.IsNotExist(err) {
+		return fmt.Errorf("remove Codex config: %w", err)
 	}
 
 	modelsStatePath := filepath.Join(stateDir, provider+"-models.state")
@@ -203,7 +220,10 @@ func copyFile(src, dst string, mode os.FileMode) error {
 	if err := os.MkdirAll(filepath.Dir(dst), 0700); err != nil {
 		return err
 	}
-	return os.WriteFile(dst, data, mode)
+	if err := os.WriteFile(dst, data, mode); err != nil {
+		return err
+	}
+	return os.Chmod(dst, mode)
 }
 
 func runDeepSeekOfficialInstaller(home, codexHome, action string) error {
