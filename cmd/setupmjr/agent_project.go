@@ -61,8 +61,8 @@ func installPj() error {
 	}
 	defer os.RemoveAll(tmpDir)
 
-	if err := runExternalCommand("git", "clone", "--depth", "1", "https://github.com/MiguelRodo/pj.git", tmpDir); err != nil {
-		return fmt.Errorf("clone pj repo: %w", err)
+	if err := runExternalCommand("git", "clone", "--depth", "1", "https://github.com/MiguelRodo/pj.git", "--branch", "v0", "--single-branch", tmpDir); err != nil {
+		return fmt.Errorf("clone pj release: %w", err)
 	}
 
 	installScript := filepath.Join(tmpDir, "install.sh")
