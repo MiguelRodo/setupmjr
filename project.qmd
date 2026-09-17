@@ -2,7 +2,17 @@
 title: "project"
 ---
 
-Use the `project` command for GitHub Project-related setup that is independent of agent configuration.
+Use the `project` command for shared project/operator tooling that is independent of agent configuration.
+
+## Install or update `pj`
+
+```bash
+setupmjr project --pj
+```
+
+This installs `pj` from the canonical `MiguelRodo/pj` repository by shallow-cloning the floating `v0` tag and running its installer. The `v0` tag advances with compatible versioned `pj` releases, so this path follows the released v0 line rather than `pj/main`.
+
+`setupmjr` does not own or vendor the `pj` implementation. It only installs the release selected by `pj`'s own floating release tag.
 
 ## Install the GitHub Projects skill
 
@@ -17,3 +27,9 @@ gh skill install MiguelRodo/github-projects-skill github-projects --agent univer
 ```
 
 The command installs the shared skill only. Repository-specific Project onboarding and `.projects` configuration remain separate concerns.
+
+Both pieces may be installed or refreshed in one command:
+
+```bash
+setupmjr project --pj --gh-skill
+```
