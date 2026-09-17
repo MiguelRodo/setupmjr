@@ -10,7 +10,7 @@ import (
 const (
 	copilotDeepSeekProviderType    = "anthropic"
 	copilotDeepSeekBaseURL         = "https://api.deepseek.com/anthropic"
-	copilotDeepSeekModel           = "deepseek-v4-pro"
+	copilotDeepSeekModel           = "deepseek-flash"
 	copilotDeepSeekMaxPromptTokens = "840000"
 	copilotDeepSeekMaxOutputTokens = "128000"
 )
@@ -53,7 +53,7 @@ export COPILOT_PROVIDER_API_KEY="$(cat "$HOME/.config/setupmjr/agent/auth/deepse
 		return err
 	}
 
-	fmt.Println("Copilot provider switched to DeepSeek V4 Pro using DeepSeek's Anthropic-compatible endpoint.")
+	fmt.Println("Copilot provider switched to DeepSeek Flash using DeepSeek's Anthropic-compatible endpoint.")
 	fmt.Println("Restart the shell, or source ~/.config/setupmjr/agent/copilot.env, before starting Copilot.")
 	return nil
 }

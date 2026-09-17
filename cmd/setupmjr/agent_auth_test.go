@@ -124,7 +124,7 @@ func TestConfigureCopilotDeepSeekWritesProviderConfiguration(t *testing.T) {
 	for _, want := range []string{
 		"export COPILOT_PROVIDER_TYPE='anthropic'",
 		"export COPILOT_PROVIDER_BASE_URL='https://api.deepseek.com/anthropic'",
-		"export COPILOT_MODEL='deepseek-v4-pro'",
+		"export COPILOT_MODEL='deepseek-flash'",
 		"export COPILOT_PROVIDER_MAX_PROMPT_TOKENS='840000'",
 		"export COPILOT_PROVIDER_MAX_OUTPUT_TOKENS='128000'",
 		"deepseek.key",

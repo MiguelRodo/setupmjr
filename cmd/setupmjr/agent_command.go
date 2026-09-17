@@ -195,7 +195,7 @@ func printAgentList() {
 
 Copilot providers:
   g, github, default   GitHub-managed Copilot models (default for -p)
-  d, deepseek          DeepSeek V4 Pro via DeepSeek's Anthropic-compatible endpoint
+  d, deepseek          DeepSeek Flash via DeepSeek's Anthropic-compatible endpoint
 
 Codex providers:
   o, openai, chatgpt   OpenAI/ChatGPT (default for -c)
