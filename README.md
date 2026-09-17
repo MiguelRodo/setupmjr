@@ -8,7 +8,14 @@
 
 ## Installation
 
-Install via the provided local script or from source.
+On Debian or Ubuntu, after configuring the [`apt-miguelrodo`](https://github.com/MiguelRodo/apt-miguelrodo) repository, install the current packaged release with:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y setupmjr
+```
+
+For development, use the local installer or build from source:
 
 ```bash
 # Local installation script
@@ -41,11 +48,25 @@ setupmjr agent -s deepseek      # DeepSeek subagent
 
 See [agent.qmd](agent.qmd) for provider switching, snapshots, credentials and subagent behaviour.
 
+To install or update the `pj` operator launcher from its floating `v0` release line:
+
+```bash
+setupmjr project --pj
+```
+
 To install the shared `github-projects` skill for universal agents at user scope:
 
 ```bash
 setupmjr project --gh-skill
 ```
+
+Both may be requested together:
+
+```bash
+setupmjr project --pj --gh-skill
+```
+
+See [project.qmd](project.qmd) for the release and ownership details.
 
 ## Commands and capabilities
 
@@ -55,4 +76,5 @@ setupmjr project --gh-skill
 - `setupmjr git` — Manage Git configuration and authentication.
 - `setupmjr repo` — Manage repositories (e.g., `readme`, `devcontainer`, `action`, `install repos`).
 - `setupmjr agent` — Inspect or configure coding agents: `-a` / `--auth <endpoint>` stores endpoint credentials without changing providers, `-p` / `--copilot-provider` switches Copilot between GitHub-managed models and DeepSeek, `-c` / `--codex-provider` switches the primary Codex provider (`openai` or `deepseek`), `-s` / `--subagent` configures the opt-in subagent (`agy` or `deepseek`), and `--config` / `--list` inspect the current or available configuration.
+- `setupmjr project --pj` — Install or update `pj` from `MiguelRodo/pj`'s floating `v0` release tag. It does not install from `pj/main`.
 - `setupmjr project --gh-skill` — Run `gh skill install MiguelRodo/github-projects-skill github-projects --agent universal --scope user --force --pin main`.
