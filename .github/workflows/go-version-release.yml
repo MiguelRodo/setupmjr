@@ -1,18 +1,13 @@
 name: Go Version and Release
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/go-version-release.yml'
   workflow_dispatch:
     inputs:
       version:
         description: 'Exact version (e.g. 1.2.3). Cannot be used with bump_type.'
         required: false
       bump_type:
-        description: 'Version component to bump: major | minor | patch. Cannot be used with version.'
+        description: 'Component to bump: major | minor | patch. Cannot be used with version.'
         required: false
       version_force:
         description: 'Force specified `version`, ignoring strict version progression checks.'
@@ -25,10 +20,9 @@ on:
         required: false
         default: 'MiguelRodo/apt-miguelrodo'
       goreleaser_config:
-        description: 'Optional path to the GoReleaser config file.'
+        description: "Optional path to the GoReleaser config file."
         required: false
-        default: '.goreleaser.yml'
-
+        default: ".goreleaser.yml"
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -38,32 +32,18 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-
-      - name: Check v0.7.4 bootstrap
-        if: github.ref_type == 'branch'
-        id: bootstrap
-        shell: bash
-        run: |
-          if git show-ref --tags --verify --quiet refs/tags/v0.7.4; then
-            echo 'release=false' >> "$GITHUB_OUTPUT"
-          else
-            echo 'release=true' >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Publish release
-        if: github.event_name == 'workflow_dispatch' || steps.bootstrap.outputs.release == 'true'
-        uses: MiguelRodo/actions/go-version-release@ea8f8df62048a1ae56a1e99a58580a0ac05b8e41 # v2.43.0
+      - uses: MiguelRodo/actions/go-version-release@ea8f8df62048a1ae56a1e99a58580a0ac05b8e41 # v2
         env:
           SCOOP_TAP_TOKEN: ${{ secrets.SCOOP_TAP_TOKEN }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           apt_repo_token: ${{ secrets.APT_REPO_TOKEN }}
           apt_signing_key: ${{ secrets.GPG_PRIVATE_KEY }}
-          version: ${{ github.ref_type == 'branch' && '0.7.4' || inputs.version }}
+          version: ${{ inputs.version }}
           bump_type: ${{ inputs.bump_type }}
           version_force: ${{ inputs.version_force }}
           go_version: ${{ inputs.go_version }}
-          apt_repo: ${{ inputs.apt_repo || 'MiguelRodo/apt-miguelrodo' }}
-          goreleaser_config: ${{ inputs.goreleaser_config || '.goreleaser.yml' }}
+          apt_repo: ${{ inputs.apt_repo }}
+          goreleaser_config: ${{ inputs.goreleaser_config }}
           scoop_token: ${{ secrets.SCOOP_TAP_TOKEN }}
           homebrew_token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
