@@ -242,14 +242,21 @@
     "href": "project.html",
     "title": "project",
     "section": "",
-    "text": "Use the project command for GitHub Project-related setup that is independent of agent configuration."
+    "text": "Use the project command for shared project/operator tooling that is independent of agent configuration."
+  },
+  {
+    "objectID": "project.html#install-or-update-pj",
+    "href": "project.html#install-or-update-pj",
+    "title": "project",
+    "section": "Install or update pj",
+    "text": "Install or update pj\nsetupmjr project --pj\nThis installs pj from the canonical MiguelRodo/pj repository by shallow-cloning the floating v0 tag and running its installer. The v0 tag advances with compatible versioned pj releases, so this path follows the released v0 line rather than pj/main.\nsetupmjr does not own or vendor the pj implementation. It only installs the release selected by pj’s own floating release tag."
   },
   {
     "objectID": "project.html#install-the-github-projects-skill",
     "href": "project.html#install-the-github-projects-skill",
     "title": "project",
     "section": "Install the GitHub Projects skill",
-    "text": "Install the GitHub Projects skill\nsetupmjr project --gh-skill\nThis installs github-projects from MiguelRodo/github-projects-skill for universal agents at user scope. It is equivalent to:\ngh skill install MiguelRodo/github-projects-skill github-projects --agent universal --scope user --force --pin main\nThe command installs the shared skill only. Repository-specific Project onboarding and .projects configuration remain separate concerns."
+    "text": "Install the GitHub Projects skill\nsetupmjr project --gh-skill\nThis installs github-projects from MiguelRodo/github-projects-skill for universal agents at user scope. It is equivalent to:\ngh skill install MiguelRodo/github-projects-skill github-projects --agent universal --scope user --force --pin main\nThe command installs the shared skill only. Repository-specific Project onboarding and .projects configuration remain separate concerns.\nBoth pieces may be installed or refreshed in one command:\nsetupmjr project --pj --gh-skill"
   },
   {
     "objectID": "r.html",

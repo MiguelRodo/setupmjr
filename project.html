@@ -185,7 +185,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#install-the-github-projects-skill" id="toc-install-the-github-projects-skill" class="nav-link active" data-scroll-target="#install-the-github-projects-skill">Install the GitHub Projects skill</a></li>
+  <li><a href="#install-or-update-pj" id="toc-install-or-update-pj" class="nav-link active" data-scroll-target="#install-or-update-pj">Install or update <code>pj</code></a></li>
+  <li><a href="#install-the-github-projects-skill" id="toc-install-the-github-projects-skill" class="nav-link" data-scroll-target="#install-the-github-projects-skill">Install the GitHub Projects skill</a></li>
   </ul>
 </nav>
     </div>
@@ -211,13 +212,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>Use the <code>project</code> command for GitHub Project-related setup that is independent of agent configuration.</p>
+<p>Use the <code>project</code> command for shared project/operator tooling that is independent of agent configuration.</p>
+<section id="install-or-update-pj" class="level2">
+<h2 class="anchored" data-anchor-id="install-or-update-pj">Install or update <code>pj</code></h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> project <span class="at">--pj</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This installs <code>pj</code> from the canonical <code>MiguelRodo/pj</code> repository by shallow-cloning the floating <code>v0</code> tag and running its installer. The <code>v0</code> tag advances with compatible versioned <code>pj</code> releases, so this path follows the released v0 line rather than <code>pj/main</code>.</p>
+<p><code>setupmjr</code> does not own or vendor the <code>pj</code> implementation. It only installs the release selected by <code>pj</code>’s own floating release tag.</p>
+</section>
 <section id="install-the-github-projects-skill" class="level2">
 <h2 class="anchored" data-anchor-id="install-the-github-projects-skill">Install the GitHub Projects skill</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> project <span class="at">--gh-skill</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> project <span class="at">--gh-skill</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>This installs <code>github-projects</code> from <code>MiguelRodo/github-projects-skill</code> for universal agents at user scope. It is equivalent to:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> skill install MiguelRodo/github-projects-skill github-projects <span class="at">--agent</span> universal <span class="at">--scope</span> user <span class="at">--force</span> <span class="at">--pin</span> main</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> skill install MiguelRodo/github-projects-skill github-projects <span class="at">--agent</span> universal <span class="at">--scope</span> user <span class="at">--force</span> <span class="at">--pin</span> main</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The command installs the shared skill only. Repository-specific Project onboarding and <code>.projects</code> configuration remain separate concerns.</p>
+<p>Both pieces may be installed or refreshed in one command:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> project <span class="at">--pj</span> <span class="at">--gh-skill</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
 </section>
