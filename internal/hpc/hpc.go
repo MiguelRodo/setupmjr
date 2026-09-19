@@ -10,22 +10,48 @@ import (
 
 	"github.com/MiguelRodo/setupmjr/internal/assets"
 	"github.com/MiguelRodo/setupmjr/internal/gitcmd"
+	"github.com/MiguelRodo/setupmjr/internal/r"
 	"github.com/MiguelRodo/setupmjr/internal/shell"
 	"github.com/MiguelRodo/setupmjr/internal/sysutil"
 )
 
 // SetupHPC runs the master HPC setup.
 func SetupHPC() error {
-	if runtime.GOOS != "linux" {
+	return setupHPC(runtime.GOOS)
+}
+
+func setupHPC(goos string) error {
+	if goos != "linux" {
 		return fmt.Errorf("HPC setup is Linux-only")
 	}
 
 	fmt.Println("Running master HPC setup...")
 
-	// These functions will be implemented in bash package and called from main,
-	// or we can call them here. Let's return error if they fail.
-	// But actually the instructions say "setupmjr hpc Executes the following internal functions sequentially: SetupShellRCD(), SetupShellLogin(), SetupHPCScratch(), SetupHPCApptainer(), SetupHPCSlurm()"
-	return nil
+	if err := shell.SetupShellPath("bash"); err != nil {
+		return err
+	}
+	if err := shell.SetupShellLogin("bash", false); err != nil {
+		return err
+	}
+	if err := shell.SetupShellPath("zsh"); err != nil {
+		return err
+	}
+	if err := shell.SetupShellLogin("zsh", false); err != nil {
+		return err
+	}
+	if err := gitcmd.SetupGit(); err != nil {
+		return err
+	}
+	if err := SetupHPCScratch(); err != nil {
+		return err
+	}
+	if err := SetupHPCApptainer(); err != nil {
+		return err
+	}
+	if err := SetupHPCSlurm(); err != nil {
+		return err
+	}
+	return r.SetupR(false, false, false)
 }
 
 // SetupHPCScratch copies the hpc-scratch.sh script.
@@ -119,9 +145,4 @@ func SetupHPCSlurm() error {
 	}
 
 	return nil
-}
-
-// SetupHPCGit executes SetupGit.
-func SetupHPCGit() error {
-	return gitcmd.SetupGit()
 }

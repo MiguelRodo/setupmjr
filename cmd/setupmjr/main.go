@@ -117,42 +117,7 @@ Commands:
 
 func handleHPC(args []string) error {
 	if len(args) == 0 {
-		// Run master hpc setup
 		if err := hpc.SetupHPC(); err != nil {
-			return err
-		}
-		if err := shell.SetupShellRCD("bash"); err != nil {
-			return err
-		}
-		if err := shell.SetupShellPath("bash"); err != nil {
-			return err
-		}
-		if err := shell.SetupShellLogin("bash", false); err != nil {
-			return err
-		}
-		if err := shell.SetupShellRCD("zsh"); err != nil {
-			return err
-		}
-		if err := shell.SetupShellPath("zsh"); err != nil {
-			return err
-		}
-		if err := shell.SetupShellLogin("zsh", false); err != nil {
-			return err
-		}
-		// Execute SetupHPCGit AFTER SetupShellLogin so login.sh is not overwritten
-		if err := hpc.SetupHPCGit(); err != nil {
-			return err
-		}
-		if err := hpc.SetupHPCScratch(); err != nil {
-			return err
-		}
-		if err := hpc.SetupHPCApptainer(); err != nil {
-			return err
-		}
-		if err := hpc.SetupHPCSlurm(); err != nil {
-			return err
-		}
-		if err := handleR([]string{}); err != nil {
 			return err
 		}
 		fmt.Println("Please run 'source ~/.bashrc' to apply the changes.")
@@ -169,7 +134,7 @@ func handleHPC(args []string) error {
 	case "slurm":
 		err = hpc.SetupHPCSlurm()
 	case "git":
-		err = hpc.SetupHPCGit()
+		err = gitcmd.SetupGit()
 	case "r":
 		err = handleR(args[1:])
 	default:
