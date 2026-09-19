@@ -249,7 +249,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="setup">Setup</h2>
 <p>The following command will configure the HPC environment:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><code>setupmjr hpc</code> does the following:</p>
+<p>The master command is Linux-only and stops on the first failed setup step. It runs the following sequence:</p>
+<ol type="1">
+<li>Configure <code>bash</code> rc.d, executable paths, and login/profile integration.</li>
+<li>Configure <code>zsh</code> rc.d, executable paths, and login/profile integration.</li>
+<li>Configure Git and GitHub authentication.</li>
+<li>Install the HPC scratch configuration.</li>
+<li>Install the Apptainer helpers.</li>
+<li>Install the SLURM helpers.</li>
+<li>Configure R with the normal <code>setupmjr r</code> defaults.</li>
+</ol>
+<p>In practical terms, <code>setupmjr hpc</code> does the following:</p>
 <ul>
 <li><em>Helps store large files effectively</em>: Large files are stored in the <code>/scratch</code> space (if available) rather than <code>/home</code>, to respect HPC storage policies.</li>
 <li><em>Authenticates with Git</em>: GitHub authentication uses either an existing persistent <code>gh</code> login or one protected setupmjr-managed token file for headless/HPC environments.</li>
@@ -284,7 +294,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="details" class="level2 callout-info" data-collapse="true">
 <h2 class="anchored" data-anchor-id="details">Details</h2>
-<p>The <code>hpc scratch</code> command ensures <code>.bashrc.d</code> is sourced and installs <code>~/.bashrc.d/hpc-scratch.sh</code>. That script configures the relevant Apptainer, Singularity, <code>renv</code>, and R library paths under <code>/scratch/${USER}</code>.</p>
+<p>The master <code>setupmjr hpc</code> command configures bash rc.d before installing <code>~/.bashrc.d/hpc-scratch.sh</code>. The standalone <code>hpc scratch</code> subcommand only installs that file, so use <code>setupmjr shell bash rc.d</code> first if your shell is not already sourcing <code>~/.bashrc.d</code>.</p>
 </section>
 <section id="hpc-slurm" class="level3">
 <h3 class="anchored" data-anchor-id="hpc-slurm"><code>hpc slurm</code></h3>
