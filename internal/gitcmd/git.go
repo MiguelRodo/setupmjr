@@ -16,7 +16,7 @@ import (
 
 const (
 	githubHost       = "github.com"
-	githubHelper     = "!setupmjr git auth credential-helper"
+	githubHelper     = `!f() { if [ "$1" = "get" ]; then token="$(cat "$HOME/.config/setupmjr/auth/github.token" 2>/dev/null)" || exit 1; printf 'username=x-access-token\npassword=%s\n' "$token"; fi; }; f`
 	githubBlockStart = "# setupmjr-github-token:start"
 	githubBlockEnd   = "# setupmjr-github-token:end"
 )
@@ -66,28 +66,12 @@ func SetupGitProfile() error {
 }
 
 // SetupGitAuth chooses the least custom durable GitHub authentication path.
-// An explicitly supplied environment token is persisted in setupmjr's protected
-// fallback store. Otherwise, an existing gh login is preferred. If neither is
-// available, a previously managed token is reused or a token is prompted for.
+// An existing persistent gh login is preferred. Otherwise setupmjr keeps one
+// protected token file as a headless/HPC fallback.
 func SetupGitAuth(scope string) error {
-	if environmentGitHubToken() != "" {
-		return SetupGitAuthText(scope)
-	}
-
 	if ghStoredAuthAvailable() {
 		return SetupGitAuthGh(scope)
 	}
-
-	home, err := sysutil.HomeDir()
-	if err != nil {
-		return err
-	}
-	if _, err := os.Stat(githubTokenPath(home)); err == nil {
-		return SetupGitAuthText(scope)
-	} else if !os.IsNotExist(err) {
-		return fmt.Errorf("stat GitHub token: %w", err)
-	}
-
 	return SetupGitAuthText(scope)
 }
 
@@ -158,33 +142,6 @@ func SetupGitAuthText(scope string) error {
 	}
 
 	fmt.Printf("Configured GitHub authentication using %s\n", githubTokenPath(home))
-	return nil
-}
-
-// RunGitHubCredentialHelper implements the small subset of Git's credential
-// helper protocol needed for github.com. Git invokes it as
-// `setupmjr git auth credential-helper <operation>`.
-func RunGitHubCredentialHelper(operation string) error {
-	_, _ = io.Copy(io.Discard, os.Stdin)
-	if operation != "get" {
-		return nil
-	}
-
-	home, err := sysutil.HomeDir()
-	if err != nil {
-		return err
-	}
-	tokenBytes, err := os.ReadFile(githubTokenPath(home))
-	if err != nil {
-		return fmt.Errorf("read GitHub token: %w", err)
-	}
-	token := strings.TrimSpace(string(tokenBytes))
-	if token == "" {
-		return fmt.Errorf("GitHub token file is empty")
-	}
-
-	fmt.Println("username=x-access-token")
-	fmt.Printf("password=%s\n", token)
 	return nil
 }
 
