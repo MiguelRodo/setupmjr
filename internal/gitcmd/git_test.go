@@ -11,6 +11,9 @@ import (
 func TestSetupGitAuthTextStoresOneProtectedTokenWithoutLeakingIt(t *testing.T) {
 	home := t.TempDir()
 	t.Setenv("HOME", home)
+	if runtime.GOOS == "windows" {
+		t.Setenv("USERPROFILE", home)
+	}
 	t.Setenv("GH_TOKEN", "ghp-unit-secret")
 	t.Setenv("GITHUB_TOKEN", "")
 	t.Setenv("GIT_CONFIG_NOSYSTEM", "1")
