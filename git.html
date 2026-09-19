@@ -257,13 +257,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>an existing <code>~/.config/setupmjr/auth/github.token</code>;</li>
 <li>otherwise a token entered at the prompt.</li>
 </ul>
-<p>The token is stored once with private permissions: the auth directory is mode <code>0700</code> and <code>github.token</code> is mode <code>0600</code> on POSIX systems. The token value is not copied into <code>.gitconfig</code>, <code>.bashrc</code>, <code>.zshrc</code>, <code>.bashrc.d/login.sh</code>, or <code>.zshrc.d/login.sh</code>.</p>
-<p>Git is configured with a host-specific credential helper that reads the protected token file only when Git requests a credential. Bash and Zsh startup files receive only a small managed block that exports <code>GH_TOKEN</code> by reading the same protected file. This keeps <code>gh</code> and other headless tools usable without creating another copy of the secret.</p>
+<p>The token is stored once with private permissions: the auth directory is mode <code>0700</code> and <code>github.token</code> is mode <code>0600</code> on POSIX systems. The literal token value is not copied into <code>.gitconfig</code>, <code>.bashrc</code>, <code>.zshrc</code>, <code>.bashrc.d/login.sh</code>, or <code>.zshrc.d/login.sh</code>.</p>
+<p>Git is configured with a host-specific credential helper that reads the protected token file only when Git requests a credential. For shell tools that consume <code>GH_TOKEN</code>, setupmjr places a small non-secret managed block in <code>~/.bashrc.d/login.sh</code> and <code>~/.zshrc.d/login.sh</code>; those files read the same protected token file when the shell starts. <code>.bashrc</code> and <code>.zshrc</code> only source their corresponding <code>rc.d</code> directories.</p>
 <p><code>setupmjr git auth text</code> explicitly selects this protected-token fallback. The <code>text</code> name is retained for backwards compatibility with the older command.</p>
 </section>
 <section id="migration-from-older-setupmjr-authentication" class="level3">
 <h3 class="anchored" data-anchor-id="migration-from-older-setupmjr-authentication">Migration from older setupmjr authentication</h3>
 <p>Older versions of setupmjr could write <code>GH_TOKEN</code> directly into <code>.bashrc.d/login.sh</code> and <code>.zshrc.d/login.sh</code>. Running the new authentication setup removes active legacy <code>GH_TOKEN=</code> and <code>GITHUB_USERNAME=</code> assignments from those setupmjr login files before configuring the new strategy.</p>
+<p>A short-lived version of #53 also placed the non-secret managed block directly in <code>.bashrc</code> and <code>.zshrc</code>. Re-running <code>setupmjr git auth</code> migrates that block into the existing <code>login.sh</code> files automatically.</p>
 </section>
 <section id="dev-containers" class="level3">
 <h3 class="anchored" data-anchor-id="dev-containers">Dev Containers</h3>
