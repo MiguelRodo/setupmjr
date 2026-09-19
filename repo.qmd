@@ -94,7 +94,6 @@ The following actions can be added:
 
 - **`prebuild-devcontainer`**: Builds and pushes a pre-built Dev Container image to GHCR whenever a SemVer tag is pushed. Read more [here](https://github.com/MiguelRodo/actions/tree/main/prebuild-devcontainer).
 - **`publish-quarto-site`**: Renders and publishes a Quarto site to the `gh-pages` branch whenever the main branch is updated. Read more [here](https://github.com/MiguelRodo/actions/tree/main/publish-quarto-site).
-- **`sync-issues-to-project`**: Syncs open issues from the repository to a GitHub Project (V2) board automatically. Read more [here](https://github.com/MiguelRodo/actions/tree/main/add-issues-to-project).
 - **`version-release`**: Bumps versions in Python or R packages, creates a versioned git tag, and publishes a GitHub Release. Read more [here](https://github.com/MiguelRodo/actions/tree/main/version-release).
 
 ::: {.callout-info collapse="true"}
