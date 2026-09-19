@@ -58,7 +58,17 @@ The following command will configure the HPC environment:
 setupmjr hpc
 ```
 
-`setupmjr hpc` does the following:
+The master command is Linux-only and stops on the first failed setup step. It runs the following sequence:
+
+1. Configure `bash` rc.d, executable paths, and login/profile integration.
+2. Configure `zsh` rc.d, executable paths, and login/profile integration.
+3. Configure Git and GitHub authentication.
+4. Install the HPC scratch configuration.
+5. Install the Apptainer helpers.
+6. Install the SLURM helpers.
+7. Configure R with the normal `setupmjr r` defaults.
+
+In practical terms, `setupmjr hpc` does the following:
 
 - *Helps store large files effectively*: Large files are stored in the `/scratch` space (if available) rather than `/home`, to respect HPC storage policies.
 - *Authenticates with Git*: GitHub authentication uses either an existing persistent `gh` login or one protected setupmjr-managed token file for headless/HPC environments.
@@ -105,7 +115,7 @@ This configures the environment to preferentially use `/scratch` for:
 ::: {.callout-info collapse="true"}
 ## Details
 
-The `hpc scratch` command ensures `.bashrc.d` is sourced and installs `~/.bashrc.d/hpc-scratch.sh`. That script configures the relevant Apptainer, Singularity, `renv`, and R library paths under `/scratch/${USER}`.
+The master `setupmjr hpc` command configures bash rc.d before installing `~/.bashrc.d/hpc-scratch.sh`. The standalone `hpc scratch` subcommand only installs that file, so use `setupmjr shell bash rc.d` first if your shell is not already sourcing `~/.bashrc.d`.
 :::
 
 ### `hpc slurm`
