@@ -1,0 +1,72 @@
+name: Test Git authentication
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  git-auth:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario:
+          - token-env
+          - existing-token
+          - gh-helper
+          - gh-unavailable-piped-token
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: stable
+
+      - name: Build setupmjr
+        run: |
+          mkdir -p "$RUNNER_TEMP/setupmjr-bin"
+          go build -o "$RUNNER_TEMP/setupmjr-bin/setupmjr" ./cmd/setupmjr
+
+      - name: Exercise ${{ matrix.scenario }}
+        run: bash .github/scripts/test-git-auth.sh "${{ matrix.scenario }}" "$RUNNER_TEMP/setupmjr-bin/setupmjr"
+
+  gitcreds-r:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: stable
+
+      - name: Install R gitcreds
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y r-base-core r-cran-gitcreds
+
+      - name: Verify R gitcreds uses the configured Git helper
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/setupmjr-bin"
+          go build -o "$RUNNER_TEMP/setupmjr-bin/setupmjr" ./cmd/setupmjr
+          export PATH="$RUNNER_TEMP/setupmjr-bin:$PATH"
+          export HOME="$RUNNER_TEMP/gitcreds-home"
+          export XDG_CONFIG_HOME="$HOME/.config"
+          export GIT_CONFIG_NOSYSTEM=1
+          mkdir -p "$HOME"
+          export GH_TOKEN='ghp_setupmjr_actions_r_token'
+          setupmjr git auth </dev/null
+          unset GH_TOKEN GITHUB_TOKEN
+          Rscript -e 'cred <- gitcreds::gitcreds_get("https://github.com"); stopifnot(identical(cred$password, "ghp_setupmjr_actions_r_token"))'
