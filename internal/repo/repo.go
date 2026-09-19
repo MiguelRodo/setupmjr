@@ -94,6 +94,12 @@ For more information, please contact:
 	return nil
 }
 
+func extractDevcontainer(archive io.Reader, repoDirName string) ([]byte, error) {
+	cmd := exec.Command("tar", "xz", "--strip-components=1", "-C", ".", "--", repoDirName+"/.devcontainer")
+	cmd.Stdin = archive
+	return cmd.CombinedOutput()
+}
+
 func SetupRepoDevcontainer(repo, branch string, build bool) error {
 	if repo == "" {
 		repo = "MiguelRodo/comp"
@@ -102,17 +108,20 @@ func SetupRepoDevcontainer(repo, branch string, build bool) error {
 		branch = "main"
 	}
 
-	tarUrl := fmt.Sprintf("https://github.com/%s/archive/refs/heads/%s.tar.gz", repo, branch)
+	tarURL := fmt.Sprintf("https://github.com/%s/archive/refs/heads/%s.tar.gz", repo, branch)
 	repoNameParts := strings.Split(repo, "/")
 	if len(repoNameParts) != 2 {
 		return fmt.Errorf("invalid repo format, expected owner/name")
 	}
 	repoDirName := repoNameParts[1] + "-" + branch
 
-	cmdStr := fmt.Sprintf("curl -sL %s | tar xz --strip-components=1 -C . \"%s/.devcontainer\"", tarUrl, repoDirName)
-	cmd := exec.Command("sh", "-c", cmdStr)
+	resp, err := http.Get(tarURL)
+	if err != nil {
+		return fmt.Errorf("failed to download .devcontainer from %s: %w", repo, err)
+	}
+	defer resp.Body.Close()
 
-	output, err := cmd.CombinedOutput()
+	output, err := extractDevcontainer(resp.Body, repoDirName)
 	if err != nil {
 		return fmt.Errorf("failed to download .devcontainer from %s: %v, output: %s", repo, err, string(output))
 	}
