@@ -54,31 +54,85 @@ func TestSetupGitAuthTextStoresOneProtectedTokenWithoutLeakingIt(t *testing.T) {
 		t.Fatalf("Git helper does not reference the protected token file: %s", helper)
 	}
 
-	for _, rc := range []string{".bashrc", ".zshrc"} {
-		path := filepath.Join(home, rc)
-		content, err := os.ReadFile(path)
+	for _, shellName := range []string{"bash", "zsh"} {
+		rcPath := filepath.Join(home, "."+shellName+"rc")
+		rc, err := os.ReadFile(rcPath)
 		if err != nil {
 			t.Fatal(err)
 		}
-		text := string(content)
+		if strings.Contains(string(rc), "ghp-unit-secret") {
+			t.Fatalf("%s contains the literal token", rcPath)
+		}
+		if strings.Contains(string(rc), githubBlockStart) {
+			t.Fatalf("%s contains GitHub auth logic directly", rcPath)
+		}
+		if !strings.Contains(string(rc), "."+shellName+"rc.d") {
+			t.Fatalf("%s does not source its rc.d directory", rcPath)
+		}
+
+		loginPath := filepath.Join(home, "."+shellName+"rc.d", "login.sh")
+		login, err := os.ReadFile(loginPath)
+		if err != nil {
+			t.Fatal(err)
+		}
+		text := string(login)
 		if strings.Contains(text, "ghp-unit-secret") {
-			t.Fatalf("%s contains the literal token", rc)
+			t.Fatalf("%s contains the literal token", loginPath)
 		}
 		if strings.Count(text, githubBlockStart) != 1 {
-			t.Fatalf("%s managed block count = %d, want 1", rc, strings.Count(text, githubBlockStart))
+			t.Fatalf("%s managed block count = %d, want 1", loginPath, strings.Count(text, githubBlockStart))
+		}
+		if !strings.Contains(text, "github.token") {
+			t.Fatalf("%s does not read the protected token file", loginPath)
 		}
 	}
 
 	if err := SetupGitAuthText("--global"); err != nil {
 		t.Fatalf("second SetupGitAuthText: %v", err)
 	}
-	for _, rc := range []string{".bashrc", ".zshrc"} {
-		content, err := os.ReadFile(filepath.Join(home, rc))
+	for _, shellName := range []string{"bash", "zsh"} {
+		login, err := os.ReadFile(filepath.Join(home, "."+shellName+"rc.d", "login.sh"))
 		if err != nil {
 			t.Fatal(err)
 		}
-		if strings.Count(string(content), githubBlockStart) != 1 {
-			t.Fatalf("%s duplicated the managed block", rc)
+		if strings.Count(string(login), githubBlockStart) != 1 {
+			t.Fatalf("%s login.sh duplicated the managed block", shellName)
+		}
+	}
+}
+
+func TestWireGitHubTokenEnvMigratesDirectRCBlockToLogin(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	if runtime.GOOS == "windows" {
+		t.Setenv("USERPROFILE", home)
+	}
+
+	oldBlock := githubBlockStart + "\nold-direct-wiring=yes\n" + githubBlockEnd + "\n"
+	for _, rc := range []string{".bashrc", ".zshrc"} {
+		if err := os.WriteFile(filepath.Join(home, rc), []byte(oldBlock), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	if err := wireGitHubTokenEnv(home); err != nil {
+		t.Fatal(err)
+	}
+
+	for _, shellName := range []string{"bash", "zsh"} {
+		rc, err := os.ReadFile(filepath.Join(home, "."+shellName+"rc"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if strings.Contains(string(rc), githubBlockStart) || strings.Contains(string(rc), "old-direct-wiring") {
+			t.Fatalf(".%src retained direct GitHub auth wiring", shellName)
+		}
+		login, err := os.ReadFile(filepath.Join(home, "."+shellName+"rc.d", "login.sh"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if strings.Count(string(login), githubBlockStart) != 1 {
+			t.Fatalf(".%src.d/login.sh managed block count = %d, want 1", shellName, strings.Count(string(login), githubBlockStart))
 		}
 	}
 }
