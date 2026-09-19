@@ -11,6 +11,7 @@ import (
 
 	"golang.org/x/term"
 
+	"github.com/MiguelRodo/setupmjr/internal/shell"
 	"github.com/MiguelRodo/setupmjr/internal/sysutil"
 )
 
@@ -215,18 +216,39 @@ func wireGitHubTokenEnv(home string) error {
 	block := `if [ -z "${GH_TOKEN:-}" ] && [ -r "$HOME/.config/setupmjr/auth/github.token" ]; then
     export GH_TOKEN="$(cat "$HOME/.config/setupmjr/auth/github.token")"
 fi`
-	for _, rc := range []string{".bashrc", ".zshrc"} {
-		if err := upsertManagedBlock(filepath.Join(home, rc), githubBlockStart, githubBlockEnd, block); err != nil {
-			return fmt.Errorf("configure %s GitHub token environment: %w", rc, err)
+
+	for _, shellName := range []string{"bash", "zsh"} {
+		// Migrate the short-lived direct rc wiring from setupmjr #53.
+		rcPath := filepath.Join(home, fmt.Sprintf(".%src", shellName))
+		if err := removeManagedBlock(rcPath, githubBlockStart, githubBlockEnd); err != nil {
+			return fmt.Errorf("remove legacy %s GitHub token environment: %w", rcPath, err)
+		}
+
+		if err := shell.SetupShellRCD(shellName); err != nil {
+			return err
+		}
+		if err := shell.SetupShellLogin(shellName, false); err != nil {
+			return err
+		}
+
+		loginPath := filepath.Join(home, fmt.Sprintf(".%src.d", shellName), "login.sh")
+		if err := upsertManagedBlock(loginPath, githubBlockStart, githubBlockEnd, block); err != nil {
+			return fmt.Errorf("configure %s GitHub token environment: %w", loginPath, err)
 		}
 	}
 	return nil
 }
 
 func removeGitHubTokenShellWiring(home string) error {
-	for _, rc := range []string{".bashrc", ".zshrc"} {
-		if err := removeManagedBlock(filepath.Join(home, rc), githubBlockStart, githubBlockEnd); err != nil {
-			return fmt.Errorf("remove %s GitHub token environment: %w", rc, err)
+	for _, shellName := range []string{"bash", "zsh"} {
+		paths := []string{
+			filepath.Join(home, fmt.Sprintf(".%src", shellName)),
+			filepath.Join(home, fmt.Sprintf(".%src.d", shellName), "login.sh"),
+		}
+		for _, path := range paths {
+			if err := removeManagedBlock(path, githubBlockStart, githubBlockEnd); err != nil {
+				return fmt.Errorf("remove %s GitHub token environment: %w", path, err)
+			}
 		}
 	}
 	return nil
