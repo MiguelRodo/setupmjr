@@ -66,6 +66,16 @@ assert_token_fallback() {
     exit 1
   fi
 
+  for shell_name in bash zsh; do
+    rc="$HOME/.${shell_name}rc"
+    login="$HOME/.${shell_name}rc.d/login.sh"
+    test -f "$rc"
+    test -f "$login"
+    ! grep -q '^# setupmjr-github-token:start$' "$rc"
+    test "$(grep -c '^# setupmjr-github-token:start$' "$login")" = "1"
+    grep -Fq 'github.token' "$login"
+  done
+
   unset GH_TOKEN GITHUB_TOKEN
   creds="$(printf 'protocol=https\nhost=github.com\n\n' | git credential fill)"
   grep -Fq 'username=x-access-token' <<<"$creds"
@@ -91,8 +101,8 @@ case "$scenario" in
 
     export GH_TOKEN="$token"
     "$bin" git auth </dev/null
-    test "$(grep -c '^# setupmjr-github-token:start$' "$HOME/.bashrc")" = "1"
-    test "$(grep -c '^# setupmjr-github-token:start$' "$HOME/.zshrc")" = "1"
+    test "$(grep -c '^# setupmjr-github-token:start$' "$HOME/.bashrc.d/login.sh")" = "1"
+    test "$(grep -c '^# setupmjr-github-token:start$' "$HOME/.zshrc.d/login.sh")" = "1"
     test "$(cat "$HOME/.config/setupmjr/auth/github.token")" = "$token"
     ;;
 
@@ -162,7 +172,27 @@ EOF
       ! grep -q '^GITHUB_USERNAME=' "$path"
       grep -Fq 'KEEP_ME=yes' "$path"
       grep -Fq 'HF_TOKEN="keep-huggingface-alone"' "$path"
+      test "$(grep -c '^# setupmjr-github-token:start$' "$path")" = "1"
     done
+    ;;
+
+  direct-rc-migration)
+    install_fake_gh
+    export FAKE_GH_AUTHENTICATED=0
+    export FAKE_GH_TOKEN='unused'
+    token='ghp_setupmjr_actions_direct_rc_token'
+    export GH_TOKEN="$token"
+    for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
+      cat > "$rc" <<'EOF'
+# setupmjr-github-token:start
+old-direct-wiring=yes
+# setupmjr-github-token:end
+EOF
+    done
+    "$bin" git auth </dev/null
+    assert_token_fallback "$token"
+    ! grep -Fq 'old-direct-wiring=yes' "$HOME/.bashrc"
+    ! grep -Fq 'old-direct-wiring=yes' "$HOME/.zshrc"
     ;;
 
   fallback-to-gh)
@@ -180,8 +210,11 @@ EOF
     : > "$FAKE_GH_LOG"
     "$bin" git auth </dev/null
     grep -Fq 'auth setup-git --hostname github.com' "$FAKE_GH_LOG"
-    ! grep -q '^# setupmjr-github-token:start$' "$HOME/.bashrc"
-    ! grep -q '^# setupmjr-github-token:start$' "$HOME/.zshrc"
+    for path in "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.bashrc.d/login.sh" "$HOME/.zshrc.d/login.sh"; do
+      if [ -f "$path" ]; then
+        ! grep -q '^# setupmjr-github-token:start$' "$path"
+      fi
+    done
     test "$(cat "$HOME/.config/setupmjr/auth/github.token")" = "$fallback_token"
 
     creds="$(printf 'protocol=https\nhost=github.com\n\n' | git credential fill)"
