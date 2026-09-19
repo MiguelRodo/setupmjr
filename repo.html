@@ -270,7 +270,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="details-1" class="level2 callout-info" data-collapse="true">
 <h2 class="anchored" data-anchor-id="details-1">Details</h2>
-<p>Under the hood, the command fetches the <code>.devcontainer</code> directory by downloading the tarball of the specified branch from GitHub. If the <code>--build</code> flag is passed, it pulls the <code>prebuild-devcontainer.yml</code> workflow from <code>MiguelRodo/actions</code> and places it in <code>.github/workflows/</code>.</p>
+<p>Under the hood, the command downloads the specified branch tarball from GitHub over HTTPS and passes it directly to <code>tar</code>; repository and branch values are not interpolated into a shell command. If the <code>--build</code> flag is passed, it pulls the <code>prebuild-devcontainer.yml</code> workflow from <code>MiguelRodo/actions</code> and places it in <code>.github/workflows/</code>.</p>
 </section>
 <section id="repo-install-repos" class="level2">
 <h2 class="anchored" data-anchor-id="repo-install-repos"><code>repo install repos</code></h2>

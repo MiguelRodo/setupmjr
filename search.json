@@ -74,7 +74,7 @@
     "href": "repo.html#details-1",
     "title": "repo",
     "section": "Details",
-    "text": "Details\nUnder the hood, the command fetches the .devcontainer directory by downloading the tarball of the specified branch from GitHub. If the --build flag is passed, it pulls the prebuild-devcontainer.yml workflow from MiguelRodo/actions and places it in .github/workflows/."
+    "text": "Details\nUnder the hood, the command downloads the specified branch tarball from GitHub over HTTPS and passes it directly to tar; repository and branch values are not interpolated into a shell command. If the --build flag is passed, it pulls the prebuild-devcontainer.yml workflow from MiguelRodo/actions and places it in .github/workflows/."
   },
   {
     "objectID": "repo.html#repo-install-repos",
