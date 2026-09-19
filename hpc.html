@@ -194,9 +194,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </ul></li>
   <li><a href="#details" id="toc-details" class="nav-link" data-scroll-target="#details">Details</a></li>
   <li><a href="#hpc-slurm" id="toc-hpc-slurm" class="nav-link" data-scroll-target="#hpc-slurm"><code>hpc slurm</code></a></li>
-  <li><a href="#details-1" id="toc-details-1" class="nav-link" data-scroll-target="#details-1">Details</a></li>
   <li><a href="#hpc-apptainer" id="toc-hpc-apptainer" class="nav-link" data-scroll-target="#hpc-apptainer"><code>hpc apptainer</code></a></li>
-  <li><a href="#details-2" id="toc-details-2" class="nav-link" data-scroll-target="#details-2">Details</a></li>
   <li><a href="#hpc-r" id="toc-hpc-r" class="nav-link" data-scroll-target="#hpc-r"><code>hpc r</code></a></li>
   </ul>
 </nav>
@@ -251,107 +249,62 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="setup">Setup</h2>
 <p>The following command will configure the HPC environment:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Apart from needing to edit one file for Git authentication if this has not been setup yet (see below), this command requires no other user input.</p>
 <p><code>setupmjr hpc</code> does the following:</p>
 <ul>
 <li><em>Helps store large files effectively</em>: Large files are stored in the <code>/scratch</code> space (if available) rather than <code>/home</code>, to respect HPC storage policies.</li>
-<li><em>Authenticates with Git</em>: Scripts are added to which the user needs to simply add their GitHub username and a personal access token (PAT) to enable seamless Git operations from the HPC environment.</li>
-<li><em>Add <code>Apptainer</code> and <code>SLURM</code> helpers</em>: If these tools are available on the HPC, helper scripts will be added to simplify their usage.</li>
+<li><em>Authenticates with Git</em>: GitHub authentication uses either an existing persistent <code>gh</code> login or one protected setupmjr-managed token file for headless/HPC environments.</li>
+<li><em>Adds <code>Apptainer</code> and SLURM helpers</em>: If these tools are available, helper scripts are installed to simplify their usage.</li>
 <li><em>Configures <code>radian</code></em>: If you use <code>radian</code> as your R terminal, it is configured to work properly on the HPC.</li>
 </ul>
-<p>Each of these features can be configured independently via the respective subcommands (<code>hpc scratch</code>, <code>hpc apptainer</code>, <code>hpc slurm</code>, <code>hpc git</code>, <code>hpc r</code>).</p>
+<p>Each feature can also be configured independently via the respective subcommands (<code>hpc scratch</code>, <code>hpc apptainer</code>, <code>hpc slurm</code>, <code>hpc git</code>, <code>hpc r</code>).</p>
 <section id="setting-up-git" class="level3">
 <h3 class="anchored" data-anchor-id="setting-up-git">Setting up Git</h3>
-<p>To configure Git, run the following command (which is also part of the <code>setupmjr hpc</code> command):</p>
+<p>To configure Git, run:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc git</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>This command simply calls <code>setupmjr git</code>, which configures your Git profile (name and email) via <code>setupmjr git profile</code> and sets up authentication credentials via <code>setupmjr git auth</code>.</p>
-<p>For full details on how this works and how it configures your environment (including setting up <code>.bashrc.d</code> and <code>.zshrc.d</code> files for seamless GitHub authentication), please refer to the <a href="./git.html">git setup documentation</a>.</p>
+<p>This calls the normal <code>setupmjr git</code> setup. Authentication is deliberately suitable for headless HPC use:</p>
+<ul>
+<li>if <code>gh auth login</code> has already established durable GitHub CLI authentication, Git is configured with <code>gh auth setup-git</code>;</li>
+<li>otherwise setupmjr stores one GitHub token under <code>~/.config/setupmjr/auth/github.token</code>, with private permissions, and configures Git to read it through the standard credential-helper interface.</li>
+</ul>
+<p>The token itself is not embedded in shell startup files or Git configuration. Existing active <code>GH_TOKEN=</code> assignments left by older setupmjr versions are removed from setupmjr’s <code>login.sh</code> files during migration.</p>
+<p>This credential-helper design is also intended to work with R <code>gitcreds</code> and with VS Code Dev Containers’ built-in Git credential forwarding. In a Remote SSH -&gt; HPC -&gt; Dev Container workflow, configure authentication on the HPC host first. If a particular Dev Container still fails to reuse the host helper, treat that as a forwarding problem rather than copying a PAT into the repository or container definition.</p>
+<p>See <a href="./git.html">git setup</a> for the full authentication model and fallback details.</p>
 </section>
 <section id="using-scratch-space" class="level3">
 <h3 class="anchored" data-anchor-id="using-scratch-space">Using scratch space</h3>
-<p>HPCs typically have a separate scratch space for storing large files (i.e.&nbsp;<code>/scratch/$USER</code>), which is often faster and has different quotas than the home directory. The <code>setupmjr hpc scratch</code> command helps you configure your environment to use this scratch space effectively.</p>
-<p>To set this up, run the following command (also part of <code>setupmjr hpc</code>):</p>
+<p>HPCs typically have a separate scratch space for storing large files (i.e.&nbsp;<code>/scratch/$USER</code>), which is often faster and has different quotas than the home directory. The <code>hpc scratch</code> command helps you configure your environment to use the <code>/scratch</code> space effectively.</p>
+<p>To set this up, run:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc scratch</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>This configures your environment to preferentially use the <code>/scratch</code> space for the following:</p>
+<p>This configures the environment to preferentially use <code>/scratch</code> for:</p>
 <ul>
-<li>Apptainer and Singularity images
-<ul>
-<li>Automatically cached in <code>/scratch/$USER/.cache/&lt;apptainer/singularity&gt;</code> instead of the default location in the home directory.</li>
-</ul></li>
-<li>R libraries:
-<ul>
-<li>The <code>R_LIBS_USER</code> environment variable is set to <code>/scratch/$USER/.local/lib/R</code> and created, so that R packages are installed in the scratch space instead of the home directory.</li>
-<li>Similarly, various <code>RENV_*</code> environment variables configuring <code>renv</code> paths are set to point to the scratch space.</li>
-</ul></li>
+<li>Apptainer and Singularity images;</li>
+<li>R libraries and <code>renv</code> caches.</li>
 </ul>
 </section>
 </section>
 <section id="details" class="level2 callout-info" data-collapse="true">
 <h2 class="anchored" data-anchor-id="details">Details</h2>
-<p>The <code>hpc scratch</code> command configures the environment to use the <code>/scratch</code> directory by doing the following:</p>
-<ol type="1">
-<li><p>It ensures that <code>.bashrc.d</code> files are sourced by <code>.bashrc</code>.</p></li>
-<li><p>A script is added to <code>~/.bashrc.d/hpc-scratch.sh</code>, which explicitly exports paths for Apptainer, Singularity, <code>renv</code>, and R libraries to use <code>/scratch/$USER</code>. Specifically, it sets the following environment variables:</p>
-<ul>
-<li><code>RENV_CONFIG_PAK_ENABLED=false</code></li>
-<li><code>RENV_CONFIG_SANDBOX_ENABLED=false</code></li>
-<li><code>RENV_PATHS_LIBRARY_ROOT=/scratch/${USER}/.local/lib/R/library</code></li>
-<li><code>RENV_PATHS_CACHE=/scratch/${USER}/renv/cache:/renv/cache</code></li>
-<li><code>RENV_PATHS_ROOT=/scratch/${USER}/.local/lib/R/library</code></li>
-<li><code>R_LIBS=/scratch/${USER}/.local/lib/R</code></li>
-</ul></li>
-</ol>
+<p>The <code>hpc scratch</code> command ensures <code>.bashrc.d</code> is sourced and installs <code>~/.bashrc.d/hpc-scratch.sh</code>. That script configures the relevant Apptainer, Singularity, <code>renv</code>, and R library paths under <code>/scratch/${USER}</code>.</p>
 </section>
 <section id="hpc-slurm" class="level3">
 <h3 class="anchored" data-anchor-id="hpc-slurm"><code>hpc slurm</code></h3>
-<p>SLURM is a popular program used by HPCs to allocate compute resources. The <code>hpc slurm</code> command sets up several utility scripts for interacting with the Slurm workload manager, placing them in <code>~/.local/bin</code>.</p>
-<p>To set this up, run the following command (also part of <code>setupmjr hpc</code>):</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc slurm</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The commands are as follows (run <code>&lt;command&gt; --help</code> for usage information on each, e.g.&nbsp;<code>slurm-sbatch --help</code>):</p>
+<p>SLURM is a popular program used by HPCs to allocate compute resources. <code>setupmjr hpc slurm</code> installs helper scripts into <code>~/.local/bin</code>:</p>
 <ul>
-<li><code>slurm-sbatch</code>: Submits a SLURM job using <code>sbatch</code> and logs the submission details, including the submitted script contents and standard output, into a specified or default log directory (<code>_tmp/log/sbatch</code>).</li>
-<li><code>slurm-sintx</code>: Starts an interactive SLURM session using <code>sintx</code>. By default, it requests 2 tasks (<code>--ntasks=2</code>) and 1 node (<code>--nodes=1</code>). You can specify the number of tasks as the first argument, and pass additional flags to <code>sintx</code> thereafter (e.g., <code>slurm-sintx 4 --mem=10G</code>).</li>
-<li><code>slurm-squeue</code>: Lists the current jobs for the logged-in user using <code>squeue -u $USER</code>.</li>
+<li><code>slurm-sbatch</code>: submits a SLURM job and records submission details;</li>
+<li><code>slurm-sintx</code>: starts an interactive SLURM session;</li>
+<li><code>slurm-squeue</code>: lists jobs for the current user.</li>
 </ul>
-</section>
-<section id="details-1" class="level2 callout-info" data-collapse="true">
-<h2 class="anchored" data-anchor-id="details-1">Details</h2>
-<p>The <code>hpc slurm</code> command sets up these tools by doing the following:</p>
-<ol type="1">
-<li><p>It ensures that <code>~/.local/bin</code> is added to your system’s <code>PATH</code> environment variable by (if required) adding an export statement to your <code>.bashrc</code>.</p></li>
-<li><p>It places the specific utility wrapper scripts (<code>slurm-sbatch</code>, <code>slurm-sintx</code>, <code>slurm-squeue</code>) directly into <code>~/.local/bin/</code>.</p></li>
-</ol>
 </section>
 <section id="hpc-apptainer" class="level3">
 <h3 class="anchored" data-anchor-id="hpc-apptainer"><code>hpc apptainer</code></h3>
-<p>Apptainer (formerly Singularity) is a container system commonly used on HPCs to ensure reproducible software environments. The <code>hpc apptainer</code> command sets up several utility scripts for seamlessly pulling, locating, and interacting with Apptainer containers. It is designed to work tightly with images built using the <code>MiguelRodo/devcontainer-prebuild</code> GitHub Action, sharing many of the same conventions (but is compatible with containers from both Docker Hub and GitHub Container Registry).</p>
-<p>To set this up, run the following command (also part of <code>setupmjr hpc</code>):</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc apptainer</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The commands installed are as follows (run <code>&lt;command&gt; --help</code> for usage information on each, e.g.&nbsp;<code>apptainer-run --help</code>):</p>
-<ul>
-<li><code>apptainer-pull</code>: Downloads Docker or GitHub Container Registry (GHCR) images and saves them as <code>.sif</code> files. It cleverly infers the appropriate repository owner, image name, and tag dynamically based on your current directory’s Git remote and active branch.</li>
-<li><code>apptainer-path</code>: Automatically locates the relevant <code>.sif</code> file for your current project. It searches Apptainer cache and <code>/scratch</code> directories, prioritizing image names that match your current directory’s basename and active Git branch.</li>
-<li><code>apptainer-exists</code>: A utility script that checks if the required <code>.sif</code> container for the current workspace has already been downloaded, returning a clean exit (0) if found.</li>
-<li><code>apptainer-run</code>: Executes a given command inside the project’s Apptainer container. If no command is passed, it falls back to opening an interactive shell (<code>apptainer shell</code>) within the container.</li>
-<li><code>apptainer-rscript</code>: A specialized wrapper to easily pass and execute R expressions (via <code>Rscript -e</code>) directly inside the project’s container without needing to manually spin up an interactive shell.</li>
-</ul>
-</section>
-<section id="details-2" class="level2 callout-info" data-collapse="true">
-<h2 class="anchored" data-anchor-id="details-2">Details</h2>
-<p>The <code>hpc apptainer</code> command sets up these tools by doing the following:</p>
-<ol type="1">
-<li><p>It ensures that <code>~/.local/bin</code> is added to your system’s <code>PATH</code> environment variable by (if required) adding an export statement to your <code>.bashrc</code>.</p></li>
-<li><p>It places the specific utility wrapper scripts directly into <code>~/.local/bin/</code>.</p></li>
-</ol>
+<p><code>setupmjr hpc apptainer</code> installs helper scripts for working with Apptainer containers into <code>~/.local/bin</code>, including <code>apptainer-pull</code>, <code>apptainer-path</code>, <code>apptainer-exists</code>, <code>apptainer-run</code>, and <code>apptainer-rscript</code>.</p>
 </section>
 <section id="hpc-r" class="level3">
 <h3 class="anchored" data-anchor-id="hpc-r"><code>hpc r</code></h3>
-<p>To configure <code>R</code> for the HPC environment, run the following command (which is also part of <code>setupmjr hpc</code>):</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>This command simply calls <code>setupmjr r</code>, which configures <code>radian</code> and <code>lintr</code>.</p>
-<p>For full details on how this works and how it configures your environment, please refer to the <a href="./r.html">R setup documentation</a>.</p>
-<p>You can also pass <code>--not-radian</code> or <code>--not-lintr</code> to opt out of those configurations:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc r <span class="at">--not-lintr</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>To configure R for the HPC environment, run:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This calls <code>setupmjr r</code>, which configures <code>radian</code> and <code>lintr</code>. You can opt out with <code>--not-radian</code> or <code>--not-lintr</code>, for example:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc r <span class="at">--not-lintr</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
 </section>
