@@ -27,16 +27,10 @@ func setupHPC(goos string) error {
 
 	fmt.Println("Running master HPC setup...")
 
-	if err := shell.SetupShellRCD("bash"); err != nil {
-		return err
-	}
 	if err := shell.SetupShellPath("bash"); err != nil {
 		return err
 	}
 	if err := shell.SetupShellLogin("bash", false); err != nil {
-		return err
-	}
-	if err := shell.SetupShellRCD("zsh"); err != nil {
 		return err
 	}
 	if err := shell.SetupShellPath("zsh"); err != nil {
