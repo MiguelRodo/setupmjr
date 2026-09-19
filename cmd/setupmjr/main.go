@@ -164,9 +164,10 @@ func handleShellCmd(args []string, shellName string) error {
 	case "path":
 		return shell.SetupShellPath(shellName)
 	case "login":
+		// Parse the optional --not-profile flag for the login subcommand
 		fs := flag.NewFlagSet("login", flag.ExitOnError)
 		notProfile := fs.Bool("not-profile", false, "Do not configure profile files (~/.profile, etc.)")
-		fs.Parse(args[1:])
+		fs.Parse(args[1:]) // parse arguments after 'login'
 
 		return shell.SetupShellLogin(shellName, *notProfile)
 	default:
@@ -199,6 +200,8 @@ func handleGit(args []string) error {
 		local := fs.Bool("local", false, "Use local git config")
 		remove := fs.Bool("remove", false, "Remove existing credential helpers in the selected scope")
 
+		// We need to parse flags. They could be before or after the subcommand.
+		// auth text --system OR auth --system text
 		loginSubcmd := ""
 		authArgs := args[1:]
 
