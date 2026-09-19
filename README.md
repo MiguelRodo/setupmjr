@@ -25,6 +25,12 @@ For development, use the local installer or build from source:
 go build ./cmd/setupmjr
 ```
 
+### Installation CI
+
+Pull requests test Debian-package, local Linux, Windows, and source installations using `setupmjr` artefacts built from the PR. Installer tests provide the `repos` dependency locally so an unrelated release or network failure cannot make PR validation fail.
+
+The already-published APT repository is a separate integration check. Run the `Test Installation Methods` workflow manually when validating repository availability and published package dependencies.
+
 ## Quick Start
 
 You can use `setupmjr` to configure specific environments quickly. For instance, to set up the master HPC environment:
