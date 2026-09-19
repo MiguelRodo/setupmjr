@@ -117,42 +117,7 @@ Commands:
 
 func handleHPC(args []string) error {
 	if len(args) == 0 {
-		// Run master hpc setup
 		if err := hpc.SetupHPC(); err != nil {
-			return err
-		}
-		if err := shell.SetupShellRCD("bash"); err != nil {
-			return err
-		}
-		if err := shell.SetupShellPath("bash"); err != nil {
-			return err
-		}
-		if err := shell.SetupShellLogin("bash", false); err != nil {
-			return err
-		}
-		if err := shell.SetupShellRCD("zsh"); err != nil {
-			return err
-		}
-		if err := shell.SetupShellPath("zsh"); err != nil {
-			return err
-		}
-		if err := shell.SetupShellLogin("zsh", false); err != nil {
-			return err
-		}
-		// Execute SetupHPCGit AFTER SetupShellLogin so login.sh is not overwritten
-		if err := hpc.SetupHPCGit(); err != nil {
-			return err
-		}
-		if err := hpc.SetupHPCScratch(); err != nil {
-			return err
-		}
-		if err := hpc.SetupHPCApptainer(); err != nil {
-			return err
-		}
-		if err := hpc.SetupHPCSlurm(); err != nil {
-			return err
-		}
-		if err := handleR([]string{}); err != nil {
 			return err
 		}
 		fmt.Println("Please run 'source ~/.bashrc' to apply the changes.")
@@ -169,7 +134,7 @@ func handleHPC(args []string) error {
 	case "slurm":
 		err = hpc.SetupHPCSlurm()
 	case "git":
-		err = hpc.SetupHPCGit()
+		err = gitcmd.SetupGit()
 	case "r":
 		err = handleR(args[1:])
 	default:
@@ -199,10 +164,9 @@ func handleShellCmd(args []string, shellName string) error {
 	case "path":
 		return shell.SetupShellPath(shellName)
 	case "login":
-		// Parse the optional --not-profile flag for the login subcommand
 		fs := flag.NewFlagSet("login", flag.ExitOnError)
 		notProfile := fs.Bool("not-profile", false, "Do not configure profile files (~/.profile, etc.)")
-		fs.Parse(args[1:]) // parse arguments after 'login'
+		fs.Parse(args[1:])
 
 		return shell.SetupShellLogin(shellName, *notProfile)
 	default:
@@ -235,8 +199,6 @@ func handleGit(args []string) error {
 		local := fs.Bool("local", false, "Use local git config")
 		remove := fs.Bool("remove", false, "Remove existing credential helpers in the selected scope")
 
-		// We need to parse flags. They could be before or after the subcommand.
-		// auth text --system OR auth --system text
 		loginSubcmd := ""
 		authArgs := args[1:]
 
