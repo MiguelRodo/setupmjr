@@ -21,6 +21,7 @@ jobs:
           - gh-helper
           - gh-unavailable-piped-token
           - legacy-login-migration
+          - direct-rc-migration
           - fallback-to-gh
     steps:
       - name: Checkout code
