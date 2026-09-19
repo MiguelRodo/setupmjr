@@ -30,24 +30,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.event.inputs.tag }}
 `,
-	"add-issues-to-project": `name: Sync Issues to Project
-
-on:
-  workflow_dispatch:
-  issues:
-    types: [opened, reopened]
-
-jobs:
-  add-to-project:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: MiguelRodo/actions/add-issues-to-project@v2
-        with:
-          ADD_ISSUES_TO_PROJECT_TOKEN: ${{ secrets.ADD_ISSUES_TO_PROJECT_TOKEN }}
-          # project_name: "My Custom Project Board"
-          # is_project_owner_org: "true"
-`,
 	"version-release": `name: Version and Release
 
 on:
@@ -212,23 +194,5 @@ jobs:
       - uses: MiguelRodo/actions/publish-quarto-site@v2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-`,
-	"sync-issues-to-project": `name: Sync Issues to Project
-
-on:
-  workflow_dispatch:
-  issues:
-    types: [opened, reopened]
-
-jobs:
-  add-to-project:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: MiguelRodo/actions/add-issues-to-project@v2
-        with:
-          ADD_ISSUES_TO_PROJECT_TOKEN: ${{ secrets.ADD_ISSUES_TO_PROJECT_TOKEN }}
-          # project_name: "My Custom Project Board"
-          # is_project_owner_org: "true"
 `,
 }
