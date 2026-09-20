@@ -18,7 +18,7 @@ func Get(url string) (*http.Response, error) {
 	if err != nil {
 		return nil, fmt.Errorf("GET %s: %w", url, err)
 	}
-	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
+	if resp.StatusCode != http.StatusOK {
 		status := resp.Status
 		_ = resp.Body.Close()
 		return nil, fmt.Errorf("GET %s: %s", url, status)
