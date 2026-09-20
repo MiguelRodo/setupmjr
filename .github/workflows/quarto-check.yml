@@ -3,7 +3,7 @@ name: Check Quarto Site
 on:
   pull_request:
     paths:
-      - "*.qmd"
+      - "**/*.qmd"
       - "_quarto.yml"
       - ".github/workflows/quarto-check.yml"
   workflow_dispatch:
