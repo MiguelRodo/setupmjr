@@ -1,0 +1,25 @@
+name: Check Quarto Site
+
+on:
+  pull_request:
+    paths:
+      - "*.qmd"
+      - "_quarto.yml"
+      - ".github/workflows/quarto-check.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@8a96df13519ee81fd526f2dfca5962811136661b # v2
+
+      - name: Render site
+        run: quarto render
