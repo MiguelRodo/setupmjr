@@ -1,17 +1,47 @@
-# setupmjr
+# setupmjr - Cross-platform Setup Utility
 
-A cross-platform setup utility for configuring development environments, repositories, coding agents, and HPC systems.
+[![Test Installation Methods](https://github.com/MiguelRodo/setupmjr/actions/workflows/test-installation.yml/badge.svg)](https://github.com/MiguelRodo/setupmjr/actions/workflows/test-installation.yml)
+[![Test Suite](https://github.com/MiguelRodo/setupmjr/actions/workflows/test-suite.yml/badge.svg)](https://github.com/MiguelRodo/setupmjr/actions/workflows/test-suite.yml)
+[![ShellCheck](https://github.com/MiguelRodo/setupmjr/actions/workflows/shellcheck.yml/badge.svg)](https://github.com/MiguelRodo/setupmjr/actions/workflows/shellcheck.yml)
+
+`setupmjr` is a cross-platform Go setup CLI utility that automates the setup of HPC, Bash, R, Git, Slurm, Apptainer, agent, and GitHub Project environments.
 
 ## Installation
 
-See [install.qmd](install.qmd) for all supported installation methods.
-
-## Agent configuration
-
-Use `setupmjr agent` for coding-agent provider, credential and optional subagent setup:
+On Debian or Ubuntu, after configuring the [`apt-miguelrodo`](https://github.com/MiguelRodo/apt-miguelrodo) repository, install the current packaged release with:
 
 ```bash
-setupmjr agent --config
+sudo apt-get update
+sudo apt-get install -y setupmjr
+```
+
+For development, use the local installer or build from source:
+
+```bash
+# Local installation script
+./install-local.sh
+
+# Go (from source)
+go build ./cmd/setupmjr
+```
+
+### Installation CI
+
+Pull requests test Debian-package, local Linux, Windows, and source installations using `setupmjr` artefacts built from the PR. Installer tests provide the `repos` dependency locally so an unrelated release or network failure cannot make PR validation fail.
+
+The already-published APT repository is a separate integration check. Run the `Test Installation Methods` workflow manually when validating repository availability and published package dependencies.
+
+## Quick Start
+
+You can use `setupmjr` to configure specific environments quickly. For instance, to set up the master HPC environment:
+
+```bash
+setupmjr hpc
+```
+
+To inspect agent choices, switch Codex providers, or configure an opt-in subagent:
+
+```bash
 setupmjr agent --list
 setupmjr agent --auth deepseek  # Store/reuse DeepSeek API credential only
 setupmjr agent -p d             # Copilot -> DeepSeek
@@ -44,7 +74,7 @@ See [install.qmd](install.qmd) for installation and ownership details.
 
 ## Commands and capabilities
 
-- `setupmjr hpc` — Master HPC setup, with options for `scratch`, `apptainer`, `slurm`, `git`, and `r`.
+- `setupmjr hpc` — Master HPC setup, with options for `scratch`, `apptainer`, `slurm`, `login git`, `git`, and `r`.
 - `setupmjr bash` — Manage Bash environments (`rc.d`, `login`).
 - `setupmjr r` — Set up R environments (e.g., `radian`).
 - `setupmjr git` — Manage Git configuration and authentication.
