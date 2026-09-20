@@ -3,75 +3,39 @@ title: "repo"
 toc: true
 ---
 
-The `repo` subcommand is used to set up repositories.
+The `repo` subcommand configures the current repository.
 
 ## Commands
 
-```
-  repo readme
-  repo devcontainer [--repo <owner>/<repo>@<branch>] [--build]
-  repo action <action-name>
+```text
+repo readme
+repo devcontainer [--repo <owner>/<repo>@<branch>] [--build]
+repo action <action-name>
 ```
 
 ## `repo readme`
 
-This command interacts with the user to scaffold a standardized `README.md` for a project repository.
+This command interactively scaffolds a standard `README.md` with a title, purpose, contacts, links and details sections.
 
-When executed, it prompts for the following information:
-- The project title.
-- A brief description of what the repository does.
-- The full names and email addresses of two primary contacts.
-
-It then generates a `README.md` using the provided inputs.
-
-::: {.callout-info collapse="true"}
-## Details
-
-The generated `README.md` follows a clean template containing sections for the title, purpose, contact details, links (e.g. data sources, publications), and further details (e.g. methods, timeline, team, data sources).
-
-For example, the output might look like:
-
-```markdown
-# My Project Title
-
-This repository handles data processing for the survey data.
-
-## Contact
-
-For more information, please contact:
-- Jane Doe:
-  - jane.doe@example.com
-- John Smith:
-  - john.smith@example.com
-
-## Links
-
-- [URLs to data sources (e.g. OneDrive), GitHub repositories, publications, etc.]
-
-## Details
-
-[Methods, timeline, team, data sources, software/tools, etc.]
+```bash
+setupmjr repo readme
 ```
-:::
 
 ## `repo devcontainer`
 
-This command copies a reference `.devcontainer` configuration into your current repository.
+Copy a reference `.devcontainer` configuration into the current repository:
 
 ```bash
-setupmjr repo devcontainer [--repo <owner>/<repo>@<branch>] [--build]
+setupmjr repo devcontainer
+setupmjr repo devcontainer --repo MiguelRodo/comp@main
 ```
 
-- `--repo`: Specifies the source repository and branch to copy the `.devcontainer` directory from (defaults to `MiguelRodo/comp@main`).
-- `--build`: If provided, the command also installs the `prebuild-devcontainer.yml` workflow example from the latest published `MiguelRodo/actions` release.
+- `--repo` selects the source repository and branch in `<owner>/<repo>@<branch>` form. The default is `MiguelRodo/comp@main`.
+- `--build` also installs the `prebuild-devcontainer.yml` workflow example from the latest published `MiguelRodo/actions` release.
 
-::: {.callout-info collapse="true"}
-## Details
+The source archive is fully staged before extraction, so a timeout or interrupted response cannot feed a partial archive into `tar`. Repository and branch values are passed as command arguments rather than interpolated into a shell command.
 
-The source archive is downloaded completely to a temporary file before extraction, so a timeout or interrupted HTTP body cannot feed a partial archive into `tar`. Repository and branch values are passed as command arguments rather than interpolated into a shell command. The optional prebuild workflow is fetched from an exact published actions release tag rather than mutable `main`.
-
-setupmjr-owned HTTP downloads use a finite request timeout and report the request URL and HTTP status on failures such as `403 Forbidden`. Failed or incomplete file downloads are discarded rather than being left at their final destination path.
-:::
+setupmjr-owned HTTP downloads use a finite request timeout, preserve URL/status context on failures, and only replace destination files after complete writes.
 
 ## Install `repos`
 
@@ -81,22 +45,18 @@ Repository orchestration belongs to the standalone `repos` command. Install or u
 setupmjr install --repos
 ```
 
-Then invoke `repos` directly. `setupmjr` no longer proxies `repos` commands. The release archive is staged in a temporary directory and is not extracted after a failed or incomplete download.
+Then invoke `repos` directly. The release archive is staged in a temporary directory and is not extracted after a failed or incomplete download.
 
 ## `repo action`
 
-This command installs a workflow example published by the canonical [`MiguelRodo/actions`](https://github.com/MiguelRodo/actions) repository:
+Install a workflow example published by the canonical [`MiguelRodo/actions`](https://github.com/MiguelRodo/actions) repository:
 
 ```bash
 setupmjr repo action <action-name>
 ```
 
-`setupmjr` first resolves the latest published actions release, then downloads `examples/<action-name>.yml` from that exact release tag into `.github/workflows/`. It keeps no embedded workflow copies and does not fall back to mutable `actions/main`.
+`setupmjr` resolves the latest published actions release, then downloads `examples/<action-name>.yml` from that exact release tag into `.github/workflows/`. It keeps no embedded workflow copies and does not fall back to mutable `actions/main`.
 
-The available names are therefore the files present in the `examples` directory of the latest published actions release. For the current v3 release this includes `prebuild-devcontainer`, `publish-quarto-site`, and `version-release`. If a requested example is not published in that release, the command fails instead of installing a local or development copy.
+Use the example filename from the latest published `MiguelRodo/actions` release without the `.yml` suffix. If that example is not present in the release, the command fails rather than installing a local or development copy.
 
-::: {.callout-info collapse="true"}
-## Details
-
-Workflow downloads are staged in `.github/workflows/` and replace the final path only after the response completes successfully. Errors include the requested action name, resolved release tag, and HTTP status where available.
-:::
+Workflow downloads are staged in `.github/workflows/` and replace the final path only after the response completes successfully. Errors include the requested action name, resolved release tag and HTTP status where available.
