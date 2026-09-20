@@ -138,6 +138,23 @@ print(version.stdout)
 
 The wrapper does not duplicate setupmjr commands or configuration in Python.
 
+## R wrapper
+
+The R package follows the same model: install `setupmjr` first and keep the binary on `PATH`, then install the package from this repository with `remotes`:
+
+```r
+remotes::install_github("MiguelRodo/setupmjr")
+```
+
+Use `setupmjr::run()` to pass arguments to the CLI. `stdout` and `stderr` are passed directly to base R's `system2()`:
+
+```r
+version <- setupmjr::run("--version", stdout = TRUE)
+print(version)
+```
+
+The R wrapper contains no duplicate command implementation or runtime package dependencies.
+
 ## Managed components
 
 After installing `setupmjr`, use its top-level `install` command for the external tools whose installation glue it owns:
