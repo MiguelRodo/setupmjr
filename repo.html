@@ -183,10 +183,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#repo-devcontainer" id="toc-repo-devcontainer" class="nav-link" data-scroll-target="#repo-devcontainer"><code>repo devcontainer</code></a></li>
   <li><a href="#details-1" id="toc-details-1" class="nav-link" data-scroll-target="#details-1">Details</a></li>
   <li><a href="#install-repos" id="toc-install-repos" class="nav-link" data-scroll-target="#install-repos">Install <code>repos</code></a></li>
-  <li><a href="#repo-action" id="toc-repo-action" class="nav-link" data-scroll-target="#repo-action"><code>repo action</code></a>
-  <ul class="collapse">
-  <li><a href="#available-actions" id="toc-available-actions" class="nav-link" data-scroll-target="#available-actions">Available Actions</a></li>
-  </ul></li>
+  <li><a href="#repo-action" id="toc-repo-action" class="nav-link" data-scroll-target="#repo-action"><code>repo action</code></a></li>
   <li><a href="#details-2" id="toc-details-2" class="nav-link" data-scroll-target="#details-2">Details</a></li>
   </ul>
 </nav>
@@ -256,12 +253,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> repo devcontainer [--repo <span class="op">&lt;</span>owner<span class="op">&gt;</span>/<span class="op">&lt;</span>repo<span class="op">&gt;</span>@<span class="op">&lt;</span>branch<span class="op">&gt;</span>] <span class="pp">[--</span><span class="ss">build</span><span class="pp">]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li><code>--repo</code>: Specifies the source repository and branch to copy the <code>.devcontainer</code> directory from (defaults to <code>MiguelRodo/comp@main</code>).</li>
-<li><code>--build</code>: If provided, the command will also download the relevant GitHub Action to automatically prebuild the devcontainer, fetching good default settings from the reference actions.</li>
+<li><code>--build</code>: If provided, the command also installs the <code>prebuild-devcontainer.yml</code> workflow example from the latest published <code>MiguelRodo/actions</code> release.</li>
 </ul>
 </section>
 <section id="details-1" class="level2 callout-info" data-collapse="true">
 <h2 class="anchored" data-anchor-id="details-1">Details</h2>
-<p>The source archive is downloaded completely to a temporary file before extraction, so a timeout or interrupted HTTP body cannot feed a partial archive into <code>tar</code>. Repository and branch values are passed as command arguments rather than interpolated into a shell command. If <code>--build</code> is passed, the <code>prebuild-devcontainer.yml</code> workflow download is staged before replacing the destination file.</p>
+<p>The source archive is downloaded completely to a temporary file before extraction, so a timeout or interrupted HTTP body cannot feed a partial archive into <code>tar</code>. Repository and branch values are passed as command arguments rather than interpolated into a shell command. The optional prebuild workflow is fetched from an exact published actions release tag rather than mutable <code>main</code>.</p>
 <p>setupmjr-owned HTTP downloads use a finite request timeout and report the request URL and HTTP status on failures such as <code>403 Forbidden</code>. Failed or incomplete file downloads are discarded rather than being left at their final destination path.</p>
 </section>
 <section id="install-repos" class="level2">
@@ -272,22 +269,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="repo-action" class="level2">
 <h2 class="anchored" data-anchor-id="repo-action"><code>repo action</code></h2>
-<p>This command simplifies adding pre-configured GitHub Actions to your repository.</p>
+<p>This command installs a workflow example published by the canonical <a href="https://github.com/MiguelRodo/actions"><code>MiguelRodo/actions</code></a> repository:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> repo action <span class="op">&lt;</span>action-name<span class="op">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>It downloads the specified action workflow from the <a href="https://github.com/MiguelRodo/actions">MiguelRodo/actions</a> repository into your <code>.github/workflows/</code> directory.</p>
-<section id="available-actions" class="level3">
-<h3 class="anchored" data-anchor-id="available-actions">Available Actions</h3>
-<p>The following actions can be added:</p>
-<ul>
-<li><strong><code>prebuild-devcontainer</code></strong>: Builds and pushes a pre-built Dev Container image to GHCR whenever a SemVer tag is pushed. Read more <a href="https://github.com/MiguelRodo/actions/tree/main/prebuild-devcontainer">here</a>.</li>
-<li><strong><code>publish-quarto-site</code></strong>: Renders and publishes a Quarto site to the <code>gh-pages</code> branch whenever the main branch is updated. Read more <a href="https://github.com/MiguelRodo/actions/tree/main/publish-quarto-site">here</a>.</li>
-<li><strong><code>version-release</code></strong>: Bumps versions in Python or R packages, creates a versioned git tag, and publishes a GitHub Release. Read more <a href="https://github.com/MiguelRodo/actions/tree/main/version-release">here</a>.</li>
-</ul>
-</section>
+<p><code>setupmjr</code> first resolves the latest published actions release, then downloads <code>examples/&lt;action-name&gt;.yml</code> from that exact release tag into <code>.github/workflows/</code>. It keeps no embedded workflow copies and does not fall back to mutable <code>actions/main</code>.</p>
+<p>The available names are therefore the files present in the <code>examples</code> directory of the latest published actions release. For the current v3 release this includes <code>prebuild-devcontainer</code>, <code>publish-quarto-site</code>, and <code>version-release</code>. If a requested example is not published in that release, the command fails instead of installing a local or development copy.</p>
 </section>
 <section id="details-2" class="level2 callout-info" data-collapse="true">
 <h2 class="anchored" data-anchor-id="details-2">Details</h2>
-<p>When <code>repo action &lt;action-name&gt;</code> needs to fetch a workflow example from <code>MiguelRodo/actions</code>, the new file is staged in <code>.github/workflows/</code> and replaces the final path only after the download completes successfully.</p>
+<p>Workflow downloads are staged in <code>.github/workflows/</code> and replace the final path only after the response completes successfully. Errors include the requested action name, resolved release tag, and HTTP status where available.</p>
 </section>
 
 
