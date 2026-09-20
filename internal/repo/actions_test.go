@@ -15,7 +15,7 @@ func TestGeneratedPrebuildWorkflowUsesSupportedVersionInputs(t *testing.T) {
 		"version: ${{ inputs.version }}",
 		"bump_type: ${{ inputs.bump_type != 'none' && inputs.bump_type || '' }}",
 		"version_force: ${{ inputs.version_force }}",
-		"uses: MiguelRodo/actions/prebuild-devcontainer@v2",
+		"uses: MiguelRodo/actions/prebuild-devcontainer@v3",
 	} {
 		if !strings.Contains(workflow, want) {
 			t.Fatalf("generated prebuild workflow missing %q", want)
@@ -37,7 +37,7 @@ func TestGeneratedReleaseWorkflowsUseConsistentManualVersionControls(t *testing.
 			"type: boolean\n        default: false",
 			"bump_type: ${{ inputs.bump_type != 'none' && inputs.bump_type || '' }}",
 			"version_force: ${{ inputs.version_force }}",
-			"uses: MiguelRodo/actions/" + name + "@v2",
+			"uses: MiguelRodo/actions/" + name + "@v3",
 		} {
 			if !strings.Contains(workflow, want) {
 				t.Fatalf("generated %s workflow missing %q", name, want)
@@ -74,7 +74,7 @@ func TestGeneratedAPTPruneUsesRetentionChoice(t *testing.T) {
 	for _, want := range []string{
 		"type: choice\n        default: latest-per-major",
 		"- latest-per-major\n          - latest-per-minor\n          - latest",
-		"uses: MiguelRodo/actions/apt-repo-prune@v2",
+		"uses: MiguelRodo/actions/apt-repo-prune@v3",
 	} {
 		if !strings.Contains(workflow, want) {
 			t.Fatalf("generated APT prune workflow missing %q", want)

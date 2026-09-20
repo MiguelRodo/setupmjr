@@ -41,7 +41,7 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@v4
-      - uses: MiguelRodo/actions/prebuild-devcontainer@v2
+      - uses: MiguelRodo/actions/prebuild-devcontainer@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           version: ${{ inputs.version }}
@@ -93,7 +93,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: MiguelRodo/actions/version-release@v2
+      - uses: MiguelRodo/actions/version-release@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           version: ${{ inputs.version }}
@@ -151,7 +151,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: MiguelRodo/actions/go-version-release@v2
+      - uses: MiguelRodo/actions/go-version-release@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           apt_repo_token: ${{ secrets.APT_REPO_TOKEN }}
@@ -203,7 +203,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: MiguelRodo/actions/r-version-release@v2
+      - uses: MiguelRodo/actions/r-version-release@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           version: ${{ inputs.version }}
@@ -233,7 +233,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: MiguelRodo/actions/apt-repo-prune@v2
+      - uses: MiguelRodo/actions/apt-repo-prune@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           retention: ${{ inputs.retention || 'latest-per-major' }}
@@ -257,7 +257,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: MiguelRodo/actions/publish-quarto-site@v2
+      - uses: MiguelRodo/actions/publish-quarto-site@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 `,
