@@ -68,9 +68,8 @@ func TestGeneratedGoReleaseKeepsCredentialsOutOfManualInputs(t *testing.T) {
 
 func TestGeneratedAPTPruneUsesRetentionChoice(t *testing.T) {
 	workflow := actionWorkflows["apt-repo-prune"]
-	want := "retention:\n        description:\n"
-	if !strings.Contains(workflow, want) {
-		t.Fatalf("generated APT prune workflow missing retention input")
+	if !strings.Contains(workflow, "retention:\n        description:") {
+		t.Fatal("generated APT prune workflow missing retention input")
 	}
 	for _, want := range []string{
 		"type: choice\n        default: latest-per-major",
