@@ -50,14 +50,15 @@ bash uninstall-local.sh
 
 ### Homebrew
 
-The published GitHub repository `MiguelRodo/homebrew-tap` is the Homebrew tap `MiguelRodo/tap`:
+The published GitHub repository `MiguelRodo/homebrew-tap` is the Homebrew tap `MiguelRodo/tap`. Add and trust it once, then install setupmjr:
 
 ```bash
 brew tap MiguelRodo/tap
+brew trust MiguelRodo/tap
 brew install MiguelRodo/tap/setupmjr
 ```
 
-The formula depends on `MiguelRodo/tap/repos`, so Homebrew installs `repos` automatically.
+Homebrew 6 requires explicit trust for non-official taps. The setupmjr formula depends on `MiguelRodo/tap/repos`, so trusting this small related-tools tap allows Homebrew to resolve and install `repos` automatically.
 
 ### User-local release installer
 
