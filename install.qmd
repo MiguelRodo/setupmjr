@@ -23,24 +23,6 @@ sudo apt-get install -y setupmjr
 
 The Debian package depends on `bash` and `repos`, so APT resolves those dependencies through the repository.
 
-### User-local release installer
-
-For a no-sudo installation:
-
-```bash
-git clone https://github.com/MiguelRodo/setupmjr.git
-cd setupmjr
-bash install-local.sh
-```
-
-The installer downloads the latest release binary, verifies it against `checksums.txt` when SHA-256 tooling is available, and writes to the first writable directory already on `PATH`. If none is writable, it falls back to `~/.local/bin` and prints the required `PATH` instruction. If `repos` is missing, the installed binary runs `setupmjr install --repos`.
-
-To uninstall an installation recorded by this installer:
-
-```bash
-bash uninstall-local.sh
-```
-
 ## macOS
 
 ### Homebrew
@@ -55,7 +37,25 @@ brew install MiguelRodo/tap/setupmjr
 
 Homebrew 6 requires explicit trust for non-official taps. The setupmjr formula depends on `MiguelRodo/tap/repos`, so trusting the tap allows Homebrew to resolve that dependency automatically.
 
-For a no-sudo release install instead, use the [user-local release installer](#user-local-release-installer). It supports both `amd64` and `arm64` release binaries.
+## Linux / macOS user-local installer
+
+For a no-sudo release installation on Linux or macOS:
+
+```bash
+git clone https://github.com/MiguelRodo/setupmjr.git
+cd setupmjr
+bash install-local.sh
+```
+
+The installer downloads the latest release binary, verifies it against `checksums.txt` when SHA-256 tooling is available, and writes to the first writable directory already on `PATH`. If none is writable, it falls back to `~/.local/bin` and prints the required `PATH` instruction. If `repos` is missing, the installed binary runs `setupmjr install --repos`.
+
+The installer supports both `amd64` and `arm64` release binaries.
+
+To uninstall an installation recorded by this installer:
+
+```bash
+bash uninstall-local.sh
+```
 
 ## Windows
 
