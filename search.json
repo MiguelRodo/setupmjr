@@ -196,6 +196,13 @@
     "text": "Python wrapper\nThe Python package is deliberately a thin wrapper around the installed CLI. Install setupmjr first using one of the methods above and ensure it is on PATH, then install the wrapper from this repository:\npython -m pip install git+https://github.com/MiguelRodo/setupmjr.git\nUse run() to delegate arguments to the CLI. It raises on a non-zero exit by default and forwards additional keyword arguments to subprocess.run:\nfrom setupmjr import run\n\nversion = run(\"--version\", capture_output=True, text=True)\nprint(version.stdout)\nThe wrapper does not duplicate setupmjr commands or configuration in Python."
   },
   {
+    "objectID": "install.html#r-wrapper",
+    "href": "install.html#r-wrapper",
+    "title": "Installation",
+    "section": "R wrapper",
+    "text": "R wrapper\nThe R package follows the same model: install setupmjr first and keep the binary on PATH, then install the package from this repository with remotes:\nremotes::install_github(\"MiguelRodo/setupmjr\")\nUse setupmjr::run() to pass arguments to the CLI. stdout and stderr are passed directly to base R’s system2():\nversion &lt;- setupmjr::run(\"--version\", stdout = TRUE)\nprint(version)\nThe R wrapper contains no duplicate command implementation or runtime package dependencies."
+  },
+  {
     "objectID": "install.html#managed-components",
     "href": "install.html#managed-components",
     "title": "Installation",
