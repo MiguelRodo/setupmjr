@@ -144,6 +144,9 @@ Write-Host "Installed $binaryName ($downloadedAsset) to $target" -ForegroundColo
 Write-Host "Installing bundled dependencies..."
 if (!(Get-Command repos -ErrorAction SilentlyContinue)) {
     & "$target" install --repos
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to install repos dependency (exit code $LASTEXITCODE)."
+    }
 }
 
 Write-Host "Run: $binaryName --help"
