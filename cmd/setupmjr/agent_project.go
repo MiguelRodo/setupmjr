@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"os/exec"
@@ -17,41 +16,15 @@ var runExternalCommand = func(name string, args ...string) error {
 	return cmd.Run()
 }
 
-func handleProject(args []string) error {
-	fs := flag.NewFlagSet("project", flag.ContinueOnError)
-	ghSkill := fs.Bool("gh-skill", false, "Install the github-projects skill for universal agents at user scope")
-	pj := fs.Bool("pj", false, "Install or update the pj launcher from MiguelRodo/pj")
-	if err := fs.Parse(args); err != nil {
-		return err
-	}
-	if fs.NArg() != 0 {
-		return fmt.Errorf("project does not accept positional arguments")
-	}
-	if !*ghSkill && !*pj {
-		return fmt.Errorf("project requires --gh-skill and/or --pj")
-	}
-
-	if *ghSkill {
-		if err := runExternalCommand(
-			"gh", "skill", "install",
-			"MiguelRodo/github-projects-skill", "github-projects",
-			"--agent", "universal",
-			"--scope", "user",
-			"--force",
-			"--pin", "main",
-		); err != nil {
-			return fmt.Errorf("install github-projects skill: %w", err)
-		}
-		fmt.Println("Installed github-projects at universal user scope.")
-	}
-
-	if *pj {
-		if err := installPj(); err != nil {
-			return fmt.Errorf("install pj launcher: %w", err)
-		}
-		fmt.Println("Installed or updated pj launcher from canonical source MiguelRodo/pj.")
-	}
-	return nil
+func installGhSkill() error {
+	return runExternalCommand(
+		"gh", "skill", "install",
+		"MiguelRodo/github-projects-skill", "github-projects",
+		"--agent", "universal",
+		"--scope", "user",
+		"--force",
+		"--pin", "main",
+	)
 }
 
 func installPj() error {
