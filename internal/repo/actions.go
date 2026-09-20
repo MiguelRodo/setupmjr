@@ -10,9 +10,25 @@ on:
       - '*-v*'
   workflow_dispatch:
     inputs:
-      tag:
-        description: 'Tag to build (e.g. v1.2.3 or main-v1.2.3)'
-        required: true
+      version:
+        description: 'Exact image version (e.g. v1.2.3). Leave blank to bump a component.'
+        required: false
+        type: string
+      bump_type:
+        description: 'Component to bump. Choose none when entering an exact version.'
+        required: false
+        type: choice
+        default: none
+        options:
+          - none
+          - patch
+          - minor
+          - major
+      version_force:
+        description: 'Allow a non-sequential version, such as a downgrade or skipped increment.'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   build:
@@ -28,7 +44,9 @@ jobs:
       - uses: MiguelRodo/actions/prebuild-devcontainer@v2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ github.event.inputs.tag }}
+          version: ${{ inputs.version }}
+          bump_type: ${{ inputs.bump_type != 'none' && inputs.bump_type || '' }}
+          version_force: ${{ inputs.version_force }}
 `,
 	"version-release": `name: Version and Release
 
