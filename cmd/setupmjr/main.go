@@ -58,18 +58,13 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
+	case "install":
+		if err := handleInstall(os.Args[2:]); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
 	case "agent":
 		if err := handleAgent(os.Args[2:]); err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-			os.Exit(1)
-		}
-	case "project":
-		if err := handleProject(os.Args[2:]); err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-			os.Exit(1)
-		}
-	case "multirepo":
-		if err := handleMultirepo(os.Args[2:]); err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
@@ -109,10 +104,8 @@ Commands:
   repo readme
   repo devcontainer [--repo <owner/repo>@<branch>] [--build]
   repo action <action-name>
-  repo install repos
-  agent [-a <endpoint>] [-p [g|d]] [-c [o|d]] [-s [agy|deepseek]] [--config] [--list]
-  project [--gh-skill] [--pj]
-  multirepo <command>`)
+  install [--repos] [--pj] [--gh-skill]
+  agent [-a <endpoint>] [-p [g|d]] [-c [o|d]] [-s [agy|deepseek]] [--config] [--list]`)
 }
 
 func handleHPC(args []string) error {
@@ -164,10 +157,9 @@ func handleShellCmd(args []string, shellName string) error {
 	case "path":
 		return shell.SetupShellPath(shellName)
 	case "login":
-		// Parse the optional --not-profile flag for the login subcommand
 		fs := flag.NewFlagSet("login", flag.ExitOnError)
 		notProfile := fs.Bool("not-profile", false, "Do not configure profile files (~/.profile, etc.)")
-		fs.Parse(args[1:]) // parse arguments after 'login'
+		fs.Parse(args[1:])
 
 		return shell.SetupShellLogin(shellName, *notProfile)
 	default:
@@ -200,8 +192,6 @@ func handleGit(args []string) error {
 		local := fs.Bool("local", false, "Use local git config")
 		remove := fs.Bool("remove", false, "Remove existing credential helpers in the selected scope")
 
-		// We need to parse flags. They could be before or after the subcommand.
-		// auth text --system OR auth --system text
 		loginSubcmd := ""
 		authArgs := args[1:]
 
@@ -248,7 +238,7 @@ func handleGit(args []string) error {
 
 func handleRepo(args []string) error {
 	if len(args) == 0 {
-		return fmt.Errorf("repo requires a subcommand: readme, devcontainer, action, or install repos")
+		return fmt.Errorf("repo requires a subcommand: readme, devcontainer, or action")
 	}
 
 	subcmd := args[0]
@@ -275,20 +265,7 @@ func handleRepo(args []string) error {
 			return fmt.Errorf("repo action requires an action name")
 		}
 		return repo.SetupRepoAction(args[1])
-	case "install":
-		if len(args) > 1 && args[1] == "repos" {
-			return repo.SetupRepoInstallRepos()
-		}
-		return fmt.Errorf("unknown repo install subcommand")
 	default:
 		return fmt.Errorf("unknown repo subcommand: %s", subcmd)
 	}
-}
-
-func handleMultirepo(args []string) error {
-	if len(args) == 0 {
-		return fmt.Errorf("multirepo requires a command")
-	}
-
-	return repo.RunReposCommand(args)
 }
