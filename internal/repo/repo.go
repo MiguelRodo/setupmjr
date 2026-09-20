@@ -156,20 +156,17 @@ func SetupRepoAction(actionName string) error {
 		return err
 	}
 
+	tag, err := getLatestGitHubReleaseTag("MiguelRodo/actions")
+	if err != nil {
+		return fmt.Errorf("failed to fetch latest actions release: %w", err)
+	}
+	url := fmt.Sprintf("https://raw.githubusercontent.com/MiguelRodo/actions/%s/examples/%s.yml", tag, actionName)
 	dest := filepath.Join(".github", "workflows", actionName+".yml")
-
-	if content, exists := actionWorkflows[actionName]; exists {
-		if err := os.WriteFile(dest, []byte(content), 0644); err != nil {
-			return fmt.Errorf("failed to write action %s: %w", actionName, err)
-		}
-	} else {
-		url := fmt.Sprintf("https://raw.githubusercontent.com/MiguelRodo/actions/main/examples/%s.yml", actionName)
-		if err := netutil.DownloadFile(url, dest); err != nil {
-			return fmt.Errorf("failed to download action %s: %w", actionName, err)
-		}
+	if err := netutil.DownloadFile(url, dest); err != nil {
+		return fmt.Errorf("failed to download action %s from MiguelRodo/actions@%s: %w", actionName, tag, err)
 	}
 
-	fmt.Printf("Successfully added %s to .github/workflows\n", actionName)
+	fmt.Printf("Successfully added %s from MiguelRodo/actions@%s to .github/workflows\n", actionName, tag)
 	return nil
 }
 
