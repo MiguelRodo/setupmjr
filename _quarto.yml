@@ -10,17 +10,17 @@ website:
       - href: install.qmd
         text: Installation
       - href: hpc.qmd
-        text: hpc
+        text: HPC
       - href: shell.qmd
-        text: shell
+        text: Shell
       - href: r.qmd
-        text: r
+        text: R setup
       - href: git.qmd
-        text: git
+        text: Git
       - href: repo.qmd
-        text: repo
+        text: Repository
       - href: agent.qmd
-        text: agent
+        text: Agents
 
 format:
   html:
