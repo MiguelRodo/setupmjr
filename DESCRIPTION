@@ -1,0 +1,8 @@
+Package: setupmjr
+Type: Package
+Title: Thin R Wrapper for the setupmjr CLI
+Version: 0.1.0
+Authors@R: person("Miguel", "Rodo", email = "miguel.rodo@uct.ac.za", role = c("aut", "cre"))
+Description: Delegates to the installed setupmjr command so R callers use the same CLI implementation.
+License: MIT
+Encoding: UTF-8
