@@ -3,7 +3,7 @@ title: "r"
 toc: true
 ---
 
-The `r` subcommand configures R-related user and project files.
+The `r` subcommand configures R-related user and project files. It is separate from the thin R language wrapper documented under [Installation](install.qmd#language-wrappers).
 
 ## Command
 
@@ -32,7 +32,7 @@ setupmjr r --not-lintr
 setupmjr r --switch-r
 ```
 
-The HPC wrapper accepts the same R flags, for example:
+The HPC command accepts the same R flags:
 
 ```bash
 setupmjr hpc r --not-lintr
