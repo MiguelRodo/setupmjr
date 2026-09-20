@@ -193,6 +193,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#installer-script" id="toc-installer-script" class="nav-link" data-scroll-target="#installer-script">Installer script</a></li>
   </ul></li>
   <li><a href="#from-source" id="toc-from-source" class="nav-link" data-scroll-target="#from-source">From source</a></li>
+  <li><a href="#python-wrapper" id="toc-python-wrapper" class="nav-link" data-scroll-target="#python-wrapper">Python wrapper</a></li>
   <li><a href="#managed-components" id="toc-managed-components" class="nav-link" data-scroll-target="#managed-components">Managed components</a></li>
   <li><a href="#release-assets" id="toc-release-assets" class="nav-link" data-scroll-target="#release-assets">Release assets</a></li>
   <li><a href="#verify-installation" id="toc-verify-installation" class="nav-link" data-scroll-target="#verify-installation">Verify installation</a></li>
@@ -296,14 +297,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> setupmjr</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="ex">go</span> build <span class="at">-o</span> setupmjr ./cmd/setupmjr</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
+<section id="python-wrapper" class="level2">
+<h2 class="anchored" data-anchor-id="python-wrapper">Python wrapper</h2>
+<p>The Python package is deliberately a thin wrapper around the installed CLI. Install <code>setupmjr</code> first using one of the methods above and ensure it is on <code>PATH</code>, then install the wrapper from this repository:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> pip install git+https://github.com/MiguelRodo/setupmjr.git</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Use <code>run()</code> to delegate arguments to the CLI. It raises on a non-zero exit by default and forwards additional keyword arguments to <code>subprocess.run</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> setupmjr <span class="im">import</span> run</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>version <span class="op">=</span> run(<span class="st">"--version"</span>, capture_output<span class="op">=</span><span class="va">True</span>, text<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(version.stdout)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The wrapper does not duplicate setupmjr commands or configuration in Python.</p>
+</section>
 <section id="managed-components" class="level2">
 <h2 class="anchored" data-anchor-id="managed-components">Managed components</h2>
 <p>After installing <code>setupmjr</code>, use its top-level <code>install</code> command for the external tools whose installation glue it owns:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install <span class="at">--repos</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install <span class="at">--pj</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install <span class="at">--gh-skill</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install <span class="at">--repos</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install <span class="at">--pj</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install <span class="at">--gh-skill</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Flags may be combined. Installers run in a fixed order and stop at the first error:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install <span class="at">--repos</span> <span class="at">--pj</span> <span class="at">--gh-skill</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install <span class="at">--repos</span> <span class="at">--pj</span> <span class="at">--gh-skill</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li><code>--repos</code> installs the latest released <code>MiguelRodo/repos</code> binary into <code>~/.local/bin</code>. Run <code>repos</code> directly afterwards.</li>
 <li><code>--pj</code> installs or updates <code>pj</code> from <code>MiguelRodo/pj</code> by shallow-cloning the floating <code>v0</code> tag and running its installer.</li>
@@ -320,8 +332,8 @@ setupmjr_windows_&lt;arch&gt;.exe</code></pre>
 </section>
 <section id="verify-installation" class="level2">
 <h2 class="anchored" data-anchor-id="verify-installation">Verify installation</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> <span class="at">--version</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> <span class="at">--help</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> <span class="at">--version</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> <span class="at">--help</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
 </section>

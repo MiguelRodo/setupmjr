@@ -189,6 +189,13 @@
     "text": "From source\nWith Go installed, install directly from the module path:\ngo install github.com/MiguelRodo/setupmjr/cmd/setupmjr@latest\nOr build a local clone:\ngit clone https://github.com/MiguelRodo/setupmjr.git\ncd setupmjr\ngo build -o setupmjr ./cmd/setupmjr"
   },
   {
+    "objectID": "install.html#python-wrapper",
+    "href": "install.html#python-wrapper",
+    "title": "Installation",
+    "section": "Python wrapper",
+    "text": "Python wrapper\nThe Python package is deliberately a thin wrapper around the installed CLI. Install setupmjr first using one of the methods above and ensure it is on PATH, then install the wrapper from this repository:\npython -m pip install git+https://github.com/MiguelRodo/setupmjr.git\nUse run() to delegate arguments to the CLI. It raises on a non-zero exit by default and forwards additional keyword arguments to subprocess.run:\nfrom setupmjr import run\n\nversion = run(\"--version\", capture_output=True, text=True)\nprint(version.stdout)\nThe wrapper does not duplicate setupmjr commands or configuration in Python."
+  },
+  {
     "objectID": "install.html#managed-components",
     "href": "install.html#managed-components",
     "title": "Installation",
