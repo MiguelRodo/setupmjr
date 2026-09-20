@@ -30,19 +30,23 @@ func TestGetTimesOut(t *testing.T) {
 }
 
 func TestGetPreservesHTTPStatus(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		http.Error(w, "rate limited", http.StatusForbidden)
-	}))
-	defer server.Close()
+	for _, status := range []int{http.StatusForbidden, http.StatusNoContent} {
+		t.Run(http.StatusText(status), func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(status)
+			}))
+			defer server.Close()
 
-	_, err := Get(server.URL)
-	if err == nil {
-		t.Fatal("403 request unexpectedly succeeded")
-	}
-	for _, want := range []string{server.URL, "403 Forbidden"} {
-		if !strings.Contains(err.Error(), want) {
-			t.Fatalf("error %q does not contain %q", err, want)
-		}
+			_, err := Get(server.URL)
+			if err == nil {
+				t.Fatalf("%d request unexpectedly succeeded", status)
+			}
+			for _, want := range []string{server.URL, http.StatusText(status)} {
+				if !strings.Contains(err.Error(), want) {
+					t.Fatalf("error %q does not contain %q", err, want)
+				}
+			}
+		})
 	}
 }
 
