@@ -3,7 +3,7 @@ title: "git"
 toc: true
 ---
 
-The `git` subcommand configures Git identity and authentication.
+The `git` subcommand configures Git identity and GitHub authentication.
 
 ## Commands
 
@@ -13,82 +13,62 @@ git profile
 git auth [text|cache|mngr] [--system|--local] [--remove]
 ```
 
-## Git setup
+## Default setup
 
 ```bash
 setupmjr git
 ```
 
-This configures your Git name/email when they are missing and then configures GitHub authentication.
+This fills in missing Git name/email values and then configures GitHub authentication.
 
-`setupmjr git auth` chooses between two durable authentication paths:
+`setupmjr git auth` prefers a durable GitHub CLI login. If `gh auth login` has already authenticated `github.com`, setupmjr runs `gh auth setup-git --hostname github.com`. Otherwise it uses the protected-token fallback described below.
 
-1. If `gh` has a persistent login for `github.com`, setupmjr runs `gh auth setup-git --hostname github.com` and lets GitHub CLI own the credential.
-2. Otherwise, setupmjr uses its headless/HPC fallback and stores one token at `~/.config/setupmjr/auth/github.token`.
+The persistent-login check deliberately ignores `GH_TOKEN` and `GITHUB_TOKEN`, so an environment-only token is not mistaken for a durable GitHub CLI login.
 
-The GitHub CLI check deliberately ignores `GH_TOKEN` and `GITHUB_TOKEN`, so an environment-only token is not mistaken for a durable `gh auth login`.
+## Scope and replacement
 
-### Scope and replacement flags
-
-Authentication config is global by default. Use `--system` or `--local` to select another Git config scope:
+Authentication configuration is global by default. Use `--system` or `--local` to select another Git config scope:
 
 ```bash
 setupmjr git auth --local
 ```
 
-Use `--remove` when you want setupmjr to clear existing credential helpers in the selected scope before configuring the requested authentication path:
+`--remove` clears existing credential helpers in the selected scope before setupmjr configures the requested authentication path:
 
 ```bash
 setupmjr git auth --local --remove
 ```
 
-Do not combine `--system` and `--local`.
+Use one scope flag for clarity. If both `--system` and `--local` are supplied, the current CLI selects `--system`.
 
-### GitHub CLI path
+## Protected-token fallback
 
-On a machine where GitHub CLI credential storage works well, authenticate once:
+When no persistent `gh` login is available, setupmjr reuses the first available credential from:
 
-```bash
-gh auth login
-setupmjr git auth
-```
+1. `GH_TOKEN`;
+2. `GITHUB_TOKEN`;
+3. `~/.config/setupmjr/auth/github.token`;
+4. a token entered at the prompt.
 
-The resulting Git credential helper is the standard GitHub CLI helper. Command-line Git and tools such as R `gitcreds` can consume the same Git credential interface.
+The auth directory is mode `0700` and `github.token` is mode `0600` on POSIX systems. Git is configured with a host-specific credential helper that reads this file when Git requests a credential; the literal token is not written into Git configuration or shell startup files.
 
-### Headless/HPC fallback
+For tools that consume `GH_TOKEN`, setupmjr places a non-secret managed block in Bash and Zsh `login.sh` files. The block reads the protected token file when the shell starts.
 
-If no persistent `gh` login is available, `setupmjr git auth` reuses, in order:
+`setupmjr git auth text` explicitly selects this fallback. The `text` name remains for backwards compatibility.
 
-- `GH_TOKEN`;
-- `GITHUB_TOKEN`;
-- an existing `~/.config/setupmjr/auth/github.token`;
-- otherwise a token entered at the prompt.
+## Migration
 
-The token is stored once with private permissions: the auth directory is mode `0700` and `github.token` is mode `0600` on POSIX systems. The literal token value is not copied into `.gitconfig`, `.bashrc`, `.zshrc`, `.bashrc.d/login.sh`, or `.zshrc.d/login.sh`.
+Current authentication setup removes active legacy `GH_TOKEN=` and `GITHUB_USERNAME=` assignments written by older setupmjr versions. It also migrates the short-lived managed block that older versions could place directly in `.bashrc` or `.zshrc` into the corresponding `login.sh` file.
 
-Git is configured with a host-specific credential helper that reads the protected token file only when Git requests a credential. For shell tools that consume `GH_TOKEN`, setupmjr places a small non-secret managed block in `~/.bashrc.d/login.sh` and `~/.zshrc.d/login.sh`; those files read the same protected token file when the shell starts. `.bashrc` and `.zshrc` only source their corresponding `rc.d` directories.
+## Consumers
 
-`setupmjr git auth text` explicitly selects this protected-token fallback. The `text` name is retained for backwards compatibility with the older command.
+Both authentication paths use Git's standard credential interface. That is the integration boundary for command-line Git, R `gitcreds` and VS Code Dev Containers' credential forwarding.
 
-### Migration from older setupmjr authentication
-
-Older versions of setupmjr could write `GH_TOKEN` directly into `.bashrc.d/login.sh` and `.zshrc.d/login.sh`. Running the current authentication setup removes active legacy `GH_TOKEN=` and `GITHUB_USERNAME=` assignments from those setupmjr login files before configuring the new strategy.
-
-A short-lived version also placed the non-secret managed block directly in `.bashrc` and `.zshrc`. Re-running `setupmjr git auth` migrates that block into the existing `login.sh` files automatically.
-
-### Dev Containers
-
-VS Code Dev Containers supports Git credential-helper forwarding and copies Git configuration into the container. The preferred path is therefore to configure authentication once on the HPC host with `setupmjr git auth` and let Dev Containers reuse that Git credential helper.
-
-The setupmjr fallback is deliberately implemented through the standard Git credential-helper interface for this reason. If a particular remote-HPC/container combination does not forward the helper correctly, test that environment before adding container-specific secret propagation. Do not bake a PAT into `devcontainer.json`, a Dockerfile, an image, or a repository file.
-
-### R `gitcreds`
-
-`gitcreds` asks Git's credential subsystem for credentials. Both setupmjr strategies configure that same subsystem, so `gitcreds::gitcreds_get("https://github.com")` can use the effective GitHub credential without a separate R-specific token store.
+For Remote SSH → HPC → Dev Container workflows, configure authentication on the host first. If a container cannot reuse the helper, treat that as a forwarding problem rather than copying a PAT into `devcontainer.json`, a Dockerfile, an image or a repository file.
 
 ## Legacy explicit helpers
 
-The older explicit helper commands remain available but are not part of the default authentication path:
+These older explicit helpers remain available but are not part of the default authentication path:
 
 ```bash
 setupmjr git auth cache
