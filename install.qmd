@@ -3,7 +3,7 @@ title: "Installation"
 toc: true
 ---
 
-`setupmjr` is distributed as a compiled Go CLI binary. The canonical installation paths are the published APT repository, the release installer scripts, Scoop on Windows, or a Go source build.
+`setupmjr` is distributed as a compiled Go CLI binary. The canonical installation paths are the published APT repository, Homebrew on macOS, the release installer scripts, Scoop on Windows, or a Go source build.
 
 ## Ubuntu / Debian
 
@@ -48,7 +48,20 @@ bash uninstall-local.sh
 
 ## macOS
 
-Use the same user-local release installer:
+### Homebrew
+
+The published GitHub repository `MiguelRodo/homebrew-tap` is the Homebrew tap `MiguelRodo/tap`:
+
+```bash
+brew tap MiguelRodo/tap
+brew install MiguelRodo/tap/setupmjr
+```
+
+The formula depends on `MiguelRodo/tap/repos`, so Homebrew installs `repos` automatically.
+
+### User-local release installer
+
+Alternatively, use the no-sudo release installer:
 
 ```bash
 git clone https://github.com/MiguelRodo/setupmjr.git
