@@ -81,6 +81,10 @@ func main() {
 
 func printUsage() {
 	fmt.Println(`setupmjr - Cross-platform setup utility
+
+Usage:
+  setupmjr <command> [options]
+
 Commands:
   hpc
   hpc scratch
@@ -88,9 +92,9 @@ Commands:
   hpc slurm
   hpc git
   hpc r [--not-radian] [--not-lintr] [--switch-r]
-  shell <shell> rc.d
-  shell <shell> path
-  shell <shell> login [--not-profile]
+  shell <bash|zsh> rc.d
+  shell <bash|zsh> path
+  shell <bash|zsh> login [--not-profile]
   bash rc.d
   bash path
   bash login [--not-profile]
@@ -102,7 +106,11 @@ Commands:
   repo devcontainer [--repo <owner/repo>@<branch>] [--build]
   repo action <action-name>
   install [--repos] [--pj] [--gh-skill]
-  agent [-a <endpoint>] [-p [g|d]] [-c [o|d]] [-s [agy|deepseek]] [--config] [--list]`)
+  agent [options]
+  version
+  help
+
+Run 'setupmjr agent --help' for agent options.`)
 }
 
 func handleHPC(args []string) error {
