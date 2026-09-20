@@ -82,25 +82,22 @@ func main() {
 func printUsage() {
 	fmt.Println(`setupmjr - Cross-platform setup utility
 Commands:
-  hpc       Master HPC setup
+  hpc
   hpc scratch
   hpc apptainer
   hpc slurm
   hpc git
-  hpc r
+  hpc r [--not-radian] [--not-lintr] [--switch-r]
   shell <shell> rc.d
   shell <shell> path
-  shell <shell> login
+  shell <shell> login [--not-profile]
   bash rc.d
   bash path
-  bash login
+  bash login [--not-profile]
   r [--not-radian] [--not-lintr] [--switch-r]
   git
   git profile
-  git auth
-  git auth text
-  git auth cache
-  git auth mngr
+  git auth [text|cache|mngr] [--system|--local] [--remove]
   repo readme
   repo devcontainer [--repo <owner/repo>@<branch>] [--build]
   repo action <action-name>
