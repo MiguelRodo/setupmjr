@@ -7,6 +7,28 @@ toc: true
 Install it via system package managers, release installers, or from source.
 Optional R and Python wrappers dispatch to the installed `setupmjr` binary.
 
+## Managed components
+
+After installing `setupmjr`, use the top-level `install` command for external tools that `setupmjr` owns the installation glue for:
+
+```bash
+setupmjr install --repos
+setupmjr install --pj
+setupmjr install --gh-skill
+```
+
+Flags may be combined. Installers run in a fixed order and stop at the first error:
+
+```bash
+setupmjr install --repos --pj --gh-skill
+```
+
+- `--repos` installs the latest released `MiguelRodo/repos` binary into `~/.local/bin`. Run `repos` directly afterwards; `setupmjr` does not proxy its commands.
+- `--pj` installs or updates `pj` from the canonical `MiguelRodo/pj` repository by shallow-cloning the floating `v0` tag and running its installer.
+- `--gh-skill` installs `github-projects` from `MiguelRodo/github-projects-skill` for universal agents at user scope, pinned to `main`.
+
+At least one target flag is required. The former `setupmjr repo install repos`, `setupmjr project --pj`, `setupmjr project --gh-skill`, and `setupmjr multirepo` paths are not supported.
+
 ## Release asset matrix
 
 GitHub Releases publish Go CLI binaries for:

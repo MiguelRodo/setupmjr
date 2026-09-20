@@ -3,7 +3,6 @@ package main
 import (
 	"os"
 	"path/filepath"
-	"reflect"
 	"strconv"
 	"strings"
 	"testing"
@@ -279,75 +278,6 @@ func TestSwitchCodexProviderCanAdoptExistingDeepSeekInstallation(t *testing.T) {
 	}
 	if provider, _ := currentCodexProvider(home); provider != "deepseek" {
 		t.Fatalf("provider after cached DeepSeek restore = %q", provider)
-	}
-}
-
-func TestHandleProjectGhSkillUsesUniversalUserScope(t *testing.T) {
-	originalRunner := runExternalCommand
-	defer func() { runExternalCommand = originalRunner }()
-
-	var gotName string
-	var gotArgs []string
-	runExternalCommand = func(name string, args ...string) error {
-		gotName = name
-		gotArgs = append([]string(nil), args...)
-		return nil
-	}
-
-	if err := handleProject([]string{"--gh-skill"}); err != nil {
-		t.Fatalf("handleProject failed: %v", err)
-	}
-
-	if gotName != "gh" {
-		t.Fatalf("command = %q, want gh", gotName)
-	}
-	wantArgs := []string{
-		"skill", "install",
-		"MiguelRodo/github-projects-skill", "github-projects",
-		"--agent", "universal",
-		"--scope", "user",
-		"--force",
-		"--pin", "main",
-	}
-	if !reflect.DeepEqual(gotArgs, wantArgs) {
-		t.Fatalf("args = %#v, want %#v", gotArgs, wantArgs)
-	}
-}
-
-func TestProjectFlagIsLowerCase(t *testing.T) {
-	if err := handleProject([]string{"--GH-skill"}); err == nil {
-		t.Fatal("upper-case --GH-skill unexpectedly succeeded")
-	}
-	if err := handleProject([]string{"--PJ"}); err == nil {
-		t.Fatal("upper-case --PJ unexpectedly succeeded")
-	}
-}
-
-func TestHandleProjectPjConsumesCanonicalSource(t *testing.T) {
-	originalRunner := runExternalCommand
-	defer func() { runExternalCommand = originalRunner }()
-
-	var calls [][]string
-	runExternalCommand = func(name string, args ...string) error {
-		call := append([]string{name}, args...)
-		calls = append(calls, call)
-		return nil
-	}
-
-	if err := handleProject([]string{"--pj"}); err != nil {
-		t.Fatalf("handleProject failed: %v", err)
-	}
-
-	if len(calls) != 2 {
-		t.Fatalf("expected 2 calls, got %d: %#v", len(calls), calls)
-	}
-
-	if calls[0][0] != "git" || calls[0][1] != "clone" || calls[0][2] != "--depth" || calls[0][3] != "1" || calls[0][4] != "https://github.com/MiguelRodo/pj.git" {
-		t.Fatalf("unexpected git clone call: %#v", calls[0])
-	}
-
-	if calls[1][0] != "bash" || !strings.HasSuffix(calls[1][1], "install.sh") {
-		t.Fatalf("unexpected bash install call: %#v", calls[1])
 	}
 }
 

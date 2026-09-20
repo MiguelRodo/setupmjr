@@ -54,25 +54,23 @@ setupmjr agent -s deepseek      # DeepSeek subagent
 
 See [agent.qmd](agent.qmd) for provider switching, snapshots, credentials and subagent behaviour.
 
-To install or update the `pj` operator launcher from its floating `v0` release line:
+Use the top-level `install` command for external tools that `setupmjr` installs or refreshes:
 
 ```bash
-setupmjr project --pj
+setupmjr install --repos
+setupmjr install --pj
+setupmjr install --gh-skill
 ```
 
-To install the shared `github-projects` skill for universal agents at user scope:
+Multiple targets may be installed together:
 
 ```bash
-setupmjr project --gh-skill
+setupmjr install --repos --pj --gh-skill
 ```
 
-Both may be requested together:
+`--pj` follows `MiguelRodo/pj`'s floating `v0` release line. `--gh-skill` installs `MiguelRodo/github-projects-skill` for universal agents at user scope from `main`. After installing `repos`, invoke `repos` directly for repository orchestration rather than routing its commands through `setupmjr`.
 
-```bash
-setupmjr project --pj --gh-skill
-```
-
-See [project.qmd](project.qmd) for the release and ownership details.
+See [install.qmd](install.qmd) for installation and ownership details.
 
 ## Commands and capabilities
 
@@ -80,7 +78,6 @@ See [project.qmd](project.qmd) for the release and ownership details.
 - `setupmjr bash` — Manage Bash environments (`rc.d`, `login`).
 - `setupmjr r` — Set up R environments (e.g., `radian`).
 - `setupmjr git` — Manage Git configuration and authentication.
-- `setupmjr repo` — Manage repositories (e.g., `readme`, `devcontainer`, `action`, `install repos`).
+- `setupmjr repo` — Configure repositories with `readme`, `devcontainer`, and `action`.
+- `setupmjr install [--repos] [--pj] [--gh-skill]` — Install or refresh setupmjr-managed external tools. At least one target flag is required.
 - `setupmjr agent` — Inspect or configure coding agents: `-a` / `--auth <endpoint>` stores endpoint credentials without changing providers, `-p` / `--copilot-provider` switches Copilot between GitHub-managed models and DeepSeek, `-c` / `--codex-provider` switches the primary Codex provider (`openai` or `deepseek`), `-s` / `--subagent` configures the opt-in subagent (`agy` or `deepseek`), and `--config` / `--list` inspect the current or available configuration.
-- `setupmjr project --pj` — Install or update `pj` from `MiguelRodo/pj`'s floating `v0` release tag. It does not install from `pj/main`.
-- `setupmjr project --gh-skill` — Run `gh skill install MiguelRodo/github-projects-skill github-projects --agent universal --scope user --force --pin main`.
