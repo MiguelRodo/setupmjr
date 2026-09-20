@@ -5,27 +5,23 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
 
+	"github.com/MiguelRodo/setupmjr/internal/netutil"
 	"github.com/MiguelRodo/setupmjr/internal/sysutil"
 )
 
 func getLatestGitHubReleaseTag(ownerRepo string) (string, error) {
 	url := fmt.Sprintf("https://api.github.com/repos/%s/releases/latest", ownerRepo)
-	resp, err := http.Get(url)
+	resp, err := netutil.Get(url)
 	if err != nil {
 		return "", err
 	}
 	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("failed to fetch latest release for %s: %s", ownerRepo, resp.Status)
-	}
 
 	var release struct {
 		TagName string `json:"tag_name"`
@@ -115,15 +111,24 @@ func SetupRepoDevcontainer(repo, branch string, build bool) error {
 	}
 	repoDirName := repoNameParts[1] + "-" + branch
 
-	resp, err := http.Get(tarURL)
+	tmpDir, err := os.MkdirTemp("", "setupmjr-devcontainer-*")
 	if err != nil {
+		return fmt.Errorf("create temporary devcontainer download directory: %w", err)
+	}
+	defer os.RemoveAll(tmpDir)
+	tarPath := filepath.Join(tmpDir, "devcontainer.tar.gz")
+	if err := netutil.DownloadFile(tarURL, tarPath); err != nil {
 		return fmt.Errorf("failed to download .devcontainer from %s: %w", repo, err)
 	}
-	defer resp.Body.Close()
-
-	output, err := extractDevcontainer(resp.Body, repoDirName)
+	archive, err := os.Open(tarPath)
 	if err != nil {
-		return fmt.Errorf("failed to download .devcontainer from %s: %v, output: %s", repo, err, string(output))
+		return fmt.Errorf("open downloaded .devcontainer archive: %w", err)
+	}
+	defer archive.Close()
+
+	output, err := extractDevcontainer(archive, repoDirName)
+	if err != nil {
+		return fmt.Errorf("failed to extract .devcontainer from %s: %v, output: %s", repo, err, string(output))
 	}
 
 	if build {
@@ -136,7 +141,7 @@ func SetupRepoDevcontainer(repo, branch string, build bool) error {
 		}
 		url := fmt.Sprintf("https://raw.githubusercontent.com/MiguelRodo/actions/%s/examples/prebuild-devcontainer.yml", tag)
 		dest := filepath.Join(".github", "workflows", "prebuild-devcontainer.yml")
-		if err := downloadFile(url, dest); err != nil {
+		if err := netutil.DownloadFile(url, dest); err != nil {
 			return fmt.Errorf("failed to download prebuild-devcontainer.yml: %w", err)
 		}
 		fmt.Println("Successfully downloaded prebuild-devcontainer.yml")
@@ -159,7 +164,7 @@ func SetupRepoAction(actionName string) error {
 		}
 	} else {
 		url := fmt.Sprintf("https://raw.githubusercontent.com/MiguelRodo/actions/main/examples/%s.yml", actionName)
-		if err := downloadFile(url, dest); err != nil {
+		if err := netutil.DownloadFile(url, dest); err != nil {
 			return fmt.Errorf("failed to download action %s: %w", actionName, err)
 		}
 	}
@@ -233,7 +238,7 @@ func SetupRepoInstallRepos() error {
 	defer os.RemoveAll(tmpDir)
 
 	tmpFile := filepath.Join(tmpDir, assetName)
-	if err := downloadFile(url, tmpFile); err != nil {
+	if err := netutil.DownloadFile(url, tmpFile); err != nil {
 		return fmt.Errorf("failed to download %s: %w", url, err)
 	}
 
@@ -279,25 +284,4 @@ func SetupRepoInstallRepos() error {
 
 	fmt.Printf("Successfully installed repos to %s\n", destPath)
 	return nil
-}
-
-func downloadFile(url, dest string) error {
-	resp, err := http.Get(url)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("bad status: %s", resp.Status)
-	}
-
-	out, err := os.Create(dest)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-
-	_, err = io.Copy(out, resp.Body)
-	return err
 }

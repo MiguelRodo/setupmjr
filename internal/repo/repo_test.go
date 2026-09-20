@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/MiguelRodo/setupmjr/internal/netutil"
 )
 
 type roundTripFunc func(*http.Request) (*http.Response, error)
@@ -34,8 +36,8 @@ func TestSetupRepoDevcontainerTreatsRepoAndBranchAsData(t *testing.T) {
 			t.Chdir(t.TempDir())
 			repoName := strings.SplitN(tt.repo, "/", 2)[1]
 
-			originalTransport := http.DefaultClient.Transport
-			http.DefaultClient.Transport = roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			originalTransport := netutil.Client.Transport
+			netutil.Client.Transport = roundTripFunc(func(req *http.Request) (*http.Response, error) {
 				if req.URL.Host != "github.com" {
 					t.Fatalf("unexpected download host: %s", req.URL.Host)
 				}
@@ -47,7 +49,7 @@ func TestSetupRepoDevcontainerTreatsRepoAndBranchAsData(t *testing.T) {
 					Request:    req,
 				}, nil
 			})
-			t.Cleanup(func() { http.DefaultClient.Transport = originalTransport })
+			t.Cleanup(func() { netutil.Client.Transport = originalTransport })
 
 			err := SetupRepoDevcontainer(tt.repo, tt.branch, false)
 			if _, statErr := os.Stat("injected"); !os.IsNotExist(statErr) {
