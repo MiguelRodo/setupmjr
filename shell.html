@@ -177,13 +177,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#commands" id="toc-commands" class="nav-link active" data-scroll-target="#commands">Commands</a>
-  <ul class="collapse">
-  <li><a href="#shell-shell-rc.d" id="toc-shell-shell-rc.d" class="nav-link" data-scroll-target="#shell-shell-rc.d"><code>shell &lt;shell&gt; rc.d</code></a></li>
-  </ul></li>
+  <li><a href="#commands" id="toc-commands" class="nav-link active" data-scroll-target="#commands">Commands</a></li>
+  <li><a href="#rc.d" id="toc-rc.d" class="nav-link" data-scroll-target="#rc.d"><code>rc.d</code></a></li>
   <li><a href="#details" id="toc-details" class="nav-link" data-scroll-target="#details">Details</a></li>
-  <li><a href="#shell-shell-path" id="toc-shell-shell-path" class="nav-link" data-scroll-target="#shell-shell-path"><code>shell &lt;shell&gt; path</code></a></li>
-  <li><a href="#details-1" id="toc-details-1" class="nav-link" data-scroll-target="#details-1">Details</a></li>
+  <li><a href="#path" id="toc-path" class="nav-link" data-scroll-target="#path"><code>path</code></a></li>
+  <li><a href="#login" id="toc-login" class="nav-link" data-scroll-target="#login"><code>login</code></a></li>
   </ul>
 </nav>
     </div>
@@ -209,44 +207,44 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>The <code>shell</code> subcommand is used to set up shell environments like bash or zsh. The <code>bash</code> subcommand acts as a shorthand for <code>shell bash</code>.</p>
+<p>The <code>shell</code> subcommand configures Bash or Zsh startup files. <code>setupmjr bash</code> is shorthand for <code>setupmjr shell bash</code>.</p>
 <section id="commands" class="level2">
 <h2 class="anchored" data-anchor-id="commands">Commands</h2>
-<pre><code>  shell &lt;shell&gt; rc.d
-  shell &lt;shell&gt; path
-  shell &lt;shell&gt; login</code></pre>
-<section id="shell-shell-rc.d" class="level3">
-<h3 class="anchored" data-anchor-id="shell-shell-rc.d"><code>shell &lt;shell&gt; rc.d</code></h3>
-<p>To manage shell configuration more effectively, it is helpful to place individual scripts inside a dedicated directory (i.e.&nbsp;<code>~/.&lt;shell&gt;rc.d/</code>) rather than cluttering the main <code>~/.&lt;shell&gt;rc</code> file. The <code>shell &lt;shell&gt; rc.d</code> command sets up this directory and configures your <code>~/.&lt;shell&gt;rc</code> to source all scripts inside it.</p>
-<p>To set this up, run the following command:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> shell <span class="op">&lt;</span>shell<span class="op">&gt;</span> rc.d</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text"><code>shell &lt;shell&gt; rc.d
+shell &lt;shell&gt; path
+shell &lt;shell&gt; login [--not-profile]
+
+bash rc.d
+bash path
+bash login [--not-profile]</code></pre>
 </section>
+<section id="rc.d" class="level2">
+<h2 class="anchored" data-anchor-id="rc.d"><code>rc.d</code></h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> shell bash rc.d</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> shell zsh rc.d</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This ensures <code>~/.&lt;shell&gt;rc.d</code> exists and configures <code>~/.&lt;shell&gt;rc</code> to source readable files from that directory.</p>
 </section>
 <section id="details" class="level2 callout-info" data-collapse="true">
 <h2 class="anchored" data-anchor-id="details">Details</h2>
-<p>The <code>shell &lt;shell&gt; rc.d</code> command configures the environment by doing the following:</p>
-<ol type="1">
-<li><p>It ensures the <code>~/.&lt;shell&gt;rc.d</code> directory exists.</p></li>
-<li><p>It appends a loop to your <code>~/.&lt;shell&gt;rc</code> to automatically source any readable scripts inside <code>~/.&lt;shell&gt;rc.d/</code>:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="va">$HOME</span>/.<span class="op">&lt;</span>shell<span class="op">&gt;</span>rc.d/<span class="pp">*</span><span class="kw">;</span> <span class="cf">do</span> <span class="bu">[</span> <span class="ot">-r</span> <span class="st">"</span><span class="va">$i</span><span class="st">"</span> <span class="bu">]</span> <span class="kw">&amp;&amp;</span> <span class="bu">source</span> <span class="st">"</span><span class="va">$i</span><span class="st">"</span><span class="kw">;</span> <span class="cf">done</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div></li>
-</ol>
+<p>The sourcing loop is:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="va">$HOME</span>/.<span class="op">&lt;</span>shell<span class="op">&gt;</span>rc.d/<span class="pp">*</span><span class="kw">;</span> <span class="cf">do</span> <span class="bu">[</span> <span class="ot">-r</span> <span class="st">"</span><span class="va">$i</span><span class="st">"</span> <span class="bu">]</span> <span class="kw">&amp;&amp;</span> <span class="bu">source</span> <span class="st">"</span><span class="va">$i</span><span class="st">"</span><span class="kw">;</span> <span class="cf">done</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="shell-shell-path" class="level3">
-<h3 class="anchored" data-anchor-id="shell-shell-path"><code>shell &lt;shell&gt; path</code></h3>
-<p>Often, custom executables and scripts are stored in standard local directories like <code>~/bin</code> or <code>~/.local/bin</code>. To execute these seamlessly, these directories need to be appended to the system <code>PATH</code>. The <code>shell &lt;shell&gt; path</code> command provides a shell-agnostic way to add these directories to your path by placing a script (<code>path-executables.sh</code>) inside <code>~/.&lt;shell&gt;rc.d/</code>.</p>
-<p>To set this up, run the following command:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> shell <span class="op">&lt;</span>shell<span class="op">&gt;</span> path</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="path" class="level2">
+<h2 class="anchored" data-anchor-id="path"><code>path</code></h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> shell bash path</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> shell zsh path</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This first ensures the shell’s <code>rc.d</code> directory is wired in, then installs <code>path-executables.sh</code> there so <code>~/bin</code> and <code>~/.local/bin</code> are available on <code>PATH</code> without duplicating entries.</p>
 </section>
-<section id="details-1" class="level2 callout-info" data-collapse="true">
-<h2 class="anchored" data-anchor-id="details-1">Details</h2>
-<p>The <code>shell &lt;shell&gt; path</code> command ensures <code>~/bin</code> and <code>~/.local/bin</code> are accessible by doing the following:</p>
-<ol type="1">
-<li><p>It calls <code>shell &lt;shell&gt; rc.d</code> to ensure the <code>~/.&lt;shell&gt;rc.d/</code> directory is properly set up and sourced by <code>~/.&lt;shell&gt;rc</code>.</p></li>
-<li><p>It copies an embedded script, <code>path-executables.sh</code>, to <code>~/.&lt;shell&gt;rc.d/path-executables.sh</code>. This script safely appends <code>~/bin</code> and <code>~/.local/bin</code> to the <code>PATH</code> environment variable if they are not already included.</p></li>
-</ol>
-</section>
+<section id="login" class="level2">
+<h2 class="anchored" data-anchor-id="login"><code>login</code></h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> shell bash login</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> shell zsh login</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This installs <code>login.sh</code> in the shell’s <code>rc.d</code> directory and configures the corresponding login profile to source the directory. Bash uses <code>~/.profile</code> unless <code>~/.bash_profile</code> already exists; Zsh uses <code>~/.zprofile</code>.</p>
+<p>Use <code>--not-profile</code> when you want the <code>login.sh</code> file but do not want setupmjr to modify the login profile:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> shell bash login <span class="at">--not-profile</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

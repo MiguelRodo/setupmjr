@@ -179,12 +179,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#commands" id="toc-commands" class="nav-link active" data-scroll-target="#commands">Commands</a></li>
   <li><a href="#repo-readme" id="toc-repo-readme" class="nav-link" data-scroll-target="#repo-readme"><code>repo readme</code></a></li>
-  <li><a href="#details" id="toc-details" class="nav-link" data-scroll-target="#details">Details</a></li>
   <li><a href="#repo-devcontainer" id="toc-repo-devcontainer" class="nav-link" data-scroll-target="#repo-devcontainer"><code>repo devcontainer</code></a></li>
-  <li><a href="#details-1" id="toc-details-1" class="nav-link" data-scroll-target="#details-1">Details</a></li>
   <li><a href="#install-repos" id="toc-install-repos" class="nav-link" data-scroll-target="#install-repos">Install <code>repos</code></a></li>
   <li><a href="#repo-action" id="toc-repo-action" class="nav-link" data-scroll-target="#repo-action"><code>repo action</code></a></li>
-  <li><a href="#details-2" id="toc-details-2" class="nav-link" data-scroll-target="#details-2">Details</a></li>
   </ul>
 </nav>
     </div>
@@ -210,76 +207,46 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>The <code>repo</code> subcommand is used to set up repositories.</p>
+<p>The <code>repo</code> subcommand configures the current repository.</p>
 <section id="commands" class="level2">
 <h2 class="anchored" data-anchor-id="commands">Commands</h2>
-<pre><code>  repo readme
-  repo devcontainer [--repo &lt;owner&gt;/&lt;repo&gt;@&lt;branch&gt;] [--build]
-  repo action &lt;action-name&gt;</code></pre>
+<pre class="text"><code>repo readme
+repo devcontainer [--repo &lt;owner&gt;/&lt;repo&gt;@&lt;branch&gt;] [--build]
+repo action &lt;action-name&gt;</code></pre>
 </section>
 <section id="repo-readme" class="level2">
 <h2 class="anchored" data-anchor-id="repo-readme"><code>repo readme</code></h2>
-<p>This command interacts with the user to scaffold a standardized <code>README.md</code> for a project repository.</p>
-<p>When executed, it prompts for the following information: - The project title. - A brief description of what the repository does. - The full names and email addresses of two primary contacts.</p>
-<p>It then generates a <code>README.md</code> using the provided inputs.</p>
-</section>
-<section id="details" class="level2 callout-info" data-collapse="true">
-<h2 class="anchored" data-anchor-id="details">Details</h2>
-<p>The generated <code>README.md</code> follows a clean template containing sections for the title, purpose, contact details, links (e.g.&nbsp;data sources, publications), and further details (e.g.&nbsp;methods, timeline, team, data sources).</p>
-<p>For example, the output might look like:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># My Project Title</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>This repository handles data processing for the survey data.</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">## Contact</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>For more information, please contact:</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Jane Doe:</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>jane.doe@example.com</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>John Smith:</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>john.smith@example.com</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="fu">## Links</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="co">[</span><span class="ot">URLs to data sources (e.g. OneDrive), GitHub repositories, publications, etc.</span><span class="co">]</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="fu">## Details</span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Methods, timeline, team, data sources, software/tools, etc.</span><span class="co">]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This command interactively scaffolds a standard <code>README.md</code> with a title, purpose, contacts, links and details sections.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> repo readme</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="repo-devcontainer" class="level2">
 <h2 class="anchored" data-anchor-id="repo-devcontainer"><code>repo devcontainer</code></h2>
-<p>This command copies a reference <code>.devcontainer</code> configuration into your current repository.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> repo devcontainer [--repo <span class="op">&lt;</span>owner<span class="op">&gt;</span>/<span class="op">&lt;</span>repo<span class="op">&gt;</span>@<span class="op">&lt;</span>branch<span class="op">&gt;</span>] <span class="pp">[--</span><span class="ss">build</span><span class="pp">]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Copy a reference <code>.devcontainer</code> configuration into the current repository:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> repo devcontainer</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> repo devcontainer <span class="at">--repo</span> MiguelRodo/comp@main</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li><code>--repo</code>: Specifies the source repository and branch to copy the <code>.devcontainer</code> directory from (defaults to <code>MiguelRodo/comp@main</code>).</li>
-<li><code>--build</code>: If provided, the command also installs the <code>prebuild-devcontainer.yml</code> workflow example from the latest published <code>MiguelRodo/actions</code> release.</li>
+<li><code>--repo</code> selects the source repository and branch in <code>&lt;owner&gt;/&lt;repo&gt;@&lt;branch&gt;</code> form. The default is <code>MiguelRodo/comp@main</code>.</li>
+<li><code>--build</code> also installs the <code>prebuild-devcontainer.yml</code> workflow example from the latest published <code>MiguelRodo/actions</code> release.</li>
 </ul>
-</section>
-<section id="details-1" class="level2 callout-info" data-collapse="true">
-<h2 class="anchored" data-anchor-id="details-1">Details</h2>
-<p>The source archive is downloaded completely to a temporary file before extraction, so a timeout or interrupted HTTP body cannot feed a partial archive into <code>tar</code>. Repository and branch values are passed as command arguments rather than interpolated into a shell command. The optional prebuild workflow is fetched from an exact published actions release tag rather than mutable <code>main</code>.</p>
-<p>setupmjr-owned HTTP downloads use a finite request timeout and report the request URL and HTTP status on failures such as <code>403 Forbidden</code>. Failed or incomplete file downloads are discarded rather than being left at their final destination path.</p>
+<p>The source archive is fully staged before extraction, so a timeout or interrupted response cannot feed a partial archive into <code>tar</code>. Repository and branch values are passed as command arguments rather than interpolated into a shell command.</p>
+<p>setupmjr-owned HTTP downloads use a finite request timeout, preserve URL/status context on failures, and only replace destination files after complete writes.</p>
 </section>
 <section id="install-repos" class="level2">
 <h2 class="anchored" data-anchor-id="install-repos">Install <code>repos</code></h2>
 <p>Repository orchestration belongs to the standalone <code>repos</code> command. Install or update it with:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install <span class="at">--repos</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Then invoke <code>repos</code> directly. <code>setupmjr</code> no longer proxies <code>repos</code> commands. The release archive is staged in a temporary directory and is not extracted after a failed or incomplete download.</p>
+<p>Then invoke <code>repos</code> directly. The release archive is staged in a temporary directory and is not extracted after a failed or incomplete download.</p>
 </section>
 <section id="repo-action" class="level2">
 <h2 class="anchored" data-anchor-id="repo-action"><code>repo action</code></h2>
-<p>This command installs a workflow example published by the canonical <a href="https://github.com/MiguelRodo/actions"><code>MiguelRodo/actions</code></a> repository:</p>
+<p>Install a workflow example published by the canonical <a href="https://github.com/MiguelRodo/actions"><code>MiguelRodo/actions</code></a> repository:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> repo action <span class="op">&lt;</span>action-name<span class="op">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><code>setupmjr</code> first resolves the latest published actions release, then downloads <code>examples/&lt;action-name&gt;.yml</code> from that exact release tag into <code>.github/workflows/</code>. It keeps no embedded workflow copies and does not fall back to mutable <code>actions/main</code>.</p>
-<p>The available names are therefore the files present in the <code>examples</code> directory of the latest published actions release. For the current v3 release this includes <code>prebuild-devcontainer</code>, <code>publish-quarto-site</code>, and <code>version-release</code>. If a requested example is not published in that release, the command fails instead of installing a local or development copy.</p>
-</section>
-<section id="details-2" class="level2 callout-info" data-collapse="true">
-<h2 class="anchored" data-anchor-id="details-2">Details</h2>
-<p>Workflow downloads are staged in <code>.github/workflows/</code> and replace the final path only after the response completes successfully. Errors include the requested action name, resolved release tag, and HTTP status where available.</p>
-</section>
+<p><code>setupmjr</code> resolves the latest published actions release, then downloads <code>examples/&lt;action-name&gt;.yml</code> from that exact release tag into <code>.github/workflows/</code>. It keeps no embedded workflow copies and does not fall back to mutable <code>actions/main</code>.</p>
+<p>Use the example filename from the latest published <code>MiguelRodo/actions</code> release without the <code>.yml</code> suffix. If that example is not present in the release, the command fails rather than installing a local or development copy.</p>
+<p>Workflow downloads are staged in <code>.github/workflows/</code> and replace the final path only after the response completes successfully. Errors include the requested action name, resolved release tag and HTTP status where available.</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

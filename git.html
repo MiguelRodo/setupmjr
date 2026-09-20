@@ -178,8 +178,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#commands" id="toc-commands" class="nav-link active" data-scroll-target="#commands">Commands</a></li>
-  <li><a href="#setting-up-git" id="toc-setting-up-git" class="nav-link" data-scroll-target="#setting-up-git">Setting up Git</a>
+  <li><a href="#git-setup" id="toc-git-setup" class="nav-link" data-scroll-target="#git-setup">Git setup</a>
   <ul class="collapse">
+  <li><a href="#scope-and-replacement-flags" id="toc-scope-and-replacement-flags" class="nav-link" data-scroll-target="#scope-and-replacement-flags">Scope and replacement flags</a></li>
   <li><a href="#github-cli-path" id="toc-github-cli-path" class="nav-link" data-scroll-target="#github-cli-path">GitHub CLI path</a></li>
   <li><a href="#headlesshpc-fallback" id="toc-headlesshpc-fallback" class="nav-link" data-scroll-target="#headlesshpc-fallback">Headless/HPC fallback</a></li>
   <li><a href="#migration-from-older-setupmjr-authentication" id="toc-migration-from-older-setupmjr-authentication" class="nav-link" data-scroll-target="#migration-from-older-setupmjr-authentication">Migration from older setupmjr authentication</a></li>
@@ -215,16 +216,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The <code>git</code> subcommand configures Git identity and authentication.</p>
 <section id="commands" class="level2">
 <h2 class="anchored" data-anchor-id="commands">Commands</h2>
-<pre><code>  git
-  git profile
-  git auth
-  git auth text
-  git auth cache
-  git auth mngr</code></pre>
+<pre class="text"><code>git
+git profile
+git auth [text|cache|mngr] [--system|--local] [--remove]</code></pre>
 </section>
-<section id="setting-up-git" class="level2">
-<h2 class="anchored" data-anchor-id="setting-up-git">Setting up Git</h2>
-<p>Run:</p>
+<section id="git-setup" class="level2">
+<h2 class="anchored" data-anchor-id="git-setup">Git setup</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> git</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>This configures your Git name/email when they are missing and then configures GitHub authentication.</p>
 <p><code>setupmjr git auth</code> chooses between two durable authentication paths:</p>
@@ -233,11 +230,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Otherwise, setupmjr uses its headless/HPC fallback and stores one token at <code>~/.config/setupmjr/auth/github.token</code>.</li>
 </ol>
 <p>The GitHub CLI check deliberately ignores <code>GH_TOKEN</code> and <code>GITHUB_TOKEN</code>, so an environment-only token is not mistaken for a durable <code>gh auth login</code>.</p>
+<section id="scope-and-replacement-flags" class="level3">
+<h3 class="anchored" data-anchor-id="scope-and-replacement-flags">Scope and replacement flags</h3>
+<p>Authentication config is global by default. Use <code>--system</code> or <code>--local</code> to select another Git config scope:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> git auth <span class="at">--local</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Use <code>--remove</code> when you want setupmjr to clear existing credential helpers in the selected scope before configuring the requested authentication path:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> git auth <span class="at">--local</span> <span class="at">--remove</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Do not combine <code>--system</code> and <code>--local</code>.</p>
+</section>
 <section id="github-cli-path" class="level3">
 <h3 class="anchored" data-anchor-id="github-cli-path">GitHub CLI path</h3>
 <p>On a machine where GitHub CLI credential storage works well, authenticate once:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> auth login</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> git auth</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> auth login</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> git auth</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The resulting Git credential helper is the standard GitHub CLI helper. Command-line Git and tools such as R <code>gitcreds</code> can consume the same Git credential interface.</p>
 </section>
 <section id="headlesshpc-fallback" class="level3">
@@ -255,8 +260,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="migration-from-older-setupmjr-authentication" class="level3">
 <h3 class="anchored" data-anchor-id="migration-from-older-setupmjr-authentication">Migration from older setupmjr authentication</h3>
-<p>Older versions of setupmjr could write <code>GH_TOKEN</code> directly into <code>.bashrc.d/login.sh</code> and <code>.zshrc.d/login.sh</code>. Running the new authentication setup removes active legacy <code>GH_TOKEN=</code> and <code>GITHUB_USERNAME=</code> assignments from those setupmjr login files before configuring the new strategy.</p>
-<p>A short-lived version of #53 also placed the non-secret managed block directly in <code>.bashrc</code> and <code>.zshrc</code>. Re-running <code>setupmjr git auth</code> migrates that block into the existing <code>login.sh</code> files automatically.</p>
+<p>Older versions of setupmjr could write <code>GH_TOKEN</code> directly into <code>.bashrc.d/login.sh</code> and <code>.zshrc.d/login.sh</code>. Running the current authentication setup removes active legacy <code>GH_TOKEN=</code> and <code>GITHUB_USERNAME=</code> assignments from those setupmjr login files before configuring the new strategy.</p>
+<p>A short-lived version also placed the non-secret managed block directly in <code>.bashrc</code> and <code>.zshrc</code>. Re-running <code>setupmjr git auth</code> migrates that block into the existing <code>login.sh</code> files automatically.</p>
 </section>
 <section id="dev-containers" class="level3">
 <h3 class="anchored" data-anchor-id="dev-containers">Dev Containers</h3>
@@ -270,10 +275,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="legacy-explicit-helpers" class="level2">
 <h2 class="anchored" data-anchor-id="legacy-explicit-helpers">Legacy explicit helpers</h2>
-<p>The older explicit helper commands remain available:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> git auth cache</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> git auth mngr</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>They are not part of the default authentication path.</p>
+<p>The older explicit helper commands remain available but are not part of the default authentication path:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> git auth cache</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> git auth mngr</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
 </section>

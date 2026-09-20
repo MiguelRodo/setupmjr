@@ -177,8 +177,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#commands" id="toc-commands" class="nav-link active" data-scroll-target="#commands">Commands</a></li>
-  <li><a href="#setup" id="toc-setup" class="nav-link" data-scroll-target="#setup">Setup</a>
+  <li><a href="#command" id="toc-command" class="nav-link active" data-scroll-target="#command">Command</a>
   <ul class="collapse">
   <li><a href="#flags" id="toc-flags" class="nav-link" data-scroll-target="#flags">Flags</a></li>
   </ul></li>
@@ -208,36 +207,37 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>The <code>r</code> subcommand is used to set up R environments.</p>
-<section id="commands" class="level2">
-<h2 class="anchored" data-anchor-id="commands">Commands</h2>
-<pre><code>  r [--not-radian] [--not-lintr]</code></pre>
-</section>
-<section id="setup" class="level2">
-<h2 class="anchored" data-anchor-id="setup">Setup</h2>
-<p>One may often use a non-standard <code>R</code> terminal named <code>radian</code> because it offers many enhancements over the standard <code>R</code> terminal. However, <code>radian</code> (in some experiences) breaks without a key configuration setting.</p>
-<p>To configure this setting, run the following command:</p>
+<p>The <code>r</code> subcommand configures R-related user and project files.</p>
+<section id="command" class="level2">
+<h2 class="anchored" data-anchor-id="command">Command</h2>
+<pre class="text"><code>r [--not-radian] [--not-lintr] [--switch-r]</code></pre>
+<p>Running:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>In addition to configuring <code>radian</code>, this command also turns off object length and line linters for <code>lintr</code> (to prevent VS Code or other editors from bothering you because your variable names or lines are “too long”).</p>
+<p>configures the user-level <code>radian</code> and <code>lintr</code> defaults.</p>
 <section id="flags" class="level3">
 <h3 class="anchored" data-anchor-id="flags">Flags</h3>
-<p>You can opt out of configuring <code>radian</code> or <code>lintr</code> by passing the respective flags:</p>
 <ul>
-<li><code>--not-radian</code>: Do not configure <code>~/.radian_profile</code>.</li>
-<li><code>--not-lintr</code>: Do not configure <code>~/.lintr</code>.</li>
+<li><code>--not-radian</code> skips the <code>~/.radian_profile</code> configuration.</li>
+<li><code>--not-lintr</code> skips the <code>~/.lintr</code> configuration.</li>
+<li><code>--switch-r</code> adds the project-local <code>scripts/r/switch_r.R</code> helper and ensures the current repository’s <code>.Rprofile</code> sources it.</li>
 </ul>
-<p>For example, to only configure <code>radian</code> and not <code>lintr</code>:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> r <span class="at">--not-lintr</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>For example:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> r <span class="at">--not-lintr</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> r <span class="at">--switch-r</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The HPC wrapper accepts the same R flags, for example:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc r <span class="at">--not-lintr</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 </section>
 <section id="details" class="level2 callout-info" data-collapse="true">
 <h2 class="anchored" data-anchor-id="details">Details</h2>
-<p>If not skipped via <code>--not-radian</code>, the <code>~/.radian_profile</code> file is created if it does not exist, and the following line is added to it:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">radian.auto_match =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>If not skipped via <code>--not-lintr</code>, the <code>~/.lintr</code> file is created if it does not exist, and the following lines are added to it:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">linters:</span> linters_with_defaults<span class="er">(</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="ex">object_length_linter</span> = NULL,</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="ex">object_name_linter</span> = NULL<span class="kw">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Unless <code>--not-radian</code> is supplied, setupmjr ensures <code>~/.radian_profile</code> contains:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">radian.auto_match =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Unless <code>--not-lintr</code> is supplied, setupmjr ensures <code>~/.lintr</code> contains:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>linters<span class="sc">:</span> <span class="fu">linters_with_defaults</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">object_length_linter =</span> <span class="cn">NULL</span>,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">object_name_linter =</span> <span class="cn">NULL</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>With <code>--switch-r</code>, setupmjr creates <code>scripts/r/switch_r.R</code> if it is absent and places this source line at the top of the current repository’s <code>.Rprofile</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">try</span>(<span class="fu">source</span>(<span class="st">"scripts/r/switch_r.R"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 
 
