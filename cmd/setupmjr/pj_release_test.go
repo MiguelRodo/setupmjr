@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestHandleProjectPjConsumesV0ReleaseLine(t *testing.T) {
+func TestInstallPjConsumesV0ReleaseLine(t *testing.T) {
 	originalRunner := runExternalCommand
 	defer func() { runExternalCommand = originalRunner }()
 
@@ -16,8 +16,8 @@ func TestHandleProjectPjConsumesV0ReleaseLine(t *testing.T) {
 		return nil
 	}
 
-	if err := handleProject([]string{"--pj"}); err != nil {
-		t.Fatalf("handleProject failed: %v", err)
+	if err := installPj(); err != nil {
+		t.Fatalf("installPj failed: %v", err)
 	}
 	if len(calls) != 2 {
 		t.Fatalf("expected 2 calls, got %d: %#v", len(calls), calls)
