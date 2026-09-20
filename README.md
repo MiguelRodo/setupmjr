@@ -29,7 +29,7 @@ For development:
 go build ./cmd/setupmjr
 ```
 
-See [install.qmd](install.qmd) for the supported APT, Homebrew, Scoop, installer-script and source paths.
+See [install.qmd](install.qmd) for the supported APT, Scoop, release-installer and source paths.
 
 ### Installation CI
 
