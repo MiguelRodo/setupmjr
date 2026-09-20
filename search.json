@@ -158,7 +158,7 @@
     "href": "install.html",
     "title": "Installation",
     "section": "",
-    "text": "setupmjr is distributed as a compiled Go CLI binary. The canonical installation paths are the published APT repository, the release installer scripts, Scoop on Windows, or a Go source build."
+    "text": "setupmjr is distributed as a compiled Go CLI binary. The canonical installation paths are the published APT repository, Homebrew on macOS, the release installer scripts, Scoop on Windows, or a Go source build."
   },
   {
     "objectID": "install.html#ubuntu-debian",
@@ -172,7 +172,7 @@
     "href": "install.html#macos",
     "title": "Installation",
     "section": "macOS",
-    "text": "macOS\nUse the same user-local release installer:\ngit clone https://github.com/MiguelRodo/setupmjr.git\ncd setupmjr\nbash install-local.sh\nThe installer supports both amd64 and arm64 release binaries and falls back to ~/.local/bin when no writable PATH directory is available."
+    "text": "macOS\n\nHomebrew\nThe published GitHub repository MiguelRodo/homebrew-tap is the Homebrew tap MiguelRodo/tap. Add and trust it once, then install setupmjr:\nbrew tap MiguelRodo/tap\nbrew trust MiguelRodo/tap\nbrew install MiguelRodo/tap/setupmjr\nHomebrew 6 requires explicit trust for non-official taps. The setupmjr formula depends on MiguelRodo/tap/repos, so trusting this small related-tools tap allows Homebrew to resolve and install repos automatically.\n\n\nUser-local release installer\nAlternatively, use the no-sudo release installer:\ngit clone https://github.com/MiguelRodo/setupmjr.git\ncd setupmjr\nbash install-local.sh\nThe installer supports both amd64 and arm64 release binaries and falls back to ~/.local/bin when no writable PATH directory is available."
   },
   {
     "objectID": "install.html#windows",

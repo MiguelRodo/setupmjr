@@ -182,7 +182,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#apt-repository" id="toc-apt-repository" class="nav-link" data-scroll-target="#apt-repository">APT repository</a></li>
   <li><a href="#user-local-release-installer" id="toc-user-local-release-installer" class="nav-link" data-scroll-target="#user-local-release-installer">User-local release installer</a></li>
   </ul></li>
-  <li><a href="#macos" id="toc-macos" class="nav-link" data-scroll-target="#macos">macOS</a></li>
+  <li><a href="#macos" id="toc-macos" class="nav-link" data-scroll-target="#macos">macOS</a>
+  <ul class="collapse">
+  <li><a href="#homebrew" id="toc-homebrew" class="nav-link" data-scroll-target="#homebrew">Homebrew</a></li>
+  <li><a href="#user-local-release-installer-1" id="toc-user-local-release-installer-1" class="nav-link" data-scroll-target="#user-local-release-installer-1">User-local release installer</a></li>
+  </ul></li>
   <li><a href="#windows" id="toc-windows" class="nav-link" data-scroll-target="#windows">Windows</a>
   <ul class="collapse">
   <li><a href="#scoop" id="toc-scoop" class="nav-link" data-scroll-target="#scoop">Scoop</a></li>
@@ -217,7 +221,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p><code>setupmjr</code> is distributed as a compiled Go CLI binary. The canonical installation paths are the published APT repository, the release installer scripts, Scoop on Windows, or a Go source build.</p>
+<p><code>setupmjr</code> is distributed as a compiled Go CLI binary. The canonical installation paths are the published APT repository, Homebrew on macOS, the release installer scripts, Scoop on Windows, or a Go source build.</p>
 <section id="ubuntu-debian" class="level2">
 <h2 class="anchored" data-anchor-id="ubuntu-debian">Ubuntu / Debian</h2>
 <section id="apt-repository" class="level3">
@@ -246,49 +250,60 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="macos" class="level2">
 <h2 class="anchored" data-anchor-id="macos">macOS</h2>
-<p>Use the same user-local release installer:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/MiguelRodo/setupmjr.git</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> setupmjr</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> install-local.sh</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="homebrew" class="level3">
+<h3 class="anchored" data-anchor-id="homebrew">Homebrew</h3>
+<p>The published GitHub repository <code>MiguelRodo/homebrew-tap</code> is the Homebrew tap <code>MiguelRodo/tap</code>. Add and trust it once, then install setupmjr:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">brew</span> tap MiguelRodo/tap</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">brew</span> trust MiguelRodo/tap</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="ex">brew</span> install MiguelRodo/tap/setupmjr</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Homebrew 6 requires explicit trust for non-official taps. The setupmjr formula depends on <code>MiguelRodo/tap/repos</code>, so trusting this small related-tools tap allows Homebrew to resolve and install <code>repos</code> automatically.</p>
+</section>
+<section id="user-local-release-installer-1" class="level3">
+<h3 class="anchored" data-anchor-id="user-local-release-installer-1">User-local release installer</h3>
+<p>Alternatively, use the no-sudo release installer:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/MiguelRodo/setupmjr.git</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> setupmjr</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> install-local.sh</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The installer supports both <code>amd64</code> and <code>arm64</code> release binaries and falls back to <code>~/.local/bin</code> when no writable <code>PATH</code> directory is available.</p>
+</section>
 </section>
 <section id="windows" class="level2">
 <h2 class="anchored" data-anchor-id="windows">Windows</h2>
 <section id="scoop" class="level3">
 <h3 class="anchored" data-anchor-id="scoop">Scoop</h3>
 <p>A current Scoop manifest is published in <code>MiguelRodo/scoop-bucket</code>:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode powershell code-with-copy"><code class="sourceCode powershell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>scoop bucket add MiguelRodo https<span class="op">://</span>github<span class="op">.</span><span class="fu">com</span><span class="op">/</span>MiguelRodo<span class="op">/</span>scoop-bucket</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>scoop install setupmjr</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode powershell code-with-copy"><code class="sourceCode powershell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>scoop bucket add MiguelRodo https<span class="op">://</span>github<span class="op">.</span><span class="fu">com</span><span class="op">/</span>MiguelRodo<span class="op">/</span>scoop-bucket</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>scoop install setupmjr</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The manifest declares <code>repos</code> as a dependency.</p>
 </section>
 <section id="installer-script" class="level3">
 <h3 class="anchored" data-anchor-id="installer-script">Installer script</h3>
 <p>Alternatively, clone the repository and run the PowerShell installer:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode powershell code-with-copy"><code class="sourceCode powershell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>git clone https<span class="op">://</span>github<span class="op">.</span><span class="fu">com</span><span class="op">/</span>MiguelRodo<span class="op">/</span>setupmjr<span class="op">.</span><span class="fu">git</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cd</span> setupmjr</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="op">.</span>\install<span class="op">.</span><span class="fu">ps1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode powershell code-with-copy"><code class="sourceCode powershell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>git clone https<span class="op">://</span>github<span class="op">.</span><span class="fu">com</span><span class="op">/</span>MiguelRodo<span class="op">/</span>setupmjr<span class="op">.</span><span class="fu">git</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cd</span> setupmjr</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="op">.</span>\install<span class="op">.</span><span class="fu">ps1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The script downloads the latest release binary into the first writable directory already on <code>Path</code>. If <code>repos</code> is not already available, the installed setupmjr binary runs <code>setupmjr install --repos</code> and the installer fails if that dependency installation fails.</p>
 <p>To uninstall the recorded installation:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode powershell code-with-copy"><code class="sourceCode powershell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="op">.</span>\install<span class="op">.</span><span class="fu">ps1</span> <span class="op">-</span>Uninstall</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode powershell code-with-copy"><code class="sourceCode powershell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="op">.</span>\install<span class="op">.</span><span class="fu">ps1</span> <span class="op">-</span>Uninstall</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 </section>
 <section id="from-source" class="level2">
 <h2 class="anchored" data-anchor-id="from-source">From source</h2>
 <p>With Go installed, install directly from the module path:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">go</span> install github.com/MiguelRodo/setupmjr/cmd/setupmjr@latest</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">go</span> install github.com/MiguelRodo/setupmjr/cmd/setupmjr@latest</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Or build a local clone:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/MiguelRodo/setupmjr.git</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> setupmjr</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="ex">go</span> build <span class="at">-o</span> setupmjr ./cmd/setupmjr</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/MiguelRodo/setupmjr.git</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> setupmjr</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="ex">go</span> build <span class="at">-o</span> setupmjr ./cmd/setupmjr</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="managed-components" class="level2">
 <h2 class="anchored" data-anchor-id="managed-components">Managed components</h2>
 <p>After installing <code>setupmjr</code>, use its top-level <code>install</code> command for the external tools whose installation glue it owns:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install <span class="at">--repos</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install <span class="at">--pj</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install <span class="at">--gh-skill</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install <span class="at">--repos</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install <span class="at">--pj</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install <span class="at">--gh-skill</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Flags may be combined. Installers run in a fixed order and stop at the first error:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install <span class="at">--repos</span> <span class="at">--pj</span> <span class="at">--gh-skill</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install <span class="at">--repos</span> <span class="at">--pj</span> <span class="at">--gh-skill</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li><code>--repos</code> installs the latest released <code>MiguelRodo/repos</code> binary into <code>~/.local/bin</code>. Run <code>repos</code> directly afterwards.</li>
 <li><code>--pj</code> installs or updates <code>pj</code> from <code>MiguelRodo/pj</code> by shallow-cloning the floating <code>v0</code> tag and running its installer.</li>
@@ -305,8 +320,8 @@ setupmjr_windows_&lt;arch&gt;.exe</code></pre>
 </section>
 <section id="verify-installation" class="level2">
 <h2 class="anchored" data-anchor-id="verify-installation">Verify installation</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> <span class="at">--version</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> <span class="at">--help</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> <span class="at">--version</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> <span class="at">--help</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
 </section>
