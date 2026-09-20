@@ -3,65 +3,37 @@ title: "hpc"
 toc: true
 ---
 
-The `hpc` subcommand is used to configure HPC environments.
+The `hpc` subcommand configures Linux HPC environments.
 
 ## Commands
 
-```
-  hpc       Master HPC setup
-  hpc git
-  hpc scratch
-  hpc apptainer
-  hpc slurm
-  hpc r
+```text
+hpc
+hpc scratch
+hpc apptainer
+hpc slurm
+hpc git
+hpc r [--not-radian] [--not-lintr] [--switch-r]
 ```
 
 ## Installation
 
-Assuming that the HPC is running on Linux, the following line will install `setupmjr` without requiring `sudo` permission:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/MiguelRodo/setupmjr/main/install-local.sh | bash
-```
-
-Confirm that installation worked by running:
+Install `setupmjr` using the supported method for the HPC host. For a no-sudo Linux installation, use the user-local release installer described in [Installation](install.qmd). Confirm the result with:
 
 ```bash
 setupmjr --version
 ```
 
-If the above does not work, then `setupmjr` may not be on your system `PATH`. In that case, you can add the following line to your shell profile (typically `~/.bashrc`):
-
-```bash
-export PATH="$HOME/.local/bin:$PATH"
-```
-
-Then run:
-
-```
-source ~/.bashrc
-```
-
-At this point, the following should succeed:
-
-```bash
-setupmjr --version
-```
-
-If not, then the initial installation failed.
-
-## Setup
-
-The following command will configure the HPC environment:
+## Master setup
 
 ```bash
 setupmjr hpc
 ```
 
-The master command is Linux-only and stops on the first failed setup step. It runs the following sequence:
+The master command is Linux-only and stops on the first failed setup step. It runs this sequence:
 
-1. Configure `bash` rc.d, executable paths, and login/profile integration.
-2. Configure `zsh` rc.d, executable paths, and login/profile integration.
+1. Configure Bash `rc.d`, executable paths and login/profile integration.
+2. Configure Zsh `rc.d`, executable paths and login/profile integration.
 3. Configure Git and GitHub authentication.
 4. Install the HPC scratch configuration.
 5. Install the Apptainer helpers.
@@ -70,76 +42,71 @@ The master command is Linux-only and stops on the first failed setup step. It ru
 
 In practical terms, `setupmjr hpc` does the following:
 
-- *Helps store large files effectively*: Large files are stored in the `/scratch` space (if available) rather than `/home`, to respect HPC storage policies.
+- *Helps store large files effectively*: Large files are stored in `/scratch` when available rather than `/home`, to respect HPC storage policies.
 - *Authenticates with Git*: GitHub authentication uses either an existing persistent `gh` login or one protected setupmjr-managed token file for headless/HPC environments.
-- *Adds `Apptainer` and SLURM helpers*: If these tools are available, helper scripts are installed to simplify their usage.
-- *Configures `radian`*: If you use `radian` as your R terminal, it is configured to work properly on the HPC.
+- *Adds Apptainer and SLURM helpers*: Helper scripts are installed under `~/.local/bin`.
+- *Configures R*: The normal `setupmjr r` defaults configure `radian` and `lintr`.
 
-Each feature can also be configured independently via the respective subcommands (`hpc scratch`, `hpc apptainer`, `hpc slurm`, `hpc git`, `hpc r`).
+Each feature can also be configured independently with the subcommands below.
 
-### Setting up Git
-
-To configure Git, run:
+### Git
 
 ```bash
 setupmjr hpc git
 ```
 
-This calls the normal `setupmjr git` setup. Authentication is deliberately suitable for headless HPC use:
+This calls the normal `setupmjr git` setup. Authentication is suitable for headless HPC use:
 
 - if `gh auth login` has already established durable GitHub CLI authentication, Git is configured with `gh auth setup-git`;
 - otherwise setupmjr stores one GitHub token under `~/.config/setupmjr/auth/github.token`, with private permissions, and configures Git to read it through the standard credential-helper interface.
 
 The token itself is not embedded in shell startup files or Git configuration. Existing active `GH_TOKEN=` assignments left by older setupmjr versions are removed from setupmjr's `login.sh` files during migration.
 
-This credential-helper design is also intended to work with R `gitcreds` and with VS Code Dev Containers' built-in Git credential forwarding. In a Remote SSH -> HPC -> Dev Container workflow, configure authentication on the HPC host first. If a particular Dev Container still fails to reuse the host helper, treat that as a forwarding problem rather than copying a PAT into the repository or container definition.
+This credential-helper design is also intended to work with R `gitcreds` and with VS Code Dev Containers' Git credential forwarding. In a Remote SSH -> HPC -> Dev Container workflow, configure authentication on the HPC host first. If a particular Dev Container still fails to reuse the host helper, treat that as a forwarding problem rather than copying a PAT into the repository or container definition.
 
-See [git setup](git.qmd) for the full authentication model and fallback details.
+See [Git](git.qmd) for the full authentication model and fallback details.
 
-### Using scratch space
-
-HPCs typically have a separate scratch space for storing large files (i.e. `/scratch/$USER`), which is often faster and has different quotas than the home directory.
-The `hpc scratch` command helps you configure your environment to use the `/scratch` space effectively.
-
-To set this up, run:
+### Scratch space
 
 ```bash
 setupmjr hpc scratch
 ```
 
-This configures the environment to preferentially use `/scratch` for:
+HPCs commonly provide `/scratch/$USER` for large files and caches. This command installs `~/.bashrc.d/hpc-scratch.sh`, which configures scratch-backed locations for Apptainer/Singularity images and R library/`renv` caches.
 
-- Apptainer and Singularity images;
-- R libraries and `renv` caches.
+The master `setupmjr hpc` command wires Bash `rc.d` before installing this file. The standalone `hpc scratch` command only installs the file, so run `setupmjr shell bash rc.d` first if Bash is not already sourcing `~/.bashrc.d`.
 
-::: {.callout-info collapse="true"}
-## Details
+### SLURM
 
-The master `setupmjr hpc` command configures bash rc.d before installing `~/.bashrc.d/hpc-scratch.sh`. The standalone `hpc scratch` subcommand only installs that file, so use `setupmjr shell bash rc.d` first if your shell is not already sourcing `~/.bashrc.d`.
-:::
+```bash
+setupmjr hpc slurm
+```
 
-### `hpc slurm`
+This installs SLURM helper scripts into `~/.local/bin`, including:
 
-SLURM is a popular program used by HPCs to allocate compute resources. `setupmjr hpc slurm` installs helper scripts into `~/.local/bin`:
+- `slurm-sbatch` for submitting a job and recording submission details;
+- `slurm-sintx` for starting an interactive session;
+- `slurm-squeue` for listing the current user's jobs.
 
-- `slurm-sbatch`: submits a SLURM job and records submission details;
-- `slurm-sintx`: starts an interactive SLURM session;
-- `slurm-squeue`: lists jobs for the current user.
+### Apptainer
 
-### `hpc apptainer`
+```bash
+setupmjr hpc apptainer
+```
 
-`setupmjr hpc apptainer` installs helper scripts for working with Apptainer containers into `~/.local/bin`, including `apptainer-pull`, `apptainer-path`, `apptainer-exists`, `apptainer-run`, and `apptainer-rscript`.
+This installs the embedded `apptainer-*` helper scripts into `~/.local/bin`, excluding `apptainer-vscode`.
 
-### `hpc r`
-
-To configure R for the HPC environment, run:
+### R
 
 ```bash
 setupmjr hpc r
 ```
 
-This calls `setupmjr r`, which configures `radian` and `lintr`. You can opt out with `--not-radian` or `--not-lintr`, for example:
+This calls the normal R setup and accepts the same flags:
 
 ```bash
 setupmjr hpc r --not-lintr
+setupmjr hpc r --switch-r
 ```
+
+See [R](r.qmd) for the flag behaviour.

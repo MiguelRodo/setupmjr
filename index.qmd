@@ -7,35 +7,38 @@ toc: true
 
 ## Commands
 
-```bash
+```text
 setupmjr - Cross-platform setup utility
 Commands:
-  hpc       Master HPC setup
-  hpc scratch [--r]
+  hpc
+  hpc scratch
   hpc apptainer
   hpc slurm
-  hpc login git
   hpc git
-  hpc r
+  hpc r [--not-radian] [--not-lintr] [--switch-r]
   shell <shell> rc.d
   shell <shell> path
-  shell <shell> login
-  r radian
+  shell <shell> login [--not-profile]
+  bash rc.d
+  bash path
+  bash login [--not-profile]
+  r [--not-radian] [--not-lintr] [--switch-r]
   git
-  git user
-  git login
-  git login text
-  git login cache
-  git login mngr
+  git profile
+  git auth [text|cache|mngr] [--system|--local] [--remove]
   repo readme
-  repo devcontainer [--repo <owner/repo>] [--branch <branch>] [--no-prebuild]
+  repo devcontainer [--repo <owner/repo>@<branch>] [--build]
   repo action <action-name>
-  repo install repos
+  install [--repos] [--pj] [--gh-skill]
+  agent [-a <endpoint>] [-p [g|d]] [-c [o|d]] [-s [agy|deepseek]] [--config] [--list]
 ```
 
-## Subcommands
-- [hpc](hpc.qmd)
-- [shell](shell.qmd)
-- [r](r.qmd)
-- [git](git.qmd)
-- [repo](repo.qmd)
+## Guides
+
+- [Installation](install.qmd)
+- [HPC](hpc.qmd)
+- [Shell](shell.qmd)
+- [R](r.qmd)
+- [Git](git.qmd)
+- [Repository setup](repo.qmd)
+- [Agent configuration](agent.qmd)

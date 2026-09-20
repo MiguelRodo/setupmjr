@@ -3,59 +3,59 @@ title: "shell"
 toc: true
 ---
 
-The `shell` subcommand is used to set up shell environments like bash or zsh. The `bash` subcommand acts as a shorthand for `shell bash`.
+The `shell` subcommand configures Bash or Zsh startup files. `setupmjr bash` is shorthand for `setupmjr shell bash`.
 
 ## Commands
 
+```text
+shell <shell> rc.d
+shell <shell> path
+shell <shell> login [--not-profile]
+
+bash rc.d
+bash path
+bash login [--not-profile]
 ```
-  shell <shell> rc.d
-  shell <shell> path
-  shell <shell> login
-```
 
-### `shell <shell> rc.d`
-
-To manage shell configuration more effectively, it is helpful to place individual scripts inside a dedicated directory (i.e. `~/.<shell>rc.d/`) rather than cluttering the main `~/.<shell>rc` file.
-The `shell <shell> rc.d` command sets up this directory and configures your `~/.<shell>rc` to source all scripts inside it.
-
-To set this up, run the following command:
+## `rc.d`
 
 ```bash
-setupmjr shell <shell> rc.d
+setupmjr shell bash rc.d
+setupmjr shell zsh rc.d
 ```
+
+This ensures `~/.<shell>rc.d` exists and configures `~/.<shell>rc` to source readable files from that directory.
 
 ::: {.callout-info collapse="true"}
 ## Details
 
-The `shell <shell> rc.d` command configures the environment by doing the following:
-
-1. It ensures the `~/.<shell>rc.d` directory exists.
-
-2. It appends a loop to your `~/.<shell>rc` to automatically source any readable scripts inside `~/.<shell>rc.d/`:
-
-    ```bash
-    for i in $HOME/.<shell>rc.d/*; do [ -r "$i" ] && source "$i"; done
-    ```
-:::
-
-
-### `shell <shell> path`
-
-Often, custom executables and scripts are stored in standard local directories like `~/bin` or `~/.local/bin`. To execute these seamlessly, these directories need to be appended to the system `PATH`.
-The `shell <shell> path` command provides a shell-agnostic way to add these directories to your path by placing a script (`path-executables.sh`) inside `~/.<shell>rc.d/`.
-
-To set this up, run the following command:
+The sourcing loop is:
 
 ```bash
-setupmjr shell <shell> path
+for i in $HOME/.<shell>rc.d/*; do [ -r "$i" ] && source "$i"; done
+```
+:::
+
+## `path`
+
+```bash
+setupmjr shell bash path
+setupmjr shell zsh path
 ```
 
-::: {.callout-info collapse="true"}
-## Details
+This first ensures the shell's `rc.d` directory is wired in, then installs `path-executables.sh` there so `~/bin` and `~/.local/bin` are available on `PATH` without duplicating entries.
 
-The `shell <shell> path` command ensures `~/bin` and `~/.local/bin` are accessible by doing the following:
+## `login`
 
-1. It calls `shell <shell> rc.d` to ensure the `~/.<shell>rc.d/` directory is properly set up and sourced by `~/.<shell>rc`.
+```bash
+setupmjr shell bash login
+setupmjr shell zsh login
+```
 
-2. It copies an embedded script, `path-executables.sh`, to `~/.<shell>rc.d/path-executables.sh`. This script safely appends `~/bin` and `~/.local/bin` to the `PATH` environment variable if they are not already included.
-:::
+This installs `login.sh` in the shell's `rc.d` directory and configures the corresponding login profile to source the directory. Bash uses `~/.profile` unless `~/.bash_profile` already exists; Zsh uses `~/.zprofile`.
+
+Use `--not-profile` when you want the `login.sh` file but do not want setupmjr to modify the login profile:
+
+```bash
+setupmjr shell bash login --not-profile
+```
