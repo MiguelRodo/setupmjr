@@ -161,14 +161,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="./agent.html"> 
 <span class="menu-text">agent</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./project.html"> 
-<span class="menu-text">project</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./multirepo.html"> 
-<span class="menu-text">multirepo</span></a>
-  </li>  
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -190,7 +182,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#details" id="toc-details" class="nav-link" data-scroll-target="#details">Details</a></li>
   <li><a href="#repo-devcontainer" id="toc-repo-devcontainer" class="nav-link" data-scroll-target="#repo-devcontainer"><code>repo devcontainer</code></a></li>
   <li><a href="#details-1" id="toc-details-1" class="nav-link" data-scroll-target="#details-1">Details</a></li>
-  <li><a href="#repo-install-repos" id="toc-repo-install-repos" class="nav-link" data-scroll-target="#repo-install-repos"><code>repo install repos</code></a></li>
+  <li><a href="#install-repos" id="toc-install-repos" class="nav-link" data-scroll-target="#install-repos">Install <code>repos</code></a></li>
   <li><a href="#repo-action" id="toc-repo-action" class="nav-link" data-scroll-target="#repo-action"><code>repo action</code></a>
   <ul class="collapse">
   <li><a href="#available-actions" id="toc-available-actions" class="nav-link" data-scroll-target="#available-actions">Available Actions</a></li>
@@ -226,8 +218,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="commands">Commands</h2>
 <pre><code>  repo readme
   repo devcontainer [--repo &lt;owner&gt;/&lt;repo&gt;@&lt;branch&gt;] [--build]
-  repo action &lt;action-name&gt;
-  repo install repos</code></pre>
+  repo action &lt;action-name&gt;</code></pre>
 </section>
 <section id="repo-readme" class="level2">
 <h2 class="anchored" data-anchor-id="repo-readme"><code>repo readme</code></h2>
@@ -273,15 +264,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The source archive is downloaded completely to a temporary file before extraction, so a timeout or interrupted HTTP body cannot feed a partial archive into <code>tar</code>. Repository and branch values are passed as command arguments rather than interpolated into a shell command. If <code>--build</code> is passed, the <code>prebuild-devcontainer.yml</code> workflow download is staged before replacing the destination file.</p>
 <p>setupmjr-owned HTTP downloads use a finite request timeout and report the request URL and HTTP status on failures such as <code>403 Forbidden</code>. Failed or incomplete file downloads are discarded rather than being left at their final destination path.</p>
 </section>
-<section id="repo-install-repos" class="level2">
-<h2 class="anchored" data-anchor-id="repo-install-repos"><code>repo install repos</code></h2>
-<p>While <code>setupmjr</code> has a few subcommands like <code>repo</code>, the <code>repos</code> command is actually a dependency of <code>setupmjr</code>. The <code>setupmjr repo install repos</code> command downloads and installs this external <code>repos</code> utility into <code>~/.local/bin</code>. The release archive is staged in a temporary directory and is not extracted after a failed or incomplete download.</p>
-<p>The core operations for managing repositories (cloning, configuring workspaces, etc.) are conceptually part of <code>repos</code>, which <code>setupmjr</code> uses or exposes.</p>
+<section id="install-repos" class="level2">
+<h2 class="anchored" data-anchor-id="install-repos">Install <code>repos</code></h2>
+<p>Repository orchestration belongs to the standalone <code>repos</code> command. Install or update it with:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install <span class="at">--repos</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Then invoke <code>repos</code> directly. <code>setupmjr</code> no longer proxies <code>repos</code> commands. The release archive is staged in a temporary directory and is not extracted after a failed or incomplete download.</p>
 </section>
 <section id="repo-action" class="level2">
 <h2 class="anchored" data-anchor-id="repo-action"><code>repo action</code></h2>
 <p>This command simplifies adding pre-configured GitHub Actions to your repository.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> repo action <span class="op">&lt;</span>action-name<span class="op">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> repo action <span class="op">&lt;</span>action-name<span class="op">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>It downloads the specified action workflow from the <a href="https://github.com/MiguelRodo/actions">MiguelRodo/actions</a> repository into your <code>.github/workflows/</code> directory.</p>
 <section id="available-actions" class="level3">
 <h3 class="anchored" data-anchor-id="available-actions">Available Actions</h3>
