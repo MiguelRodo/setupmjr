@@ -8,12 +8,16 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/MiguelRodo/setupmjr/internal/netutil"
 	"golang.org/x/term"
 )
 
 const deepSeekCodexSetupURL = "https://cdn.deepseek.com/api-docs/codex-deepseek-setup-en.sh"
 
-var runDeepSeekSetup = runDeepSeekOfficialInstaller
+var (
+	runDeepSeekSetup   = runDeepSeekOfficialInstaller
+	downloadRemoteFile = netutil.DownloadFile
+)
 
 func currentCodexProvider(home string) (string, error) {
 	configPath := filepath.Join(home, ".codex", "config.toml")
@@ -230,40 +234,51 @@ func runDeepSeekOfficialInstaller(home, codexHome, action string) error {
 	if action != "1" && action != "9" {
 		return fmt.Errorf("unsupported DeepSeek setup action %q", action)
 	}
+
+	tmpDir, err := os.MkdirTemp("", "setupmjr-deepseek-*")
+	if err != nil {
+		return fmt.Errorf("create temporary DeepSeek installer directory: %w", err)
+	}
+	defer os.RemoveAll(tmpDir)
+	tmpPath := filepath.Join(tmpDir, "setup.sh")
+	if err := downloadRemoteFile(deepSeekCodexSetupURL, tmpPath); err != nil {
+		return fmt.Errorf("download official DeepSeek Codex setup script: %w", err)
+	}
+
+	key := ""
+	if action == "1" {
+		key, err = deepSeekAPIKey(home, codexHome)
+		if err != nil {
+			return err
+		}
+	}
 	if err := os.MkdirAll(codexHome, 0700); err != nil {
 		return fmt.Errorf("create Codex home: %w", err)
 	}
 
-	tmp, err := os.CreateTemp("", "setupmjr-deepseek-*.sh")
-	if err != nil {
-		return fmt.Errorf("create temporary DeepSeek installer: %w", err)
-	}
-	tmpPath := tmp.Name()
-	if err := tmp.Close(); err != nil {
-		return err
-	}
-	defer os.Remove(tmpPath)
-
-	if err := runExternalCommand("curl", "-fsSL", deepSeekCodexSetupURL, "-o", tmpPath); err != nil {
-		return fmt.Errorf("download official DeepSeek Codex setup script: %w", err)
-	}
-
-	cmd := exec.Command("bash", tmpPath)
+	cmd := exec.Command("bash", "--noprofile", "--norc", tmpPath)
+	cmd.Dir = tmpDir
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = strings.NewReader(action + "\n")
-	cmd.Env = append(os.Environ(), "CODEX_HOME="+codexHome)
-	if action == "1" {
-		key, err := deepSeekAPIKey(home, codexHome)
-		if err != nil {
-			return err
-		}
-		cmd.Env = append(cmd.Env, "DEEPSEEK_API_KEY="+key)
-	}
+	cmd.Env = deepSeekInstallerEnv(home, codexHome, key)
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("run official DeepSeek Codex setup script: %w", err)
 	}
 	return nil
+}
+
+func deepSeekInstallerEnv(home, codexHome, key string) []string {
+	env := []string{"HOME=" + home, "CODEX_HOME=" + codexHome}
+	for _, name := range []string{"PATH", "USER", "LOGNAME", "SHELL", "TMPDIR", "TMP", "TEMP", "LANG", "LC_ALL", "TERM"} {
+		if value, ok := os.LookupEnv(name); ok {
+			env = append(env, name+"="+value)
+		}
+	}
+	if key != "" {
+		env = append(env, "DEEPSEEK_API_KEY="+key)
+	}
+	return env
 }
 
 func deepSeekAPIKey(home, codexHome string) (string, error) {
