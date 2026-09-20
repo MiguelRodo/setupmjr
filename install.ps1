@@ -143,7 +143,7 @@ Write-Host "Installed $binaryName ($downloadedAsset) to $target" -ForegroundColo
 
 Write-Host "Installing bundled dependencies..."
 if (!(Get-Command repos -ErrorAction SilentlyContinue)) {
-    & "$target" repo install repos
+    & "$target" install --repos
 }
 
 Write-Host "Run: $binaryName --help"
