@@ -1,2 +1,4 @@
 issues.md
 setupmjr
+__pycache__/
+*.egg-info/
