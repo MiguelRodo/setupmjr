@@ -57,17 +57,32 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Exact version (e.g. 1.2.3). Cannot be used with bump_type.'
+        description: 'Exact release version in X.Y.Z form (e.g. 1.2.3). Leave blank to bump a component.'
         required: false
+        type: string
       bump_type:
-        description: 'Component to bump: major | minor | patch. Cannot be used with version.'
+        description: 'Component to bump. Choose none when entering an exact version.'
         required: false
+        type: choice
+        default: none
+        options:
+          - none
+          - patch
+          - minor
+          - major
+      version_force:
+        description: 'Allow a non-sequential version, such as a downgrade or skipped increment.'
+        required: false
+        type: boolean
+        default: false
       python_version:
-        description: 'Override: exact version for the Python package.'
+        description: 'Optional exact Python version in X.Y.Z form; overrides the release version.'
         required: false
+        type: string
       r_version:
-        description: 'Override: exact version for the R package.'
+        description: 'Optional exact R version in X.Y.Z form; overrides the release version.'
         required: false
+        type: string
 
 jobs:
   version-release:
@@ -82,7 +97,8 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           version: ${{ inputs.version }}
-          bump_type: ${{ inputs.bump_type }}
+          bump_type: ${{ inputs.bump_type != 'none' && inputs.bump_type || '' }}
+          version_force: ${{ inputs.version_force }}
           python_version: ${{ inputs.python_version }}
           r_version: ${{ inputs.r_version }}
 `,
@@ -95,23 +111,36 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Exact version (e.g. 1.2.3). Cannot be used with bump_type.'
+        description: 'Exact release version in X.Y.Z form (e.g. 1.2.3). Leave blank to bump a component.'
         required: false
+        type: string
       bump_type:
-        description: 'Component to bump: major | minor | patch. Cannot be used with version.'
+        description: 'Component to bump. Choose none when entering an exact version.'
         required: false
+        type: choice
+        default: none
+        options:
+          - none
+          - patch
+          - minor
+          - major
+      version_force:
+        description: 'Allow a non-sequential version, such as a downgrade or skipped increment.'
+        required: false
+        type: boolean
+        default: false
       go_version:
-        description: 'Go version to install (defaults to 1.22).'
+        description: 'Go version to install (e.g. 1.22).'
         required: false
+        type: string
       goreleaser_config:
         description: 'Optional path to the GoReleaser config file.'
         required: false
+        type: string
       apt_repo:
         description: 'Optional target GitHub repository in owner/name form for publishing generated .deb artifacts.'
         required: false
-      apt_repo_token:
-        description: 'Optional token for apt_repo access when publishing to a different repository.'
-        required: false
+        type: string
 
 jobs:
   release:
@@ -126,8 +155,13 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           apt_repo_token: ${{ secrets.APT_REPO_TOKEN }}
+          apt_signing_key: ${{ secrets.APT_SIGNING_KEY }}
+          apt_signing_key_passphrase: ${{ secrets.APT_SIGNING_KEY_PASSPHRASE }}
+          scoop_token: ${{ secrets.SCOOP_TAP_TOKEN }}
+          homebrew_token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
           version: ${{ inputs.version }}
-          bump_type: ${{ inputs.bump_type }}
+          bump_type: ${{ inputs.bump_type != 'none' && inputs.bump_type || '' }}
+          version_force: ${{ inputs.version_force }}
           go_version: ${{ inputs.go_version }}
           goreleaser_config: ${{ inputs.goreleaser_config }}
           apt_repo: ${{ inputs.apt_repo }}
@@ -141,15 +175,24 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Exact version (e.g. v1.2.3). Cannot be used with bump_type.'
+        description: 'Exact release version in X.Y.Z form (e.g. 1.2.3). Leave blank to bump a component.'
         required: false
+        type: string
       bump_type:
-        description: 'Component to bump: major | minor | patch. Cannot be used with version.'
+        description: 'Component to bump. Choose none when entering an exact version.'
         required: false
+        type: choice
+        default: none
+        options:
+          - none
+          - patch
+          - minor
+          - major
       version_force:
-        description: 'When true, skip strict version progression checks.'
+        description: 'Allow a non-sequential version, such as a downgrade or skipped increment.'
         required: false
         type: boolean
+        default: false
 
 jobs:
   release:
@@ -164,7 +207,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           version: ${{ inputs.version }}
-          bump_type: ${{ inputs.bump_type }}
+          bump_type: ${{ inputs.bump_type != 'none' && inputs.bump_type || '' }}
           version_force: ${{ inputs.version_force }}
 `,
 	"apt-repo-prune": `name: Prune APT Repository
@@ -173,9 +216,14 @@ on:
   workflow_dispatch:
     inputs:
       retention:
-        description: 'Retention policy: latest | latest-per-minor | latest-per-major'
+        description: 'Versions to retain for each package and architecture.'
         required: false
+        type: choice
         default: latest-per-major
+        options:
+          - latest-per-major
+          - latest-per-minor
+          - latest
   schedule:
     - cron: '0 3 * * 0'   # weekly on Sunday at 03:00 UTC
 
