@@ -65,7 +65,7 @@ brews:
   - ids:
       - tarballs
     dependencies:
-      - name: MiguelRodo/homebrew-tap/repos
+      - name: MiguelRodo/tap/repos
     repository:
       owner: MiguelRodo
       name: homebrew-tap
