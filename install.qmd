@@ -119,6 +119,25 @@ cd setupmjr
 go build -o setupmjr ./cmd/setupmjr
 ```
 
+## Python wrapper
+
+The Python package is deliberately a thin wrapper around the installed CLI. Install `setupmjr` first using one of the methods above and ensure it is on `PATH`, then install the wrapper from this repository:
+
+```bash
+python -m pip install git+https://github.com/MiguelRodo/setupmjr.git
+```
+
+Use `run()` to delegate arguments to the CLI. It raises on a non-zero exit by default and forwards additional keyword arguments to `subprocess.run`:
+
+```python
+from setupmjr import run
+
+version = run("--version", capture_output=True, text=True)
+print(version.stdout)
+```
+
+The wrapper does not duplicate setupmjr commands or configuration in Python.
+
 ## Managed components
 
 After installing `setupmjr`, use its top-level `install` command for the external tools whose installation glue it owns:
