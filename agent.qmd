@@ -110,6 +110,10 @@ setupmjr agent --codex-provider deepseek
 
 The first DeepSeek setup uses DeepSeek's official Codex setup script and selects the Flash model. `setupmjr` reads `DEEPSEEK_API_KEY` when it is set, reuses a key from an existing managed DeepSeek configuration when possible, or prompts for the key without echoing it.
 
+The script is downloaded over HTTPS with setupmjr's bounded downloader into a temporary directory before it is run. A timeout, non-success HTTP response or incomplete download prevents execution. The script runs with `bash --noprofile --norc` and a reduced environment containing the target Codex home, the DeepSeek key when required, and ordinary process values such as `PATH`; unrelated environment credentials are not forwarded.
+
+This remains a remote-code trust boundary. DeepSeek's current Codex integration publishes the one-click installer at a mutable CDN URL and does not provide a versioned script or checksum for setupmjr to pin. setupmjr therefore does not invent a brittle hash or vendor DeepSeek's large model catalogue. If you do not want to execute the vendor script, use DeepSeek's documented manual Codex configuration instead: <https://api-docs.deepseek.com/quick_start/agent_integrations/codex/>.
+
 Before changing provider, `setupmjr` stores private snapshots of the active Codex `config.toml` and `models.json` under:
 
 ```text
@@ -122,7 +126,7 @@ If DeepSeek was already installed manually with the official setup script before
 
 Provider changes affect the ordinary Codex home at `~/.codex`, so they apply to Codex clients that share that configuration. Restart active Codex clients after switching. A DeepSeek session may have logged Codex out of ChatGPT, so restoring the OpenAI configuration does not guarantee that the ChatGPT account is still authenticated.
 
-The automated DeepSeek bootstrap currently requires Bash and `curl`, and is intended for Linux, macOS and WSL environments.
+The automated DeepSeek bootstrap requires Bash and is intended for Linux, macOS and WSL environments. It no longer requires `curl`.
 
 ## Configure an opt-in subagent
 
