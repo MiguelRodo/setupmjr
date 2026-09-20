@@ -7,18 +7,13 @@ The `git` subcommand configures Git identity and authentication.
 
 ## Commands
 
-```
-  git
-  git profile
-  git auth
-  git auth text
-  git auth cache
-  git auth mngr
+```text
+git
+git profile
+git auth [text|cache|mngr] [--system|--local] [--remove]
 ```
 
-## Setting up Git
-
-Run:
+## Git setup
 
 ```bash
 setupmjr git
@@ -32,6 +27,22 @@ This configures your Git name/email when they are missing and then configures Gi
 2. Otherwise, setupmjr uses its headless/HPC fallback and stores one token at `~/.config/setupmjr/auth/github.token`.
 
 The GitHub CLI check deliberately ignores `GH_TOKEN` and `GITHUB_TOKEN`, so an environment-only token is not mistaken for a durable `gh auth login`.
+
+### Scope and replacement flags
+
+Authentication config is global by default. Use `--system` or `--local` to select another Git config scope:
+
+```bash
+setupmjr git auth --local
+```
+
+Use `--remove` when you want setupmjr to clear existing credential helpers in the selected scope before configuring the requested authentication path:
+
+```bash
+setupmjr git auth --local --remove
+```
+
+Do not combine `--system` and `--local`.
 
 ### GitHub CLI path
 
@@ -61,9 +72,9 @@ Git is configured with a host-specific credential helper that reads the protecte
 
 ### Migration from older setupmjr authentication
 
-Older versions of setupmjr could write `GH_TOKEN` directly into `.bashrc.d/login.sh` and `.zshrc.d/login.sh`. Running the new authentication setup removes active legacy `GH_TOKEN=` and `GITHUB_USERNAME=` assignments from those setupmjr login files before configuring the new strategy.
+Older versions of setupmjr could write `GH_TOKEN` directly into `.bashrc.d/login.sh` and `.zshrc.d/login.sh`. Running the current authentication setup removes active legacy `GH_TOKEN=` and `GITHUB_USERNAME=` assignments from those setupmjr login files before configuring the new strategy.
 
-A short-lived version of #53 also placed the non-secret managed block directly in `.bashrc` and `.zshrc`. Re-running `setupmjr git auth` migrates that block into the existing `login.sh` files automatically.
+A short-lived version also placed the non-secret managed block directly in `.bashrc` and `.zshrc`. Re-running `setupmjr git auth` migrates that block into the existing `login.sh` files automatically.
 
 ### Dev Containers
 
@@ -77,11 +88,9 @@ The setupmjr fallback is deliberately implemented through the standard Git crede
 
 ## Legacy explicit helpers
 
-The older explicit helper commands remain available:
+The older explicit helper commands remain available but are not part of the default authentication path:
 
 ```bash
 setupmjr git auth cache
 setupmjr git auth mngr
 ```
-
-They are not part of the default authentication path.
