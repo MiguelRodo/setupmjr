@@ -3,60 +3,54 @@ title: "repo"
 toc: true
 ---
 
-The `repo` subcommand configures the current repository.
+The `repo` subcommand configures the current repository. Repository orchestration itself belongs to the standalone `repos` CLI.
 
 ## Commands
 
 ```text
 repo readme
-repo devcontainer [--repo <owner>/<repo>@<branch>] [--build]
+repo devcontainer [--repo <owner/repo>@<branch>] [--build]
 repo action <action-name>
 ```
 
 ## `repo readme`
 
-This command interactively scaffolds a standard `README.md` with a title, purpose, contacts, links and details sections.
-
 ```bash
 setupmjr repo readme
 ```
 
-## `repo devcontainer`
+Interactively scaffold a standard `README.md` with title, purpose, contacts, links and details sections.
 
-Copy a reference `.devcontainer` configuration into the current repository:
+## `repo devcontainer`
 
 ```bash
 setupmjr repo devcontainer
 setupmjr repo devcontainer --repo MiguelRodo/comp@main
 ```
 
-- `--repo` selects the source repository and branch in `<owner>/<repo>@<branch>` form. The default is `MiguelRodo/comp@main`.
+- `--repo` selects the source repository and branch in `<owner/repo>@<branch>` form. The default is `MiguelRodo/comp@main`.
 - `--build` also installs the `prebuild-devcontainer.yml` workflow example from the latest published `MiguelRodo/actions` release.
 
-The source archive is fully staged before extraction, so a timeout or interrupted response cannot feed a partial archive into `tar`. Repository and branch values are passed as command arguments rather than interpolated into a shell command.
-
-setupmjr-owned HTTP downloads use a finite request timeout, preserve URL/status context on failures, and only replace destination files after complete writes.
-
-## Install `repos`
-
-Repository orchestration belongs to the standalone `repos` command. Install or update it with:
-
-```bash
-setupmjr install --repos
-```
-
-Then invoke `repos` directly. The release archive is staged in a temporary directory and is not extracted after a failed or incomplete download.
+The source archive is staged before extraction, and repository/branch values are passed as command arguments rather than interpolated into shell commands.
 
 ## `repo action`
-
-Install a workflow example published by the canonical [`MiguelRodo/actions`](https://github.com/MiguelRodo/actions) repository:
 
 ```bash
 setupmjr repo action <action-name>
 ```
 
-`setupmjr` resolves the latest published actions release, then downloads `examples/<action-name>.yml` from that exact release tag into `.github/workflows/`. It keeps no embedded workflow copies and does not fall back to mutable `actions/main`.
+Workflow examples are owned by [`MiguelRodo/actions`](https://github.com/MiguelRodo/actions). setupmjr resolves its latest published release and installs `examples/<action-name>.yml` from that exact tag into `.github/workflows/`.
 
-Use the example filename from the latest published `MiguelRodo/actions` release without the `.yml` suffix. If that example is not present in the release, the command fails rather than installing a local or development copy.
+Use the released example filename without the `.yml` suffix. setupmjr keeps no embedded workflow copies and does not fall back to mutable `actions/main`; a missing released example is an error.
 
-Workflow downloads are staged in `.github/workflows/` and replace the final path only after the response completes successfully. Errors include the requested action name, resolved release tag and HTTP status where available.
+## `repos` CLI
+
+Install or update the standalone repository-orchestration CLI with:
+
+```bash
+setupmjr install --repos
+```
+
+Then use `repos` directly. setupmjr owns its installation glue, not its commands.
+
+Network downloads used by these setup paths have finite timeouts and are staged before replacing final files, so failed or incomplete downloads do not become installed artefacts.
