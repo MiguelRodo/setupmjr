@@ -69,12 +69,14 @@ setupmjr repo devcontainer [--repo <owner>/<repo>@<branch>] [--build]
 ::: {.callout-info collapse="true"}
 ## Details
 
-Under the hood, the command downloads the specified branch tarball from GitHub over HTTPS and passes it directly to `tar`; repository and branch values are not interpolated into a shell command. If the `--build` flag is passed, it pulls the `prebuild-devcontainer.yml` workflow from `MiguelRodo/actions` and places it in `.github/workflows/`.
+The source archive is downloaded completely to a temporary file before extraction, so a timeout or interrupted HTTP body cannot feed a partial archive into `tar`. Repository and branch values are passed as command arguments rather than interpolated into a shell command. If `--build` is passed, the `prebuild-devcontainer.yml` workflow download is staged before replacing the destination file.
+
+setupmjr-owned HTTP downloads use a finite request timeout and report the request URL and HTTP status on failures such as `403 Forbidden`. Failed or incomplete file downloads are discarded rather than being left at their final destination path.
 :::
 
 ## `repo install repos`
 
-While `setupmjr` has a few subcommands like `repo`, the `repos` command is actually a dependency of `setupmjr`. The `setupmjr repo install repos` command downloads and installs this external `repos` utility into `~/.local/bin`.
+While `setupmjr` has a few subcommands like `repo`, the `repos` command is actually a dependency of `setupmjr`. The `setupmjr repo install repos` command downloads and installs this external `repos` utility into `~/.local/bin`. The release archive is staged in a temporary directory and is not extracted after a failed or incomplete download.
 
 The core operations for managing repositories (cloning, configuring workspaces, etc.) are conceptually part of `repos`, which `setupmjr` uses or exposes.
 
@@ -99,5 +101,5 @@ The following actions can be added:
 ::: {.callout-info collapse="true"}
 ## Details
 
-When running `repo action <action-name>`, the CLI fetches the corresponding YAML file from the `examples` directory of the `MiguelRodo/actions` repository, directly placing it in `.github/workflows/`.
+When `repo action <action-name>` needs to fetch a workflow example from `MiguelRodo/actions`, the new file is staged in `.github/workflows/` and replaces the final path only after the download completes successfully.
 :::
