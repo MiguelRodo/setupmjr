@@ -11,7 +11,6 @@ The `repo` subcommand is used to set up repositories.
   repo readme
   repo devcontainer [--repo <owner>/<repo>@<branch>] [--build]
   repo action <action-name>
-  repo install repos
 ```
 
 ## `repo readme`
@@ -74,11 +73,15 @@ The source archive is downloaded completely to a temporary file before extractio
 setupmjr-owned HTTP downloads use a finite request timeout and report the request URL and HTTP status on failures such as `403 Forbidden`. Failed or incomplete file downloads are discarded rather than being left at their final destination path.
 :::
 
-## `repo install repos`
+## Install `repos`
 
-While `setupmjr` has a few subcommands like `repo`, the `repos` command is actually a dependency of `setupmjr`. The `setupmjr repo install repos` command downloads and installs this external `repos` utility into `~/.local/bin`. The release archive is staged in a temporary directory and is not extracted after a failed or incomplete download.
+Repository orchestration belongs to the standalone `repos` command. Install or update it with:
 
-The core operations for managing repositories (cloning, configuring workspaces, etc.) are conceptually part of `repos`, which `setupmjr` uses or exposes.
+```bash
+setupmjr install --repos
+```
+
+Then invoke `repos` directly. `setupmjr` no longer proxies `repos` commands. The release archive is staged in a temporary directory and is not extracted after a failed or incomplete download.
 
 ## `repo action`
 
