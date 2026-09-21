@@ -35,7 +35,7 @@ cd setupmjr
 bash install-local.sh
 ```
 
-See [Installation](install.qmd) for repository setup, Windows installer usage, source builds, release assets and the Python/R wrappers.
+See [Installation](install.qmd) for repository setup, Windows installer usage, source builds and release assets.
 
 ## Quick start
 
