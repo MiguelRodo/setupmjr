@@ -3,7 +3,7 @@ title: "Installation"
 toc: true
 ---
 
-`setupmjr` is distributed as a compiled Go CLI binary. The canonical installation paths are the published APT repository, Homebrew on macOS, the release installer scripts, Scoop on Windows, or a Go source build.
+`setupmjr` is distributed as a compiled Go CLI. Use the native package path where available, the release installers when you want a user-local binary, or build from source.
 
 ## Ubuntu / Debian
 
@@ -18,39 +18,16 @@ curl -fsSL https://miguelrodo.github.io/apt-miguelrodo/KEY.gpg \
 echo "deb [signed-by=/usr/share/keyrings/apt-miguelrodo.gpg] https://miguelrodo.github.io/apt-miguelrodo stable main" \
   | sudo tee /etc/apt/sources.list.d/apt-miguelrodo.list >/dev/null
 sudo apt-get update
-```
-
-Then install or upgrade normally:
-
-```bash
 sudo apt-get install -y setupmjr
 ```
 
-The Debian package depends on `bash` and `repos`, so APT installs those dependencies through the repository as needed.
-
-### User-local release installer
-
-For a no-sudo installation, clone the repository and run the release installer:
-
-```bash
-git clone https://github.com/MiguelRodo/setupmjr.git
-cd setupmjr
-bash install-local.sh
-```
-
-The script downloads the latest release binary, verifies its checksum when `checksums.txt` and a SHA-256 tool are available, and installs it into the first writable directory already on `PATH`. If none is writable, it falls back to `~/.local/bin` and prints the required `PATH` instruction. If `repos` is not already available, the installed setupmjr binary runs `setupmjr install --repos`.
-
-To uninstall an installation recorded by the local installer:
-
-```bash
-bash uninstall-local.sh
-```
+The Debian package depends on `bash` and `repos`, so APT resolves those dependencies through the repository.
 
 ## macOS
 
 ### Homebrew
 
-The published GitHub repository `MiguelRodo/homebrew-tap` is the Homebrew tap `MiguelRodo/tap`. Add and trust it once, then install setupmjr:
+The GitHub repository `MiguelRodo/homebrew-tap` is the Homebrew tap `MiguelRodo/tap`:
 
 ```bash
 brew tap MiguelRodo/tap
@@ -58,11 +35,11 @@ brew trust MiguelRodo/tap
 brew install MiguelRodo/tap/setupmjr
 ```
 
-Homebrew 6 requires explicit trust for non-official taps. The setupmjr formula depends on `MiguelRodo/tap/repos`, so trusting this small related-tools tap allows Homebrew to resolve and install `repos` automatically.
+Homebrew 6 requires explicit trust for non-official taps. The setupmjr formula depends on `MiguelRodo/tap/repos`, so trusting the tap allows Homebrew to resolve that dependency automatically.
 
-### User-local release installer
+## Linux / macOS user-local installer
 
-Alternatively, use the no-sudo release installer:
+For a no-sudo release installation on Linux or macOS:
 
 ```bash
 git clone https://github.com/MiguelRodo/setupmjr.git
@@ -70,24 +47,30 @@ cd setupmjr
 bash install-local.sh
 ```
 
-The installer supports both `amd64` and `arm64` release binaries and falls back to `~/.local/bin` when no writable `PATH` directory is available.
+The installer downloads the latest release binary, verifies it against `checksums.txt` when SHA-256 tooling is available, and writes to the first writable directory already on `PATH`. If none is writable, it falls back to `~/.local/bin` and prints the required `PATH` instruction. If `repos` is missing, the installed binary runs `setupmjr install --repos`.
+
+The installer supports both `amd64` and `arm64` release binaries.
+
+To uninstall an installation recorded by this installer:
+
+```bash
+bash uninstall-local.sh
+```
 
 ## Windows
 
 ### Scoop
-
-A current Scoop manifest is published in `MiguelRodo/scoop-bucket`:
 
 ```powershell
 scoop bucket add MiguelRodo https://github.com/MiguelRodo/scoop-bucket
 scoop install setupmjr
 ```
 
-The manifest declares `repos` as a dependency.
+The published Scoop manifest declares `repos` as a dependency.
 
 ### Installer script
 
-Alternatively, clone the repository and run the PowerShell installer:
+Alternatively:
 
 ```powershell
 git clone https://github.com/MiguelRodo/setupmjr.git
@@ -95,7 +78,7 @@ cd setupmjr
 .\install.ps1
 ```
 
-The script downloads the latest release binary into the first writable directory already on `Path`. If `repos` is not already available, the installed setupmjr binary runs `setupmjr install --repos` and the installer fails if that dependency installation fails.
+The script downloads the latest release binary into the first writable directory already on `Path`. If `repos` is missing, it runs `setupmjr install --repos` and fails if that dependency installation fails.
 
 To uninstall the recorded installation:
 
@@ -105,7 +88,7 @@ To uninstall the recorded installation:
 
 ## From source
 
-With Go installed, install directly from the module path:
+With Go installed:
 
 ```bash
 go install github.com/MiguelRodo/setupmjr/cmd/setupmjr@latest
@@ -119,45 +102,9 @@ cd setupmjr
 go build -o setupmjr ./cmd/setupmjr
 ```
 
-## Python wrapper
-
-The Python package is deliberately a thin wrapper around the installed CLI. Install `setupmjr` first using one of the methods above and ensure it is on `PATH`, then install the wrapper from this repository:
-
-```bash
-python -m pip install git+https://github.com/MiguelRodo/setupmjr.git
-```
-
-Use `run()` to delegate arguments to the CLI. It raises on a non-zero exit by default and forwards additional keyword arguments to `subprocess.run`:
-
-```python
-from setupmjr import run
-
-version = run("--version", capture_output=True, text=True)
-print(version.stdout)
-```
-
-The wrapper does not duplicate setupmjr commands or configuration in Python.
-
-## R wrapper
-
-The R package follows the same model: install `setupmjr` first and keep the binary on `PATH`, then install the package from this repository with `remotes`:
-
-```r
-remotes::install_github("MiguelRodo/setupmjr")
-```
-
-Use `setupmjr::run()` to pass arguments to the CLI. `stdout` and `stderr` are passed directly to base R's `system2()`:
-
-```r
-version <- setupmjr::run("--version", stdout = TRUE)
-print(version)
-```
-
-The R wrapper contains no duplicate command implementation or runtime package dependencies.
-
 ## Managed components
 
-After installing `setupmjr`, use its top-level `install` command for the external tools whose installation glue it owns:
+The top-level `install` command owns installation glue for external tools:
 
 ```bash
 setupmjr install --repos
@@ -165,21 +112,21 @@ setupmjr install --pj
 setupmjr install --gh-skill
 ```
 
-Flags may be combined. Installers run in a fixed order and stop at the first error:
+Flags may be combined. Regardless of flag order, setupmjr runs `--repos`, then `--gh-skill`, then `--pj`, and stops at the first failure:
 
 ```bash
-setupmjr install --repos --pj --gh-skill
+setupmjr install --repos --gh-skill --pj
 ```
 
-- `--repos` installs the latest released `MiguelRodo/repos` binary into `~/.local/bin`. Run `repos` directly afterwards.
-- `--pj` installs or updates `pj` from `MiguelRodo/pj` by shallow-cloning the floating `v0` tag and running its installer.
-- `--gh-skill` installs `github-projects` from `MiguelRodo/github-projects-skill` for universal agents at user scope, pinned to `main`.
+- `--repos` installs the latest released `MiguelRodo/repos` binary into `~/.local/bin`; use `repos` directly afterwards.
+- `--gh-skill` installs `github-projects` from `MiguelRodo/github-projects-skill` for universal agents at user scope from `main`.
+- `--pj` installs or updates the launcher from `MiguelRodo/pj` using its floating `v0` release line.
 
 At least one target flag is required.
 
 ## Release assets
 
-GitHub Releases publish binaries for Linux, macOS and Windows on `amd64` and `arm64`. Release archives are `.tar.gz` on Linux/macOS and `.zip` on Windows. Bare binaries used by the installer scripts are also published as:
+GitHub Releases publish Linux, macOS and Windows binaries for `amd64` and `arm64`. Archives are `.tar.gz` on Linux/macOS and `.zip` on Windows. Installer scripts use the stable bare-binary names:
 
 ```text
 setupmjr_linux_<arch>

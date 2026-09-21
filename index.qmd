@@ -3,42 +3,45 @@ title: "setupmjr"
 toc: true
 ---
 
-`setupmjr` is a cross-platform setup utility.
+`setupmjr` is a cross-platform setup utility for shell, R, Git, repository, HPC and coding-agent environments.
 
-## Commands
+## Start here
 
-```text
-setupmjr - Cross-platform setup utility
-Commands:
-  hpc
-  hpc scratch
-  hpc apptainer
-  hpc slurm
-  hpc git
-  hpc r [--not-radian] [--not-lintr] [--switch-r]
-  shell <shell> rc.d
-  shell <shell> path
-  shell <shell> login [--not-profile]
-  bash rc.d
-  bash path
-  bash login [--not-profile]
-  r [--not-radian] [--not-lintr] [--switch-r]
-  git
-  git profile
-  git auth [text|cache|mngr] [--system|--local] [--remove]
-  repo readme
-  repo devcontainer [--repo <owner/repo>@<branch>] [--build]
-  repo action <action-name>
-  install [--repos] [--pj] [--gh-skill]
-  agent [-a <endpoint>] [-p [g|d]] [-c [o|d]] [-s [agy|deepseek]] [--config] [--list]
+Install the CLI using a supported package manager, release installer or source build. See [Installation](install.qmd) for the canonical commands.
+
+For authoritative top-level syntax, run:
+
+```bash
+setupmjr --help
 ```
+
+The `agent` command also has detailed option help:
+
+```bash
+setupmjr agent --help
+```
+
+## Command groups
+
+| Command | Purpose |
+| --- | --- |
+| `setupmjr hpc` | Configure Linux HPC shell, Git, scratch, Apptainer, SLURM and R setup. |
+| `setupmjr shell` | Configure Bash or Zsh startup, executable paths and login integration. |
+| `setupmjr bash` | Shorthand for `setupmjr shell bash`. |
+| `setupmjr r` | Configure `radian`, `lintr` and the optional project-local `switch_r` helper. |
+| `setupmjr git` | Configure Git identity and GitHub authentication. |
+| `setupmjr repo` | Scaffold repository files, devcontainers and released workflow examples. |
+| `setupmjr install` | Install or refresh external tools whose setup glue is owned by setupmjr. |
+| `setupmjr agent` | Configure coding-agent credentials, providers and opt-in subagents. |
+
+External tools keep ownership of their own behaviour. In particular, use `repos` directly after `setupmjr install --repos`, and use `pj` directly after `setupmjr install --pj`.
 
 ## Guides
 
 - [Installation](install.qmd)
 - [HPC](hpc.qmd)
 - [Shell](shell.qmd)
-- [R](r.qmd)
+- [R setup](r.qmd)
 - [Git](git.qmd)
 - [Repository setup](repo.qmd)
 - [Agent configuration](agent.qmd)

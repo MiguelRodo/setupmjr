@@ -4,18 +4,30 @@
 [![Test Suite](https://github.com/MiguelRodo/setupmjr/actions/workflows/test-suite.yml/badge.svg)](https://github.com/MiguelRodo/setupmjr/actions/workflows/test-suite.yml)
 [![ShellCheck](https://github.com/MiguelRodo/setupmjr/actions/workflows/shellcheck.yml/badge.svg)](https://github.com/MiguelRodo/setupmjr/actions/workflows/shellcheck.yml)
 
-`setupmjr` is a cross-platform Go CLI for configuring shell, R, Git, repository, HPC and coding-agent environments, plus installing the external tools it integrates with.
+`setupmjr` is a cross-platform Go CLI for configuring shell, R, Git, repository, HPC and coding-agent environments. It also provides installation glue for the external tools it integrates with.
 
 ## Installation
 
-On Debian or Ubuntu, after configuring the [`apt-miguelrodo`](https://github.com/MiguelRodo/apt-miguelrodo) repository:
+Use the native package path where available:
 
 ```bash
+# Debian / Ubuntu, after adding apt-miguelrodo
 sudo apt-get update
 sudo apt-get install -y setupmjr
+
+# macOS
+brew tap MiguelRodo/tap
+brew trust MiguelRodo/tap
+brew install MiguelRodo/tap/setupmjr
 ```
 
-For a user-local release install on Linux or macOS:
+```powershell
+# Windows
+scoop bucket add MiguelRodo https://github.com/MiguelRodo/scoop-bucket
+scoop install setupmjr
+```
+
+For a user-local Linux or macOS install without sudo:
 
 ```bash
 git clone https://github.com/MiguelRodo/setupmjr.git
@@ -23,64 +35,44 @@ cd setupmjr
 bash install-local.sh
 ```
 
-For development:
-
-```bash
-go build ./cmd/setupmjr
-```
-
-See [install.qmd](install.qmd) for the supported APT, Scoop, release-installer and source paths.
-
-### Installation CI
-
-Pull requests test Debian-package, local Linux, Windows and source installations using artefacts built from the PR. The release-installer tests separately verify that a fresh installer dispatches the `repos` dependency through `setupmjr install --repos`, then exercise the real PR-built setupmjr binary without depending on the published `repos` release.
-
-The published APT repository is a separate integration check and is exercised by the manually triggered `Test Installation Methods` workflow.
+See [Installation](install.qmd) for repository setup, Windows installer usage, source builds and release assets.
 
 ## Quick start
 
-Run the Linux-only master HPC setup with:
-
 ```bash
+setupmjr --help
 setupmjr hpc
-```
-
-Inspect or configure coding agents with:
-
-```bash
+setupmjr git
+setupmjr repo devcontainer
 setupmjr agent --list
-setupmjr agent --auth deepseek
-setupmjr agent -p d
-setupmjr agent -c d
-setupmjr agent -s deepseek
 ```
 
-See [agent.qmd](agent.qmd) for provider switching, credentials, snapshots and subagent behaviour.
-
-Use the top-level `install` command for external tools managed by setupmjr's installation glue:
-
-```bash
-setupmjr install --repos
-setupmjr install --pj
-setupmjr install --gh-skill
-```
-
-Flags may be combined:
+Install external tools through the top-level `install` command:
 
 ```bash
 setupmjr install --repos --pj --gh-skill
 ```
 
-`--pj` follows `MiguelRodo/pj`'s floating `v0` release line. `--gh-skill` installs `MiguelRodo/github-projects-skill` for universal agents at user scope from `main`. After installing `repos`, invoke `repos` directly for repository orchestration.
+`repos`, `pj`, `MiguelRodo/actions` and `github-projects-skill` keep ownership of their own behaviour. `setupmjr` owns the setup and integration glue around them.
 
-## Commands and capabilities
+## Command groups
 
-- `setupmjr hpc` - Run the Linux-only master HPC setup, or use `scratch`, `apptainer`, `slurm`, `git` and `r` independently.
-- `setupmjr shell <shell>` - Configure `rc.d`, executable paths and login/profile integration. `setupmjr bash` is shorthand for `setupmjr shell bash`.
-- `setupmjr r` - Configure `radian`, `lintr` and optionally the project-local `switch_r` helper.
-- `setupmjr git` - Configure Git identity and GitHub authentication.
-- `setupmjr repo` - Configure repository README, devcontainer and released workflow examples.
-- `setupmjr install [--repos] [--pj] [--gh-skill]` - Install or refresh setupmjr-managed external tools. At least one target flag is required.
-- `setupmjr agent` - Inspect or configure coding-agent authentication, providers and the opt-in subagent.
+- `setupmjr hpc` configures Linux HPC environments and exposes focused `scratch`, `apptainer`, `slurm`, `git` and `r` setup steps.
+- `setupmjr shell` configures Bash or Zsh startup files; `setupmjr bash` is shorthand for Bash.
+- `setupmjr r` configures `radian`, `lintr` and the optional project-local `switch_r` helper.
+- `setupmjr git` configures Git identity and GitHub authentication.
+- `setupmjr repo` scaffolds repository files, devcontainers and released workflow examples.
+- `setupmjr install` installs or refreshes setupmjr-managed external tools.
+- `setupmjr agent` configures coding-agent credentials, providers and opt-in subagents.
 
-Run `setupmjr --help` for the complete command syntax, or use the Quarto guides linked above for details.
+`setupmjr --help` is the authoritative top-level syntax. `setupmjr agent --help` gives the detailed agent options.
+
+## Guides
+
+- [Installation](install.qmd)
+- [HPC](hpc.qmd)
+- [Shell](shell.qmd)
+- [R setup](r.qmd)
+- [Git](git.qmd)
+- [Repository setup](repo.qmd)
+- [Agent configuration](agent.qmd)

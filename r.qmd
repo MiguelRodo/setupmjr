@@ -32,7 +32,7 @@ setupmjr r --not-lintr
 setupmjr r --switch-r
 ```
 
-The HPC wrapper accepts the same R flags, for example:
+The HPC command accepts the same R flags:
 
 ```bash
 setupmjr hpc r --not-lintr

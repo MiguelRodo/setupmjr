@@ -1,52 +1,41 @@
 ---
 title: "agent"
+toc: true
 ---
 
-Use the `agent` command for user-level coding-agent configuration. Provider setup belongs here; `pj` only launches already-configured agents.
+Use `setupmjr agent` for user-level coding-agent configuration. `pj` launches already-configured agents; provider and credential setup belongs here.
 
-## Inspect agent configuration
+Run `setupmjr agent --help` for authoritative option syntax and `setupmjr agent --list` for accepted endpoints, providers, subagents and aliases.
 
-Show the effective Codex provider, Copilot provider and configured opt-in subagent:
+## Inspect configuration
 
 ```bash
 setupmjr agent --config
-```
-
-List the available choices and short aliases:
-
-```bash
 setupmjr agent --list
 ```
 
-Running `setupmjr agent` without options prints command help.
+`--config` reports the effective Codex provider, Copilot provider and configured opt-in subagent. Running `setupmjr agent` without options prints command help.
 
-## Configure model-provider authentication
-
-Store the DeepSeek API credential without changing any agent's active provider:
+## Store DeepSeek authentication
 
 ```bash
 setupmjr agent --auth deepseek
-# short form
 setupmjr agent -a d
 ```
 
-The command reuses `DEEPSEEK_API_KEY` when it is already set, then checks the managed DeepSeek credential and existing Codex DeepSeek configurations. If no key is available, it prompts for one without echoing it.
+Authentication is credential-only: it does not change the active Codex or Copilot provider.
 
-The reusable key is stored at:
+setupmjr reuses `DEEPSEEK_API_KEY` when available, then checks its managed credential and existing Codex DeepSeek configuration, and otherwise prompts without echoing the key. The reusable credential is stored at:
 
 ```text
 ~/.config/setupmjr/agent/auth/deepseek.key
 ```
 
-with private permissions. The credential can be reused by both the Codex and Copilot DeepSeek configurations.
+The file is private and can be reused by both managed DeepSeek provider paths. DeepSeek is currently the only managed `--auth` endpoint.
 
-Crucially, `--auth` is credential-only. It does not set `COPILOT_PROVIDER_TYPE`, `COPILOT_PROVIDER_BASE_URL`, `COPILOT_MODEL`, or any other provider-selection variable, and it does not change the current Codex or Copilot provider.
+## Copilot provider
 
-At present `deepseek` is the only managed `--auth` endpoint. The endpoint argument is explicit so additional credentials can be added without changing the command shape.
-
-## Switch the Copilot provider
-
-GitHub-managed Copilot models are the default value for `-p`, so these are equivalent:
+GitHub-managed Copilot models are the default value for `-p`:
 
 ```bash
 setupmjr agent -p
@@ -54,46 +43,20 @@ setupmjr agent -p g
 setupmjr agent --copilot-provider github
 ```
 
-Switch Copilot to DeepSeek:
-
-```bash
-setupmjr agent -p d
-setupmjr agent --copilot-provider deepseek
-```
-
-DeepSeek provider selection requires the credential to have been stored first with:
+Switch to DeepSeek after storing its credential:
 
 ```bash
 setupmjr agent --auth deepseek
+setupmjr agent -p d
 ```
 
-When DeepSeek is selected, `setupmjr` writes the managed Copilot environment at:
+The managed environment lives at `~/.config/setupmjr/agent/copilot.env` and is sourced by Bash and Zsh startup files. DeepSeek uses its Anthropic-compatible endpoint with the Flash model; `COPILOT_PROVIDER_TYPE=anthropic` selects the wire protocol, not Anthropic as the model vendor.
 
-```text
-~/.config/setupmjr/agent/copilot.env
-```
+The raw key is not embedded in the provider environment. Switching back to `github` removes the managed BYOK provider variables for new shells. Restart the shell, or source the managed environment file, after switching. GitHub authentication for Copilot remains separate from provider selection.
 
-and sources it from Bash and Zsh startup files. The active DeepSeek configuration is:
+## Codex provider
 
-```text
-COPILOT_PROVIDER_TYPE=anthropic
-COPILOT_PROVIDER_BASE_URL=https://api.deepseek.com/anthropic
-COPILOT_MODEL=deepseek-flash
-COPILOT_PROVIDER_MAX_PROMPT_TOKENS=840000
-COPILOT_PROVIDER_MAX_OUTPUT_TOKENS=128000
-```
-
-Here, `COPILOT_PROVIDER_TYPE=anthropic` selects the Anthropic-compatible wire protocol used to communicate with DeepSeek's endpoint. It does not select Anthropic as the model vendor.
-
-The raw DeepSeek key is not copied into the provider environment. The environment reads the private credential file only when DeepSeek is the active Copilot provider.
-
-Switching back to `github` writes an environment that unsets the BYOK provider variables, restoring GitHub-managed Copilot model selection in new shells. Restart the shell, or source `~/.config/setupmjr/agent/copilot.env`, after switching.
-
-DeepSeek BYOK does not itself sign Copilot into GitHub. GitHub authentication remains separate and can coexist with either provider choice.
-
-## Switch the primary Codex provider
-
-OpenAI/ChatGPT is the default value for `-c`, so these are equivalent:
+OpenAI/ChatGPT is the default value for `-c`:
 
 ```bash
 setupmjr agent -c
@@ -101,34 +64,30 @@ setupmjr agent -c o
 setupmjr agent --codex-provider openai
 ```
 
-Switch Codex to DeepSeek:
+Switch to DeepSeek with:
 
 ```bash
 setupmjr agent -c d
 setupmjr agent --codex-provider deepseek
 ```
 
-The first DeepSeek setup uses DeepSeek's official Codex setup script and selects the Flash model. `setupmjr` reads `DEEPSEEK_API_KEY` when it is set, reuses a key from an existing managed DeepSeek configuration when possible, or prompts for the key without echoing it.
+The first managed DeepSeek setup uses DeepSeek's official Codex setup script and selects the Flash model. setupmjr stages that script with its bounded downloader and runs it with `bash --noprofile --norc` plus a reduced environment. A timeout, failed HTTP response or incomplete download prevents execution.
 
-The script is downloaded over HTTPS with setupmjr's bounded downloader into a temporary directory before it is run. A timeout, non-success HTTP response or incomplete download prevents execution. The script runs with `bash --noprofile --norc` and a reduced environment containing the target Codex home, the DeepSeek key when required, and ordinary process values such as `PATH`; unrelated environment credentials are not forwarded.
+This remains a remote-code trust boundary: DeepSeek publishes the installer at a mutable CDN URL without a versioned script or checksum that setupmjr can pin. If you do not want to run the vendor script, use DeepSeek's documented manual Codex setup instead: <https://api-docs.deepseek.com/quick_start/agent_integrations/codex/>.
 
-This remains a remote-code trust boundary. DeepSeek's current Codex integration publishes the one-click installer at a mutable CDN URL and does not provide a versioned script or checksum for setupmjr to pin. setupmjr therefore does not invent a brittle hash or vendor DeepSeek's large model catalogue. If you do not want to execute the vendor script, use DeepSeek's documented manual Codex configuration instead: <https://api-docs.deepseek.com/quick_start/agent_integrations/codex/>.
-
-Before changing provider, `setupmjr` stores private snapshots of the active Codex `config.toml` and `models.json` under:
+Before provider changes, setupmjr snapshots the active Codex `config.toml` and `models.json` under:
 
 ```text
 ~/.config/setupmjr/agent/codex/
 ```
 
-After both providers have been seen once, `-c d` and `-c o` switch by restoring those snapshots rather than rerunning the full DeepSeek installer.
+After both providers have been seen once, switching restores local snapshots instead of rerunning the DeepSeek installer. A pre-existing manual DeepSeek installation uses the vendor restore path once to capture the OpenAI state.
 
-If DeepSeek was already installed manually with the official setup script before `setupmjr` started managing providers, the first switch back to OpenAI uses DeepSeek's official restore path once and then records the restored OpenAI state. Later switches are local snapshot restores.
+Provider changes affect the ordinary `~/.codex` home. Restart active Codex clients after switching. Restoring OpenAI configuration does not itself restore a ChatGPT login that a previous DeepSeek session may have displaced.
 
-Provider changes affect the ordinary Codex home at `~/.codex`, so they apply to Codex clients that share that configuration. Restart active Codex clients after switching. A DeepSeek session may have logged Codex out of ChatGPT, so restoring the OpenAI configuration does not guarantee that the ChatGPT account is still authenticated.
+The automated DeepSeek bootstrap requires Bash and is intended for Linux, macOS and WSL.
 
-The automated DeepSeek bootstrap requires Bash and is intended for Linux, macOS and WSL environments. It no longer requires `curl`.
-
-## Configure an opt-in subagent
+## Opt-in subagent
 
 `agy` is the default value for `-s`:
 
@@ -138,26 +97,18 @@ setupmjr agent -s agy
 setupmjr agent --subagent agy
 ```
 
-This installs the bounded Codex guidance and narrow execution rule for delegating explicitly authorised work to Gemini through `agy`. Existing Codex instructions outside the managed block are preserved.
+This installs bounded Codex guidance for explicitly authorised delegation through `agy`, preserving instructions outside the managed block.
 
-To use DeepSeek instead:
+DeepSeek can be configured instead:
 
 ```bash
 setupmjr agent -s deepseek
 ```
 
-The DeepSeek subagent uses an isolated Codex home:
+The DeepSeek subagent uses the isolated Codex home `~/.codex-deepseek-subagent` and does not change the primary Codex provider. Its worker runs through `codex exec --sandbox workspace-write`. Delegation remains opt-in for the current task or conversation.
 
-```text
-~/.codex-deepseek-subagent
-```
+Selecting one managed subagent replaces the other. `--subagent-agy` remains as a deprecated compatibility alias for `--subagent agy`.
 
-It does not change the primary Codex provider. The managed guidance invokes the worker with `codex exec --sandbox workspace-write` and the isolated `CODEX_HOME`. As with `agy`, delegation remains opt-in: Codex may use the subagent only when you explicitly authorise it for the current task or conversation.
+## Credential boundaries
 
-Selecting one subagent replaces the managed configuration for the other. `--subagent-agy` remains as a deprecated compatibility alias for `--subagent agy`.
-
-## Credential storage
-
-`setupmjr agent --auth deepseek` stores the reusable DeepSeek API key in `~/.config/setupmjr/agent/auth/deepseek.key` with private permissions. Authentication alone does not alter provider selection. When Copilot is explicitly switched to DeepSeek, its managed environment reads that file rather than embedding the raw key in `.bashrc`, `.zshrc`, or the provider environment.
-
-DeepSeek's official Codex format also stores the API key in `config.toml`. The saved DeepSeek provider snapshot therefore contains that key as well. `setupmjr` creates its provider-state directories with mode `0700` and writes credential and snapshot files with mode `0600`. Treat these files as credentials and do not commit or share them.
+setupmjr creates managed agent-state directories with mode `0700` and credential/snapshot files with mode `0600` on POSIX systems. DeepSeek's Codex `config.toml` format contains the API key, so DeepSeek snapshots are credentials too. Do not commit or share the managed credential or snapshot files.
