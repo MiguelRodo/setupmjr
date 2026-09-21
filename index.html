@@ -26,6 +26,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -104,27 +139,27 @@ ul.task-list li input[type="checkbox"] {
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./hpc.html"> 
-<span class="menu-text">hpc</span></a>
+<span class="menu-text">HPC</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./shell.html"> 
-<span class="menu-text">shell</span></a>
+<span class="menu-text">Shell</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./r.html"> 
-<span class="menu-text">r</span></a>
+<span class="menu-text">R setup</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./git.html"> 
-<span class="menu-text">git</span></a>
+<span class="menu-text">Git</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./repo.html"> 
-<span class="menu-text">repo</span></a>
+<span class="menu-text">Repository</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./agent.html"> 
-<span class="menu-text">agent</span></a>
+<span class="menu-text">Agents</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -142,7 +177,8 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#commands" id="toc-commands" class="nav-link active" data-scroll-target="#commands">Commands</a></li>
+  <li><a href="#start-here" id="toc-start-here" class="nav-link active" data-scroll-target="#start-here">Start here</a></li>
+  <li><a href="#command-groups" id="toc-command-groups" class="nav-link" data-scroll-target="#command-groups">Command groups</a></li>
   <li><a href="#guides" id="toc-guides" class="nav-link" data-scroll-target="#guides">Guides</a></li>
   </ul>
 </nav>
@@ -169,32 +205,64 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p><code>setupmjr</code> is a cross-platform setup utility.</p>
-<section id="commands" class="level2">
-<h2 class="anchored" data-anchor-id="commands">Commands</h2>
-<pre class="text"><code>setupmjr - Cross-platform setup utility
-Commands:
-  hpc
-  hpc scratch
-  hpc apptainer
-  hpc slurm
-  hpc git
-  hpc r [--not-radian] [--not-lintr] [--switch-r]
-  shell &lt;shell&gt; rc.d
-  shell &lt;shell&gt; path
-  shell &lt;shell&gt; login [--not-profile]
-  bash rc.d
-  bash path
-  bash login [--not-profile]
-  r [--not-radian] [--not-lintr] [--switch-r]
-  git
-  git profile
-  git auth [text|cache|mngr] [--system|--local] [--remove]
-  repo readme
-  repo devcontainer [--repo &lt;owner/repo&gt;@&lt;branch&gt;] [--build]
-  repo action &lt;action-name&gt;
-  install [--repos] [--pj] [--gh-skill]
-  agent [-a &lt;endpoint&gt;] [-p [g|d]] [-c [o|d]] [-s [agy|deepseek]] [--config] [--list]</code></pre>
+<p><code>setupmjr</code> is a cross-platform setup utility for shell, R, Git, repository, HPC and coding-agent environments.</p>
+<section id="start-here" class="level2">
+<h2 class="anchored" data-anchor-id="start-here">Start here</h2>
+<p>Install the CLI using a supported package manager, release installer or source build. See <a href="./install.html">Installation</a> for the canonical commands.</p>
+<p>For authoritative top-level syntax, run:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> <span class="at">--help</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The <code>agent</code> command also has detailed option help:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> agent <span class="at">--help</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="command-groups" class="level2">
+<h2 class="anchored" data-anchor-id="command-groups">Command groups</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Command</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>setupmjr hpc</code></td>
+<td>Configure Linux HPC shell, Git, scratch, Apptainer, SLURM and R setup.</td>
+</tr>
+<tr class="even">
+<td><code>setupmjr shell</code></td>
+<td>Configure Bash or Zsh startup, executable paths and login integration.</td>
+</tr>
+<tr class="odd">
+<td><code>setupmjr bash</code></td>
+<td>Shorthand for <code>setupmjr shell bash</code>.</td>
+</tr>
+<tr class="even">
+<td><code>setupmjr r</code></td>
+<td>Configure <code>radian</code>, <code>lintr</code> and the optional project-local <code>switch_r</code> helper.</td>
+</tr>
+<tr class="odd">
+<td><code>setupmjr git</code></td>
+<td>Configure Git identity and GitHub authentication.</td>
+</tr>
+<tr class="even">
+<td><code>setupmjr repo</code></td>
+<td>Scaffold repository files, devcontainers and released workflow examples.</td>
+</tr>
+<tr class="odd">
+<td><code>setupmjr install</code></td>
+<td>Install or refresh external tools whose setup glue is owned by setupmjr.</td>
+</tr>
+<tr class="even">
+<td><code>setupmjr agent</code></td>
+<td>Configure coding-agent credentials, providers and opt-in subagents.</td>
+</tr>
+</tbody>
+</table>
+<p>External tools keep ownership of their own behaviour. In particular, use <code>repos</code> directly after <code>setupmjr install --repos</code>, and use <code>pj</code> directly after <code>setupmjr install --pj</code>.</p>
 </section>
 <section id="guides" class="level2">
 <h2 class="anchored" data-anchor-id="guides">Guides</h2>
@@ -202,7 +270,7 @@ Commands:
 <li><a href="./install.html">Installation</a></li>
 <li><a href="./hpc.html">HPC</a></li>
 <li><a href="./shell.html">Shell</a></li>
-<li><a href="./r.html">R</a></li>
+<li><a href="./r.html">R setup</a></li>
 <li><a href="./git.html">Git</a></li>
 <li><a href="./repo.html">Repository setup</a></li>
 <li><a href="./agent.html">Agent configuration</a></li>

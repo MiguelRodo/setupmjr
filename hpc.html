@@ -139,27 +139,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
   <li class="nav-item">
     <a class="nav-link active" href="./hpc.html" aria-current="page"> 
-<span class="menu-text">hpc</span></a>
+<span class="menu-text">HPC</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./shell.html"> 
-<span class="menu-text">shell</span></a>
+<span class="menu-text">Shell</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./r.html"> 
-<span class="menu-text">r</span></a>
+<span class="menu-text">R setup</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./git.html"> 
-<span class="menu-text">git</span></a>
+<span class="menu-text">Git</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./repo.html"> 
-<span class="menu-text">repo</span></a>
+<span class="menu-text">Repository</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./agent.html"> 
-<span class="menu-text">agent</span></a>
+<span class="menu-text">Agents</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -178,15 +178,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#commands" id="toc-commands" class="nav-link active" data-scroll-target="#commands">Commands</a></li>
-  <li><a href="#installation" id="toc-installation" class="nav-link" data-scroll-target="#installation">Installation</a></li>
-  <li><a href="#master-setup" id="toc-master-setup" class="nav-link" data-scroll-target="#master-setup">Master setup</a>
-  <ul class="collapse">
+  <li><a href="#master-setup" id="toc-master-setup" class="nav-link" data-scroll-target="#master-setup">Master setup</a></li>
   <li><a href="#git" id="toc-git" class="nav-link" data-scroll-target="#git">Git</a></li>
   <li><a href="#scratch-space" id="toc-scratch-space" class="nav-link" data-scroll-target="#scratch-space">Scratch space</a></li>
-  <li><a href="#slurm" id="toc-slurm" class="nav-link" data-scroll-target="#slurm">SLURM</a></li>
   <li><a href="#apptainer" id="toc-apptainer" class="nav-link" data-scroll-target="#apptainer">Apptainer</a></li>
+  <li><a href="#slurm" id="toc-slurm" class="nav-link" data-scroll-target="#slurm">SLURM</a></li>
   <li><a href="#r" id="toc-r" class="nav-link" data-scroll-target="#r">R</a></li>
-  </ul></li>
   </ul>
 </nav>
     </div>
@@ -221,76 +218,58 @@ hpc apptainer
 hpc slurm
 hpc git
 hpc r [--not-radian] [--not-lintr] [--switch-r]</code></pre>
-</section>
-<section id="installation" class="level2">
-<h2 class="anchored" data-anchor-id="installation">Installation</h2>
-<p>Install <code>setupmjr</code> using the supported method for the HPC host. For a no-sudo Linux installation, use the user-local release installer described in <a href="./install.html">Installation</a>. Confirm the result with:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> <span class="at">--version</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Install <code>setupmjr</code> using a supported Linux method from <a href="./install.html">Installation</a>, then verify it with <code>setupmjr --version</code>.</p>
 </section>
 <section id="master-setup" class="level2">
 <h2 class="anchored" data-anchor-id="master-setup">Master setup</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The master command is Linux-only and stops on the first failed setup step. It runs this sequence:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The master command is Linux-only and stops on the first failed step. It runs:</p>
 <ol type="1">
-<li>Configure Bash <code>rc.d</code>, executable paths and login/profile integration.</li>
-<li>Configure Zsh <code>rc.d</code>, executable paths and login/profile integration.</li>
-<li>Configure Git and GitHub authentication.</li>
-<li>Install the HPC scratch configuration.</li>
-<li>Install the Apptainer helpers.</li>
-<li>Install the SLURM helpers.</li>
-<li>Configure R with the normal <code>setupmjr r</code> defaults.</li>
+<li>Bash <code>rc.d</code>, executable-path and login/profile setup.</li>
+<li>Zsh <code>rc.d</code>, executable-path and login/profile setup.</li>
+<li>Git identity and GitHub authentication.</li>
+<li>HPC scratch configuration.</li>
+<li>Apptainer helpers.</li>
+<li>SLURM helpers.</li>
+<li>Normal <code>setupmjr r</code> defaults.</li>
 </ol>
-<p>In practical terms, <code>setupmjr hpc</code> does the following:</p>
-<ul>
-<li><em>Helps store large files effectively</em>: Large files are stored in <code>/scratch</code> when available rather than <code>/home</code>, to respect HPC storage policies.</li>
-<li><em>Authenticates with Git</em>: GitHub authentication uses either an existing persistent <code>gh</code> login or one protected setupmjr-managed token file for headless/HPC environments.</li>
-<li><em>Adds Apptainer and SLURM helpers</em>: Helper scripts are installed under <code>~/.local/bin</code>.</li>
-<li><em>Configures R</em>: The normal <code>setupmjr r</code> defaults configure <code>radian</code> and <code>lintr</code>.</li>
-</ul>
-<p>Each feature can also be configured independently with the subcommands below.</p>
-<section id="git" class="level3">
-<h3 class="anchored" data-anchor-id="git">Git</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc git</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>This calls the normal <code>setupmjr git</code> setup. Authentication is suitable for headless HPC use:</p>
-<ul>
-<li>if <code>gh auth login</code> has already established durable GitHub CLI authentication, Git is configured with <code>gh auth setup-git</code>;</li>
-<li>otherwise setupmjr stores one GitHub token under <code>~/.config/setupmjr/auth/github.token</code>, with private permissions, and configures Git to read it through the standard credential-helper interface.</li>
-</ul>
-<p>The token itself is not embedded in shell startup files or Git configuration. Existing active <code>GH_TOKEN=</code> assignments left by older setupmjr versions are removed from setupmjr’s <code>login.sh</code> files during migration.</p>
-<p>This credential-helper design is also intended to work with R <code>gitcreds</code> and with VS Code Dev Containers’ Git credential forwarding. In a Remote SSH -&gt; HPC -&gt; Dev Container workflow, configure authentication on the HPC host first. If a particular Dev Container still fails to reuse the host helper, treat that as a forwarding problem rather than copying a PAT into the repository or container definition.</p>
-<p>See <a href="./git.html">Git</a> for the full authentication model and fallback details.</p>
+<p>The focused subcommands below run the same components independently.</p>
 </section>
-<section id="scratch-space" class="level3">
-<h3 class="anchored" data-anchor-id="scratch-space">Scratch space</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc scratch</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>HPCs commonly provide <code>/scratch/$USER</code> for large files and caches. This command installs <code>~/.bashrc.d/hpc-scratch.sh</code>, which configures scratch-backed locations for Apptainer/Singularity images and R library/<code>renv</code> caches.</p>
-<p>The master <code>setupmjr hpc</code> command wires Bash <code>rc.d</code> before installing this file. The standalone <code>hpc scratch</code> command only installs the file, so run <code>setupmjr shell bash rc.d</code> first if Bash is not already sourcing <code>~/.bashrc.d</code>.</p>
+<section id="git" class="level2">
+<h2 class="anchored" data-anchor-id="git">Git</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc git</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This is the normal <code>setupmjr git</code> setup. It prefers a persistent GitHub CLI login and otherwise uses setupmjr’s protected-token credential helper. See <a href="./git.html">Git</a> for authentication, migration and Dev Container behaviour.</p>
 </section>
-<section id="slurm" class="level3">
-<h3 class="anchored" data-anchor-id="slurm">SLURM</h3>
+<section id="scratch-space" class="level2">
+<h2 class="anchored" data-anchor-id="scratch-space">Scratch space</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc scratch</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This installs <code>~/.bashrc.d/hpc-scratch.sh</code>, which points large caches and artefacts at <code>/scratch/$USER</code> when available, including Apptainer/Singularity storage and R library/<code>renv</code> caches.</p>
+<p>The master setup wires Bash <code>rc.d</code> first. When running <code>hpc scratch</code> independently, run <code>setupmjr shell bash rc.d</code> first if Bash is not already sourcing <code>~/.bashrc.d</code>.</p>
+</section>
+<section id="apptainer" class="level2">
+<h2 class="anchored" data-anchor-id="apptainer">Apptainer</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc apptainer</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This installs the embedded <code>apptainer-*</code> helper scripts into <code>~/.local/bin</code>, excluding <code>apptainer-vscode</code>.</p>
+</section>
+<section id="slurm" class="level2">
+<h2 class="anchored" data-anchor-id="slurm">SLURM</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc slurm</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>This installs SLURM helper scripts into <code>~/.local/bin</code>, including:</p>
+<p>This installs SLURM helpers into <code>~/.local/bin</code>, including:</p>
 <ul>
-<li><code>slurm-sbatch</code> for submitting a job and recording submission details;</li>
-<li><code>slurm-sintx</code> for starting an interactive session;</li>
+<li><code>slurm-sbatch</code> for job submission and submission records;</li>
+<li><code>slurm-sintx</code> for interactive sessions;</li>
 <li><code>slurm-squeue</code> for listing the current user’s jobs.</li>
 </ul>
 </section>
-<section id="apptainer" class="level3">
-<h3 class="anchored" data-anchor-id="apptainer">Apptainer</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc apptainer</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>This installs the embedded <code>apptainer-*</code> helper scripts into <code>~/.local/bin</code>, excluding <code>apptainer-vscode</code>.</p>
-</section>
-<section id="r" class="level3">
-<h3 class="anchored" data-anchor-id="r">R</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>This calls the normal R setup and accepts the same flags:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc r <span class="at">--not-lintr</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc r <span class="at">--switch-r</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>See <a href="./r.html">R</a> for the flag behaviour.</p>
+<section id="r" class="level2">
+<h2 class="anchored" data-anchor-id="r">R</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This delegates to the normal R setup and accepts the same flags:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc r <span class="at">--not-lintr</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> hpc r <span class="at">--switch-r</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>See <a href="./r.html">R setup</a> for the flag behaviour.</p>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->

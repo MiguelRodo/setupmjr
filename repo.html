@@ -139,27 +139,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./hpc.html"> 
-<span class="menu-text">hpc</span></a>
+<span class="menu-text">HPC</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./shell.html"> 
-<span class="menu-text">shell</span></a>
+<span class="menu-text">Shell</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./r.html"> 
-<span class="menu-text">r</span></a>
+<span class="menu-text">R setup</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./git.html"> 
-<span class="menu-text">git</span></a>
+<span class="menu-text">Git</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link active" href="./repo.html" aria-current="page"> 
-<span class="menu-text">repo</span></a>
+<span class="menu-text">Repository</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./agent.html"> 
-<span class="menu-text">agent</span></a>
+<span class="menu-text">Agents</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -180,8 +180,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#commands" id="toc-commands" class="nav-link active" data-scroll-target="#commands">Commands</a></li>
   <li><a href="#repo-readme" id="toc-repo-readme" class="nav-link" data-scroll-target="#repo-readme"><code>repo readme</code></a></li>
   <li><a href="#repo-devcontainer" id="toc-repo-devcontainer" class="nav-link" data-scroll-target="#repo-devcontainer"><code>repo devcontainer</code></a></li>
-  <li><a href="#install-repos" id="toc-install-repos" class="nav-link" data-scroll-target="#install-repos">Install <code>repos</code></a></li>
   <li><a href="#repo-action" id="toc-repo-action" class="nav-link" data-scroll-target="#repo-action"><code>repo action</code></a></li>
+  <li><a href="#repos-cli" id="toc-repos-cli" class="nav-link" data-scroll-target="#repos-cli"><code>repos</code> CLI</a></li>
   </ul>
 </nav>
     </div>
@@ -207,43 +207,40 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>The <code>repo</code> subcommand configures the current repository.</p>
+<p>The <code>repo</code> subcommand configures the current repository. Repository orchestration itself belongs to the standalone <code>repos</code> CLI.</p>
 <section id="commands" class="level2">
 <h2 class="anchored" data-anchor-id="commands">Commands</h2>
 <pre class="text"><code>repo readme
-repo devcontainer [--repo &lt;owner&gt;/&lt;repo&gt;@&lt;branch&gt;] [--build]
+repo devcontainer [--repo &lt;owner/repo&gt;@&lt;branch&gt;] [--build]
 repo action &lt;action-name&gt;</code></pre>
 </section>
 <section id="repo-readme" class="level2">
 <h2 class="anchored" data-anchor-id="repo-readme"><code>repo readme</code></h2>
-<p>This command interactively scaffolds a standard <code>README.md</code> with a title, purpose, contacts, links and details sections.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> repo readme</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Interactively scaffold a standard <code>README.md</code> with title, purpose, contacts, links and details sections.</p>
 </section>
 <section id="repo-devcontainer" class="level2">
 <h2 class="anchored" data-anchor-id="repo-devcontainer"><code>repo devcontainer</code></h2>
-<p>Copy a reference <code>.devcontainer</code> configuration into the current repository:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> repo devcontainer</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> repo devcontainer <span class="at">--repo</span> MiguelRodo/comp@main</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
-<li><code>--repo</code> selects the source repository and branch in <code>&lt;owner&gt;/&lt;repo&gt;@&lt;branch&gt;</code> form. The default is <code>MiguelRodo/comp@main</code>.</li>
+<li><code>--repo</code> selects the source repository and branch in <code>&lt;owner/repo&gt;@&lt;branch&gt;</code> form. The default is <code>MiguelRodo/comp@main</code>.</li>
 <li><code>--build</code> also installs the <code>prebuild-devcontainer.yml</code> workflow example from the latest published <code>MiguelRodo/actions</code> release.</li>
 </ul>
-<p>The source archive is fully staged before extraction, so a timeout or interrupted response cannot feed a partial archive into <code>tar</code>. Repository and branch values are passed as command arguments rather than interpolated into a shell command.</p>
-<p>setupmjr-owned HTTP downloads use a finite request timeout, preserve URL/status context on failures, and only replace destination files after complete writes.</p>
-</section>
-<section id="install-repos" class="level2">
-<h2 class="anchored" data-anchor-id="install-repos">Install <code>repos</code></h2>
-<p>Repository orchestration belongs to the standalone <code>repos</code> command. Install or update it with:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install <span class="at">--repos</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Then invoke <code>repos</code> directly. The release archive is staged in a temporary directory and is not extracted after a failed or incomplete download.</p>
+<p>The source archive is staged before extraction, and repository/branch values are passed as command arguments rather than interpolated into shell commands.</p>
 </section>
 <section id="repo-action" class="level2">
 <h2 class="anchored" data-anchor-id="repo-action"><code>repo action</code></h2>
-<p>Install a workflow example published by the canonical <a href="https://github.com/MiguelRodo/actions"><code>MiguelRodo/actions</code></a> repository:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> repo action <span class="op">&lt;</span>action-name<span class="op">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><code>setupmjr</code> resolves the latest published actions release, then downloads <code>examples/&lt;action-name&gt;.yml</code> from that exact release tag into <code>.github/workflows/</code>. It keeps no embedded workflow copies and does not fall back to mutable <code>actions/main</code>.</p>
-<p>Use the example filename from the latest published <code>MiguelRodo/actions</code> release without the <code>.yml</code> suffix. If that example is not present in the release, the command fails rather than installing a local or development copy.</p>
-<p>Workflow downloads are staged in <code>.github/workflows/</code> and replace the final path only after the response completes successfully. Errors include the requested action name, resolved release tag and HTTP status where available.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> repo action <span class="op">&lt;</span>action-name<span class="op">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Workflow examples are owned by <a href="https://github.com/MiguelRodo/actions"><code>MiguelRodo/actions</code></a>. setupmjr resolves its latest published release and installs <code>examples/&lt;action-name&gt;.yml</code> from that exact tag into <code>.github/workflows/</code>.</p>
+<p>Use the released example filename without the <code>.yml</code> suffix. setupmjr keeps no embedded workflow copies and does not fall back to mutable <code>actions/main</code>; a missing released example is an error.</p>
+</section>
+<section id="repos-cli" class="level2">
+<h2 class="anchored" data-anchor-id="repos-cli"><code>repos</code> CLI</h2>
+<p>Install or update the standalone repository-orchestration CLI with:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install <span class="at">--repos</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Then use <code>repos</code> directly. setupmjr owns its installation glue, not its commands.</p>
+<p>Network downloads used by these setup paths have finite timeouts and are staged before replacing final files, so failed or incomplete downloads do not become installed artefacts.</p>
 
 
 </section>
