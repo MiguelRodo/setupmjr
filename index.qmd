@@ -7,7 +7,7 @@ toc: true
 
 ## Start here
 
-Install the CLI using a supported package manager, release installer or source build. See [Installation](install.qmd) for the canonical commands and the optional Python/R wrappers.
+Install the CLI using a supported package manager, release installer or source build. See [Installation](install.qmd) for the canonical commands.
 
 For authoritative top-level syntax, run:
 
