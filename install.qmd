@@ -102,43 +102,6 @@ cd setupmjr
 go build -o setupmjr ./cmd/setupmjr
 ```
 
-## Language wrappers
-
-The Python and R packages are deliberately thin wrappers around the installed CLI. They do not reproduce setupmjr commands or configuration, so install the CLI first and keep `setupmjr` on `PATH`.
-
-### Python
-
-```bash
-python -m pip install git+https://github.com/MiguelRodo/setupmjr.git
-```
-
-`run()` forwards arguments and ordinary `subprocess.run` options; non-zero exits raise by default:
-
-```python
-from setupmjr import run
-
-version = run("--version", capture_output=True, text=True)
-print(version.stdout)
-```
-
-### R
-
-Install from GitHub with `remotes`:
-
-```r
-if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes")
-remotes::install_github("MiguelRodo/setupmjr")
-```
-
-`setupmjr::run()` forwards arguments to base R's `system2()` and exposes its `stdout` and `stderr` controls:
-
-```r
-version <- setupmjr::run("--version", stdout = TRUE)
-print(version)
-```
-
-The R package has no runtime package dependencies.
-
 ## Managed components
 
 The top-level `install` command owns installation glue for external tools:
