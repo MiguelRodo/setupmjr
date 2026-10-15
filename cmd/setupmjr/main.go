@@ -105,7 +105,7 @@ Commands:
   repo readme
   repo devcontainer [--repo <owner/repo>@<branch>] [--build]
   repo action <action-name>
-  install <claude|codex|copilot>
+  install <agents|claude|codex|copilot>
   install [--repos] [--pj] [--gh-skill]
   agent [options]
   version

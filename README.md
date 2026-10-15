@@ -51,10 +51,13 @@ Install external tools through the top-level `install` command:
 
 ```bash
 setupmjr install --repos --pj --gh-skill
+setupmjr install agents
 setupmjr install claude
 setupmjr install codex
 setupmjr install copilot
 ```
+
+`setupmjr install agents` installs all three coding-agent CLIs through their native vendor installers, skipping those already on `PATH`. It reports each result, continues after failures and returns an error if any installation fails. Authentication, API credentials and configured model providers are unchanged.
 
 `repos`, `pj`, `MiguelRodo/actions` and `github-projects-skill` keep ownership of their own behaviour. `setupmjr` owns the setup and integration glue around them.
 

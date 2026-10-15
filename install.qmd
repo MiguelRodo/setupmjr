@@ -107,12 +107,20 @@ go build -o setupmjr ./cmd/setupmjr
 Install the terminal applications independently of provider selection:
 
 ```bash
+setupmjr install agents
+```
+
+This installs Claude Code, Codex and GitHub Copilot in order, skipping each CLI already found on `PATH`. Each agent gets a completion, skip or error result. If an installation fails, the command still attempts the remaining agents and returns an error listing the failures. It does not update already-installed CLIs; ensure their installation directories are on `PATH` before running it again.
+
+To run an individual installer instead:
+
+```bash
 setupmjr install claude
 setupmjr install codex
 setupmjr install copilot
 ```
 
-These are **subcommands**, not combinable flags. Run each command separately. They delegate to the vendors' supported installers; they do not sign in, set a model provider, or modify existing agent configuration. Use `setupmjr agent --config` for the latter.
+These are **subcommands**, not combinable flags. They delegate to the same vendors' supported installers, whether run individually or via `agents`; they do not sign in, change API credentials, set a model provider, or modify existing agent configuration. Use `setupmjr agent --config` to inspect configuration.
 
 | CLI | Linux, macOS and WSL | Native Windows |
 | --- | --- | --- |
