@@ -102,6 +102,40 @@ cd setupmjr
 go build -o setupmjr ./cmd/setupmjr
 ```
 
+## Coding-agent CLIs
+
+Install the terminal applications independently of provider selection:
+
+```bash
+setupmjr install claude
+setupmjr install codex
+setupmjr install copilot
+```
+
+These are **subcommands**, not combinable flags. Run each command separately. They delegate to the vendors' supported installers; they do not sign in, set a model provider, or modify existing agent configuration. Use `setupmjr agent --config` for the latter.
+
+| CLI | Linux, macOS and WSL | Native Windows |
+| --- | --- | --- |
+| Claude Code | Anthropic native `install.sh` via Bash | `winget install --id Anthropic.ClaudeCode --exact --source winget` |
+| Codex | OpenAI native `install.sh` via sh | OpenAI native `install.ps1` via Windows PowerShell |
+| GitHub Copilot | GitHub's `gh.io/copilot-install` script via Bash | `winget install --id GitHub.Copilot --exact --source winget` |
+
+On Windows, install WinGet before the Claude and Copilot commands if it is absent. On Unix-like hosts, Bash is required for Claude and Copilot; Codex requires sh. No Node.js installation is required for these paths. On WSL, run the Linux `setupmjr` executable to install Linux CLIs, not the Windows executable.
+
+For scripts, setupmjr uses a bounded download into a temporary file and executes it **only after** a complete download. This avoids partial-download execution, but the scripts are still mutable third-party code without a pinned checksum; review the vendors' installer sources if that trust model is inappropriate for your environment. Native package managers handle their own validation and elevation prompts. Installers may use the network and request additional system dependencies.
+
+After installation, start a fresh terminal if the CLI was added to your PATH:
+
+```bash
+claude --version
+codex --version
+copilot --version
+```
+
+Then authenticate using each CLI's own flow, for example `claude`, `codex login` or `copilot` followed by `/login`. None of the setupmjr install subcommands handles authentication.
+
+Official references: [Claude Code](https://github.com/anthropics/claude-code#readme), [Codex](https://github.com/openai/codex#readme), [GitHub Copilot CLI](https://docs.github.com/en/copilot/how-tos/copilot-cli/set-up-copilot-cli/install-copilot-cli).
+
 ## Managed components
 
 The top-level `install` command owns installation glue for external tools:
