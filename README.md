@@ -83,3 +83,24 @@ setupmjr install copilot
 - [Git](git.qmd)
 - [Repository setup](repo.qmd)
 - [Agent configuration](agent.qmd)
+
+## Releases
+
+Pushing a `vX.Y.Z` tag runs [Go Version and Release](.github/workflows/go-version-release.yml)
+for that tag, so merges to `main` never publish on their own:
+
+```bash
+git tag v0.8.0 origin/main && git push origin v0.8.0
+```
+
+The pinned `MiguelRodo/actions/go-version-release` action owns tag validation, GoReleaser,
+package artefacts, signing, APT publication and floating tags.
+
+After publishing, the workflow uses APT against only the published repository to check
+signatures, index hashes and the exact `setupmjr` version for `amd64` and `arm64`, retrying
+for up to about five minutes while GitHub Pages updates. A green run means
+`sudo apt update && sudo apt upgrade` will see the new version. Missing `GPG_PRIVATE_KEY` or
+`APT_REPO_TOKEN` fails the run rather than publishing unsigned metadata.
+
+For recovery, re-run the failed job, or dispatch the workflow manually with an exact
+`version` (to retry an existing tag at the same commit) or a `bump_type`, never both.
