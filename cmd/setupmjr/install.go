@@ -24,7 +24,7 @@ func handleInstall(args []string) error {
 			if err := installCodingAgent(args[0]); err != nil {
 				return err
 			}
-			fmt.Printf("%s installer completed. Restart your shell if needed; sign-in is separate.\\n", args[0])
+			fmt.Printf("%s installer completed. Restart your shell if needed; sign-in is separate.\n", args[0])
 			return nil
 		default:
 			return fmt.Errorf("unknown install subcommand %q (choose claude, codex or copilot)", args[0])
