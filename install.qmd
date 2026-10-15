@@ -132,7 +132,7 @@ On Windows, install WinGet before the Claude and Copilot commands if it is absen
 
 For scripts, setupmjr uses a bounded download into a temporary file and executes it **only after** a complete download. This avoids partial-download execution, but the scripts are still mutable third-party code without a pinned checksum; review the vendors' installer sources if that trust model is inappropriate for your environment. Native package managers handle their own validation and elevation prompts. Installers may use the network and request additional system dependencies.
 
-After installation, start a fresh terminal if the CLI was added to your PATH:
+After installation, start a fresh terminal if the CLI was added to your PATH. Run `setupmjr agent doctor` for read-only installation, local authentication and managed-configuration diagnostics (see [agent diagnostics](agent.qmd#diagnose-installations)), or check versions individually:
 
 ```bash
 claude --version

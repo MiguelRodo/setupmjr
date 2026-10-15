@@ -42,6 +42,26 @@ An explicit update requests a manual check even when background updates are avai
 
 See the official [Claude update documentation](https://code.claude.com/docs/en/setup#update-claude-code), [Codex command reference](https://developers.openai.com/codex/cli/reference#codex-update), and [Copilot command reference](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference).
 
+## Diagnose installations
+
+```bash
+setupmjr agent doctor
+```
+
+Doctor checks Claude Code (`claude`), Codex (`codex`) and GitHub Copilot CLI (`copilot`) on the current process's PATH. It prints the selected executable locations, versions and setupmjr-managed provider/subagent configuration, then continues through all checks with actionable fixes. It exits **0** when no checks fail and **1** when any check fails, including a missing CLI. `WARN` means unverified and does not change the exit status. Extra options are rejected; doctor cannot be combined with setup actions.
+
+Checks are read-only: doctor never installs, updates, signs in, sources shell files or writes configuration. It invokes only `--version`, [Claude's `auth status`](https://code.claude.com/docs/en/cli-reference) and [Codex's `login status`](https://developers.openai.com/codex/cli/reference/), with closed stdin and a ten-second timeout per probe. Raw command output and errors are suppressed; only version numbers and credential-presence/status summaries are displayed. It makes no inference requests or deliberate credential-validation network requests. Local credential presence does not establish validity, account entitlement or service connectivity.
+
+[Copilot authentication](https://docs.github.com/en/copilot/how-tos/copilot-cli/set-up-copilot-cli/authenticate-copilot-cli) may live in an OS credential store. Doctor does not inspect that store or launch an interactive session: it reports authentication as unverified when no token environment variable is available. It checks `COPILOT_GITHUB_TOKEN`, `GH_TOKEN` and `GITHUB_TOKEN` in precedence order for empty values and unsupported classic PATs, without printing their values. Provider API keys are reported as present but unvalidated. To resolve access problems, run `copilot login` yourself.
+
+Managed DeepSeek checks detect missing credentials, an inactive Copilot shell environment and incomplete isolated subagent configuration. An opted-in agy subagent must be on PATH; its authentication remains unverified. `CODEX_HOME` is honored by the Codex checks and produces a warning because it can override setupmjr's configuration in `~/.codex`. Custom providers, CLI-specific configuration overrides and credential helpers may need separate investigation.
+
+Platform details:
+
+- **Ubuntu/Linux and WSL:** PATH checks describe the current Linux environment. A Windows installation does not establish that the Linux CLI is available in WSL; run the Linux setupmjr executable there.
+- **macOS:** the same CLI status commands support credentials stored through vendor mechanisms, including Keychain; doctor does not assume that a missing plaintext credential file means signed out.
+- **Native Windows:** lookup uses Windows PATH/PATHEXT. Doctor probes native executables directly; `.cmd`/`.bat` shims produce an actionable failure asking for the native installation. Claude Code needs Git for Windows (Git Bash). Bash/Zsh exports do not configure PowerShell; configure custom provider variables in the shell that launches Copilot.
+
 ## Store DeepSeek authentication
 
 ```bash
