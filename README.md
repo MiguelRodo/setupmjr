@@ -51,6 +51,9 @@ Install external tools through the top-level `install` command:
 
 ```bash
 setupmjr install --repos --pj --gh-skill
+setupmjr install claude
+setupmjr install codex
+setupmjr install copilot
 ```
 
 `repos`, `pj`, `MiguelRodo/actions` and `github-projects-skill` keep ownership of their own behaviour. `setupmjr` owns the setup and integration glue around them.
@@ -62,7 +65,7 @@ setupmjr install --repos --pj --gh-skill
 - `setupmjr r` configures `radian`, `lintr` and the optional project-local `switch_r` helper.
 - `setupmjr git` configures Git identity and GitHub authentication.
 - `setupmjr repo` scaffolds repository files, devcontainers and released workflow examples.
-- `setupmjr install` installs or refreshes setupmjr-managed external tools.
+- `setupmjr install` installs or refreshes setupmjr-managed external tools and can invoke the official Claude Code, Codex and Copilot CLI installers.
 - `setupmjr agent` configures coding-agent credentials, providers and opt-in subagents.
 
 `setupmjr --help` is the authoritative top-level syntax. `setupmjr agent --help` gives the detailed agent options.
