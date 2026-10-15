@@ -28,3 +28,7 @@ jobs:
       - name: Run Go tests
         run: |
           go test ./... -v
+
+      - name: Test release publication check
+        if: runner.os == 'Linux'
+        run: bash .github/scripts/test-release-workflow.sh

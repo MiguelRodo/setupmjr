@@ -1,6 +1,8 @@
 name: Go Version and Release
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       version:
@@ -23,8 +25,38 @@ on:
         description: "Optional path to the GoReleaser config file."
         required: false
         default: ".goreleaser.yml"
+# Serialize proposals, automatic publication and recovery; never cancel a release.
+concurrency:
+  group: setupmjr-release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
 jobs:
+  proposal:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    outputs:
+      released: ${{ steps.proposal.outputs.release_created }}
+      version: ${{ steps.proposal.outputs.version }}
+      sha: ${{ steps.proposal.outputs.sha }}
+    steps:
+      - uses: googleapis/release-please-action@16a9c90856f42705d54a6fda1823352bdc62cf38 # v4.4.0
+        id: proposal
+        with:
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          target-branch: main
+
   release:
+    needs: proposal
+    if: >-
+      always() && (github.event_name == 'workflow_dispatch' ||
+      (needs.proposal.result == 'success' && needs.proposal.outputs.released == 'true'))
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -32,18 +64,60 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          ref: ${{ needs.proposal.outputs.sha || github.sha }}
+      - name: Require signed APT publication
+        env:
+          APT_SIGNING_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          APT_REPO_TOKEN: ${{ secrets.APT_REPO_TOKEN }}
+        run: |
+          test -n "$APT_SIGNING_KEY" || { echo '::error::GPG_PRIVATE_KEY is required'; exit 1; }
+          test -n "$APT_REPO_TOKEN" || { echo '::error::APT_REPO_TOKEN is required'; exit 1; }
       - uses: MiguelRodo/actions/go-version-release@bf850afe48d42ac221079cfede39021d0574c15a # v3.0.0
+        id: publish
         env:
           SCOOP_TAP_TOKEN: ${{ secrets.SCOOP_TAP_TOKEN }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           apt_repo_token: ${{ secrets.APT_REPO_TOKEN }}
           apt_signing_key: ${{ secrets.GPG_PRIVATE_KEY }}
-          version: ${{ inputs.version }}
+          apt_signing_key_passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          version: ${{ needs.proposal.outputs.version || inputs.version }}
           bump_type: ${{ inputs.bump_type }}
           version_force: ${{ inputs.version_force }}
           go_version: ${{ inputs.go_version }}
-          apt_repo: ${{ inputs.apt_repo }}
-          goreleaser_config: ${{ inputs.goreleaser_config }}
+          apt_repo: ${{ inputs.apt_repo || 'MiguelRodo/apt-miguelrodo' }}
+          goreleaser_config: ${{ inputs.goreleaser_config || '.goreleaser.yml' }}
           scoop_token: ${{ secrets.SCOOP_TAP_TOKEN }}
           homebrew_token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+      # Consumer smoke check: use APT itself to validate signatures and index hashes.
+      # Packaging, signing and pushing remain owned by MiguelRodo/actions.
+      - name: Verify published APT version
+        timeout-minutes: 10
+        env:
+          VERSION: ${{ steps.publish.outputs.version }}
+          APT_REPO: ${{ inputs.apt_repo || 'MiguelRodo/apt-miguelrodo' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://${APT_REPO%%/*}.github.io/${APT_REPO##*/}"
+          check_dir="$(mktemp -d)"
+          chmod 755 "$check_dir"
+          trap 'sudo rm -rf "$check_dir"' EXIT
+          curl --fail --silent --show-error --location "$base/KEY.gpg" | gpg --dearmor > "$check_dir/key.gpg"
+          echo "deb [arch=amd64,arm64 signed-by=$check_dir/key.gpg] $base stable main" > "$check_dir/sources.list"
+          mkdir "$check_dir/lists"
+          sudo dpkg --add-architecture arm64
+          options=(-o "Dir::Etc::sourcelist=$check_dir/sources.list" -o Dir::Etc::sourceparts=- -o "Dir::State::lists=$check_dir/lists" -o Dir::Cache::pkgcache= -o Dir::Cache::srcpkgcache= -o Dir::State::status=/dev/null)
+          # GitHub Pages may lag behind the push. Retry within the step timeout.
+          for attempt in {1..20}; do
+            if sudo apt-get "${options[@]}" update --error-on=any &&
+               apt-cache "${options[@]}" show "setupmjr:amd64=$VERSION" >/dev/null &&
+               apt-cache "${options[@]}" show "setupmjr:arm64=$VERSION" >/dev/null; then
+              echo "Verified signed APT indexes contain setupmjr $VERSION for amd64 and arm64." >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            echo "Waiting for signed APT indexes ($attempt/20)..."
+            sleep 15
+          done
+          echo "::error::Published signed APT indexes do not contain setupmjr $VERSION for both architectures"
+          exit 1
