@@ -83,15 +83,7 @@ func updateCodingAgent(agent, path, goos string, out io.Writer) error {
 		if err != nil {
 			return fmt.Errorf("check native update support: %w", err)
 		}
-		supported := false
-		for _, line := range strings.Split(string(help), "\n") {
-			fields := strings.Fields(line)
-			if len(fields) > 0 && fields[0] == "update" {
-				supported = true
-				break
-			}
-		}
-		if !supported {
+		if !advertisesUpdate(string(help)) {
 			return fmt.Errorf("this CLI does not advertise a native update command; update using its original installer or package manager")
 		}
 		command, args = path, []string{"update"}
@@ -107,6 +99,18 @@ func updateCodingAgent(agent, path, goos string, out io.Writer) error {
 		return nil
 	}
 	return err
+}
+
+// advertisesUpdate reports whether CLI help lists an update subcommand,
+// including aliased forms such as Claude Code's "update|upgrade".
+func advertisesUpdate(help string) bool {
+	for _, line := range strings.Split(help, "\n") {
+		fields := strings.Fields(line)
+		if len(fields) > 0 && strings.HasPrefix(fields[0]+"|", "update|") {
+			return true
+		}
+	}
+	return false
 }
 
 // Use the resolved executable, not merely the presence of a package manager:

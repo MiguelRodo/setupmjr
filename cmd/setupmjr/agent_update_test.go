@@ -207,3 +207,16 @@ func TestAgentUpdateUsesResolvedPackageAndRequiresManager(t *testing.T) {
 		t.Fatalf("ran updater %d times", calls)
 	}
 }
+
+func TestAdvertisesUpdate(t *testing.T) {
+	for help, want := range map[string]bool{
+		"Commands:\n  update|upgrade   Check for updates and install if available\n": true, // Claude Code
+		"Commands:\n  update            Update Codex to the latest version\n":        true, // Codex
+		"Commands:\n  update       Download the latest version\n":                    true, // Copilot
+		"Commands:\n  login   Sign in\n  updates-feed  Show news\n":                  false,
+	} {
+		if got := advertisesUpdate(help); got != want {
+			t.Errorf("advertisesUpdate(%q) = %v, want %v", help, got, want)
+		}
+	}
+}
