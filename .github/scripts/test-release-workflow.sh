@@ -57,3 +57,25 @@ for SCENARIO in fresh delayed stale missing-arm64 bad-signature; do
   esac
   echo "PASS: $SCENARIO"
 done
+
+# Automatic bump selection from conventional commits since the last tag.
+bump_repo="$test_dir/bump"
+git init -q "$bump_repo"
+bump_case() {
+  local want="$1"; shift
+  git -C "$bump_repo" commit -q --allow-empty -m "$@"
+  got="$(cd "$bump_repo" && bash "$OLDPWD/.github/scripts/release-bump.sh")"
+  [[ "$got" == "$want" ]] || { echo "FAIL: bump after '$*': got '$got', want '$want'"; exit 1; }
+}
+export GIT_AUTHOR_NAME=t GIT_AUTHOR_EMAIL=t@t GIT_COMMITTER_NAME=t GIT_COMMITTER_EMAIL=t@t
+git -C "$bump_repo" commit -q --allow-empty -m "feat: initial"
+git -C "$bump_repo" tag v0.1.0
+bump_case "" "docs: readme"
+bump_case patch "fix(agent): typo"
+bump_case minor "feat: new command"
+bump_case minor "chore: tidy"
+bump_case major "refactor!: drop flag"
+git -C "$bump_repo" tag v1.0.0
+bump_case "" "ci: workflow"
+bump_case major "fix: x" -m "BREAKING CHANGE: removed y"
+echo "PASS: release bump"

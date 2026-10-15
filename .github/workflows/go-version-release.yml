@@ -25,7 +25,7 @@ on:
         description: "Optional path to the GoReleaser config file."
         required: false
         default: ".goreleaser.yml"
-# Serialize proposals, automatic publication and recovery; never cancel a release.
+# Serialize automatic and manual releases; never cancel a release in progress.
 concurrency:
   group: setupmjr-release
   cancel-in-progress: false
@@ -34,29 +34,7 @@ permissions:
   contents: read
 
 jobs:
-  proposal:
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      issues: write
-      pull-requests: write
-    outputs:
-      released: ${{ steps.proposal.outputs.release_created }}
-      version: ${{ steps.proposal.outputs.version }}
-      sha: ${{ steps.proposal.outputs.sha }}
-    steps:
-      - uses: googleapis/release-please-action@16a9c90856f42705d54a6fda1823352bdc62cf38 # v4.4.0
-        id: proposal
-        with:
-          token: ${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
-          target-branch: main
-
   release:
-    needs: proposal
-    if: >-
-      always() && (github.event_name == 'workflow_dispatch' ||
-      (needs.proposal.result == 'success' && needs.proposal.outputs.released == 'true'))
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -64,8 +42,17 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-          ref: ${{ needs.proposal.outputs.sha || github.sha }}
+      # Pushes to main release automatically when conventional commits since the
+      # last tag include feat, fix, perf or a breaking change.
+      - name: Determine automatic bump
+        id: auto
+        if: github.event_name == 'push'
+        run: |
+          bump="$(bash .github/scripts/release-bump.sh)"
+          echo "bump=$bump" >> "$GITHUB_OUTPUT"
+          echo "Automatic release bump: ${bump:-none}" >> "$GITHUB_STEP_SUMMARY"
       - name: Require signed APT publication
+        if: github.event_name == 'workflow_dispatch' || steps.auto.outputs.bump != ''
         env:
           APT_SIGNING_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
           APT_REPO_TOKEN: ${{ secrets.APT_REPO_TOKEN }}
@@ -74,6 +61,7 @@ jobs:
           test -n "$APT_REPO_TOKEN" || { echo '::error::APT_REPO_TOKEN is required'; exit 1; }
       - uses: MiguelRodo/actions/go-version-release@bf850afe48d42ac221079cfede39021d0574c15a # v3.0.0
         id: publish
+        if: github.event_name == 'workflow_dispatch' || steps.auto.outputs.bump != ''
         env:
           SCOOP_TAP_TOKEN: ${{ secrets.SCOOP_TAP_TOKEN }}
         with:
@@ -81,8 +69,8 @@ jobs:
           apt_repo_token: ${{ secrets.APT_REPO_TOKEN }}
           apt_signing_key: ${{ secrets.GPG_PRIVATE_KEY }}
           apt_signing_key_passphrase: ${{ secrets.GPG_PASSPHRASE }}
-          version: ${{ needs.proposal.outputs.version || inputs.version }}
-          bump_type: ${{ inputs.bump_type }}
+          version: ${{ inputs.version }}
+          bump_type: ${{ inputs.bump_type || steps.auto.outputs.bump }}
           version_force: ${{ inputs.version_force }}
           go_version: ${{ inputs.go_version }}
           apt_repo: ${{ inputs.apt_repo || 'MiguelRodo/apt-miguelrodo' }}
@@ -92,6 +80,7 @@ jobs:
       # Consumer smoke check: use APT itself to validate signatures and index hashes.
       # Packaging, signing and pushing remain owned by MiguelRodo/actions.
       - name: Verify published APT version
+        if: github.event_name == 'workflow_dispatch' || steps.auto.outputs.bump != ''
         timeout-minutes: 10
         env:
           VERSION: ${{ steps.publish.outputs.version }}

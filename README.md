@@ -86,55 +86,18 @@ setupmjr install copilot
 
 ## Releases
 
-Conventional commits on `main` update a Release Please PR; merging that PR approves
-release timing. Ordinary merges do not publish packages. `fix:` proposes a patch,
-`feat:` a minor, and a breaking change (`!` or `BREAKING CHANGE:`) a major, including
-before 1.0. The manifest starts at the existing `v0.7.5` release. Review the proposed
-version and changelog before merging; do not enable automatic merging for release PRs.
+Every push to `main` runs [Go Version and Release](.github/workflows/go-version-release.yml).
+It reads the conventional commits since the latest `vX.Y.Z` tag and releases a major
+(`!` or `BREAKING CHANGE:`), minor (`feat:`) or patch (`fix:`/`perf:`) version. Pushes with
+only other commit types (`docs:`, `ci:`, `chore:`, ...) do not release, so use conventional
+squash-merge titles. The pinned `MiguelRodo/actions/go-version-release` action owns tagging,
+GoReleaser, package artefacts, signing, APT publication and floating tags.
 
-[Go Version and Release](.github/workflows/go-version-release.yml) passes the approved
-version and exact release commit to the pinned `MiguelRodo/actions/go-version-release`
-action. That action owns tag validation, GoReleaser, package artefacts, signing,
-APT publication and floating tags. The existing GoReleaser configuration is unchanged.
-The workflow then uses APT against only the published repository, checking signatures,
-index hashes and the exact `setupmjr` version for both `amd64` and `arm64`. It waits up
-to 20 times at 15-second intervals for GitHub Pages, with a ten-minute step timeout. A green workflow and its verification summary are
-the publication signal: the GitHub release can exist before packaging or APT succeeds.
-After verification, users with the repository configured can run
-`sudo apt update && sudo apt upgrade` without editing either repository.
+After publishing, the workflow uses APT against only the published repository to check
+signatures, index hashes and the exact `setupmjr` version for `amd64` and `arm64`, retrying
+for up to about five minutes while GitHub Pages updates. A green run means
+`sudo apt update && sudo apt upgrade` will see the new version. Missing `GPG_PRIVATE_KEY` or
+`APT_REPO_TOKEN` fails the run rather than publishing unsigned metadata.
 
-Repository setup (no workflows need to be dispatched for configuration):
-
-- Allow GitHub Actions to create pull requests. The proposal job needs contents,
-  issues and pull-request write permissions. Optionally provide `RELEASE_PLEASE_TOKEN`
-  (a scoped PAT or GitHub App token) so generated PRs trigger required CI checks;
-  PRs created with the fallback `GITHUB_TOKEN` do not trigger those checks. See the
-  [Release Please token guidance](https://github.com/googleapis/release-please-action#other-actions-on-release-please-prs).
-- Keep `APT_REPO_TOKEN` with write access to `MiguelRodo/apt-miguelrodo` and permission
-  to trigger its Pages publication. Keep `GPG_PRIVATE_KEY` matching the public
-  `KEY.gpg` served there; optionally set `GPG_PASSPHRASE` for an encrypted key.
-  Missing signing credentials fail the release job rather than publishing unsigned metadata.
-- Retain `SCOOP_TAP_TOKEN` and `HOMEBREW_TAP_TOKEN` for the existing package channels.
-  The APT repository must already serve its signed `stable/main` distribution via
-  GitHub Pages; this workflow consumes that existing publication setup.
-
-For recovery, inspect the failing step (tagging, GoReleaser, signing, push or APT
-verification). Fix the credentials or external publication failure and **re-run failed
-jobs** on that run. Re-running the entire workflow can skip publication because
-Release Please has already created the release. The deliberate `workflow_dispatch`
-path remains available: select the existing exact `vX.Y.Z` tag for a retry, set
-`version` to `X.Y.Z`, and retain the APT/config defaults. A fresh manual release can
-instead use an exact `version` or `bump_type`, never both. Use `version_force` only
-for an intentional progression override; it does not permit moving an existing tag.
-Do not retry an old version after a newer release without reviewing progression
-and floating-tag effects. Keep the manifest aligned with any manual release before
-the next release PR. Failed partial uploads may require inspection of the existing
-GitHub release assets before retrying; do not delete or move published version tags.
-
-The repository-local APT step is a consumer smoke check, not a second publisher.
-A follow-up in `MiguelRodo/actions` should make signed publication mandatory when
-requested, and offer post-publication verification (public base URL, package,
-version, architectures, bounded retries), completing before floating tags advance.
-It should also define recovery for partially uploaded release assets. Until then,
-setupmjr checks the public indexes after the existing action returns; floating tags
-may already have advanced when a Pages verification fails.
+For recovery, re-run the failed job, or dispatch the workflow manually with an exact
+`version` (to retry an existing tag at the same commit) or a `bump_type`, never both.
