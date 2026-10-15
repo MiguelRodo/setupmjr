@@ -45,6 +45,7 @@ setupmjr hpc
 setupmjr git
 setupmjr repo devcontainer
 setupmjr agent --list
+setupmjr agent doctor
 ```
 
 Install external tools through the top-level `install` command:

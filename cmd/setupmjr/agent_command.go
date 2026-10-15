@@ -19,8 +19,13 @@ type agentOptions struct {
 }
 
 func handleAgent(args []string) error {
-	if len(args) > 0 && args[0] == "update" {
-		return handleAgentUpdate(args[1:])
+	if len(args) > 0 {
+		switch args[0] {
+		case "update":
+			return handleAgentUpdate(args[1:])
+		case "doctor":
+			return handleAgentDoctor(args[1:])
+		}
 	}
 	opts, err := parseAgentArgs(args)
 	if err != nil {
@@ -174,6 +179,11 @@ func printAgentUsage() {
 	fmt.Println(`Usage: setupmjr agent [options]
        setupmjr agent update <claude|codex|copilot>
        setupmjr agent update --all
+       setupmjr agent doctor
+
+Commands:
+  update <agent>|--all                Update installed coding-agent CLIs natively.
+  doctor                             Check installations and local authentication without changing configuration.
 
 Options:
   -a, --auth <endpoint>              Store authentication for an endpoint.
