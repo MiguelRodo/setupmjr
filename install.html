@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.10.18">
+<meta name="generator" content="quarto-1.10.19">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -77,10 +77,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-3e9b1289f5f353c49b617ce48ad2bc38.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-55617497126496852ff9f5a59253c640.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -192,6 +192,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#installer-script" id="toc-installer-script" class="nav-link" data-scroll-target="#installer-script">Installer script</a></li>
   </ul></li>
   <li><a href="#from-source" id="toc-from-source" class="nav-link" data-scroll-target="#from-source">From source</a></li>
+  <li><a href="#coding-agent-clis" id="toc-coding-agent-clis" class="nav-link" data-scroll-target="#coding-agent-clis">Coding-agent CLIs</a></li>
   <li><a href="#managed-components" id="toc-managed-components" class="nav-link" data-scroll-target="#managed-components">Managed components</a></li>
   <li><a href="#release-assets" id="toc-release-assets" class="nav-link" data-scroll-target="#release-assets">Release assets</a></li>
   <li><a href="#verify-installation" id="toc-verify-installation" class="nav-link" data-scroll-target="#verify-installation">Verify installation</a></li>
@@ -286,14 +287,61 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> setupmjr</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="ex">go</span> build <span class="at">-o</span> setupmjr ./cmd/setupmjr</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
+<section id="coding-agent-clis" class="level2">
+<h2 class="anchored" data-anchor-id="coding-agent-clis">Coding-agent CLIs</h2>
+<p>Install the terminal applications independently of provider selection:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install claude</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install codex</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install copilot</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>These are <strong>subcommands</strong>, not combinable flags. Run each command separately. They delegate to the vendors’ supported installers; they do not sign in, set a model provider, or modify existing agent configuration. Use <code>setupmjr agent --config</code> for the latter.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>CLI</th>
+<th>Linux, macOS and WSL</th>
+<th>Native Windows</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Claude Code</td>
+<td>Anthropic native <code>install.sh</code> via Bash</td>
+<td><code>winget install --id Anthropic.ClaudeCode --exact --source winget</code></td>
+</tr>
+<tr class="even">
+<td>Codex</td>
+<td>OpenAI native <code>install.sh</code> via sh</td>
+<td>OpenAI native <code>install.ps1</code> via Windows PowerShell</td>
+</tr>
+<tr class="odd">
+<td>GitHub Copilot</td>
+<td>GitHub’s <code>gh.io/copilot-install</code> script via Bash</td>
+<td><code>winget install --id GitHub.Copilot --exact --source winget</code></td>
+</tr>
+</tbody>
+</table>
+<p>On Windows, install WinGet before the Claude and Copilot commands if it is absent. On Unix-like hosts, Bash is required for Claude and Copilot; Codex requires sh. No Node.js installation is required for these paths. On WSL, run the Linux <code>setupmjr</code> executable to install Linux CLIs, not the Windows executable.</p>
+<p>For scripts, setupmjr uses a bounded download into a temporary file and executes it <strong>only after</strong> a complete download. This avoids partial-download execution, but the scripts are still mutable third-party code without a pinned checksum; review the vendors’ installer sources if that trust model is inappropriate for your environment. Native package managers handle their own validation and elevation prompts. Installers may use the network and request additional system dependencies.</p>
+<p>After installation, start a fresh terminal if the CLI was added to your PATH:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="at">--version</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">codex</span> <span class="at">--version</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="ex">copilot</span> <span class="at">--version</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Then authenticate using each CLI’s own flow, for example <code>claude</code>, <code>codex login</code> or <code>copilot</code> followed by <code>/login</code>. None of the setupmjr install subcommands handles authentication.</p>
+<p>Official references: <a href="https://github.com/anthropics/claude-code#readme">Claude Code</a>, <a href="https://github.com/openai/codex#readme">Codex</a>, <a href="https://docs.github.com/en/copilot/how-tos/copilot-cli/set-up-copilot-cli/install-copilot-cli">GitHub Copilot CLI</a>.</p>
+</section>
 <section id="managed-components" class="level2">
 <h2 class="anchored" data-anchor-id="managed-components">Managed components</h2>
 <p>The top-level <code>install</code> command owns installation glue for external tools:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install <span class="at">--repos</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install <span class="at">--pj</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install <span class="at">--gh-skill</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install <span class="at">--repos</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install <span class="at">--pj</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install <span class="at">--gh-skill</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Flags may be combined. Regardless of flag order, setupmjr runs <code>--repos</code>, then <code>--gh-skill</code>, then <code>--pj</code>, and stops at the first failure:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install <span class="at">--repos</span> <span class="at">--gh-skill</span> <span class="at">--pj</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> install <span class="at">--repos</span> <span class="at">--gh-skill</span> <span class="at">--pj</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li><code>--repos</code> installs the latest released <code>MiguelRodo/repos</code> binary into <code>~/.local/bin</code>; use <code>repos</code> directly afterwards.</li>
 <li><code>--gh-skill</code> installs <code>github-projects</code> from <code>MiguelRodo/github-projects-skill</code> for universal agents at user scope from <code>main</code>.</li>
@@ -310,8 +358,8 @@ setupmjr_windows_&lt;arch&gt;.exe</code></pre>
 </section>
 <section id="verify-installation" class="level2">
 <h2 class="anchored" data-anchor-id="verify-installation">Verify installation</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> <span class="at">--version</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> <span class="at">--help</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> <span class="at">--version</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> <span class="at">--help</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
 </section>
