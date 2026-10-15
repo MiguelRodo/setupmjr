@@ -5,6 +5,8 @@ toc: true
 
 Use `setupmjr agent` for user-level coding-agent configuration. `pj` launches already-configured agents; provider and credential setup belongs here.
 
+Install all three CLIs with `setupmjr install agents` (see [installation](install.qmd#coding-agent-clis)). It uses the existing native vendor installers, skips CLIs already on `PATH`, and leaves authentication, API credentials and configured model providers unchanged.
+
 Run `setupmjr agent --help` for authoritative option syntax and `setupmjr agent --list` for accepted endpoints, providers, subagents and aliases.
 
 ## Inspect configuration

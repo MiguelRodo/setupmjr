@@ -20,6 +20,8 @@ func handleInstall(args []string) error {
 			return fmt.Errorf("install %s does not accept additional arguments", args[0])
 		}
 		switch args[0] {
+		case "agents":
+			return installCodingAgents()
 		case "claude", "codex", "copilot":
 			if err := installCodingAgent(args[0]); err != nil {
 				return err
@@ -27,7 +29,7 @@ func handleInstall(args []string) error {
 			fmt.Printf("%s installer completed. Restart your shell if needed; sign-in is separate.\n", args[0])
 			return nil
 		default:
-			return fmt.Errorf("unknown install subcommand %q (choose claude, codex or copilot)", args[0])
+			return fmt.Errorf("unknown install subcommand %q (choose agents, claude, codex or copilot)", args[0])
 		}
 	}
 	fs := flag.NewFlagSet("install", flag.ContinueOnError)
@@ -41,7 +43,7 @@ func handleInstall(args []string) error {
 		return fmt.Errorf("install does not accept positional arguments")
 	}
 	if !*reposFlag && !*pj && !*ghSkill {
-		return fmt.Errorf("install requires claude, codex, copilot, --repos, --pj, or --gh-skill")
+		return fmt.Errorf("install requires agents, claude, codex, copilot, --repos, --pj, or --gh-skill")
 	}
 
 	if *reposFlag {
@@ -66,10 +68,12 @@ func handleInstall(args []string) error {
 
 func printInstallUsage() {
 	fmt.Println(`Usage:
-  setupmjr install <claude|codex|copilot>
+  setupmjr install <agents|claude|codex|copilot>
   setupmjr install [--repos] [--gh-skill] [--pj]
 
 The coding-agent subcommands run vendor-supported CLI installers.
+The agents subcommand installs all three, skipping CLIs already on PATH.
+It reports each result and continues after errors, returning failure if any fail.
 They do not sign you in or change your existing agent provider configuration.
 Legacy install flags may be combined; agent subcommands are separate.`)
 }
