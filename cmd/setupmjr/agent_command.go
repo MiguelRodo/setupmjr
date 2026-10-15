@@ -13,12 +13,15 @@ type agentOptions struct {
 	copilotProvider string
 	subagent        string
 	authEndpoint    string
-	showConfig    bool
-	list          bool
-	help          bool
+	showConfig      bool
+	list            bool
+	help            bool
 }
 
 func handleAgent(args []string) error {
+	if len(args) > 0 && args[0] == "update" {
+		return handleAgentUpdate(args[1:])
+	}
 	opts, err := parseAgentArgs(args)
 	if err != nil {
 		return err
@@ -169,6 +172,8 @@ func normaliseSubagent(value string) (string, error) {
 
 func printAgentUsage() {
 	fmt.Println(`Usage: setupmjr agent [options]
+       setupmjr agent update <claude|codex|copilot>
+       setupmjr agent update --all
 
 Options:
   -a, --auth <endpoint>              Store authentication for an endpoint.

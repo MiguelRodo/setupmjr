@@ -69,7 +69,7 @@ setupmjr install copilot
 - `setupmjr git` configures Git identity and GitHub authentication.
 - `setupmjr repo` scaffolds repository files, devcontainers and released workflow examples.
 - `setupmjr install` installs or refreshes setupmjr-managed external tools and can invoke the official Claude Code, Codex and Copilot CLI installers.
-- `setupmjr agent` configures coding-agent credentials, providers and opt-in subagents.
+- `setupmjr agent` configures coding-agent credentials, providers and opt-in subagents. `setupmjr agent update <claude|codex|copilot>` updates one installed CLI; `setupmjr agent update --all` attempts every supported CLI on PATH. See [supported update paths](agent.qmd#update-installed-clis).
 
 `setupmjr --help` is the authoritative top-level syntax. `setupmjr agent --help` gives the detailed agent options.
 
