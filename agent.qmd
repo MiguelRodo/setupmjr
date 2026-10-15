@@ -18,6 +18,30 @@ setupmjr agent --list
 
 `--config` reports the effective Codex provider, Copilot provider and configured opt-in subagent. Running `setupmjr agent` without options prints command help.
 
+## Update installed CLIs
+
+```bash
+setupmjr agent update claude
+setupmjr agent update codex
+setupmjr agent update copilot
+setupmjr agent update --all
+```
+
+Choose one agent or `--all`; these selectors cannot be combined with provider or authentication options. Updates use the first matching executable on PATH. With `--all`, missing tools are reported as skipped; a missing single selection is an error. Every installed tool is attempted even if another fails, with a separate completion or failure line for each tool and a nonzero exit status if any failed. Vendor output reports whether a version changed or was already current; completion means the update command succeeded.
+
+| Installed method | Update path |
+| --- | --- |
+| Native Claude, Codex or Copilot on Linux, macOS, WSL or Windows | The installed CLI's `update` command, after checking its help advertises that command |
+| Homebrew executable resolving into `Caskroom` or `Cellar` | `brew upgrade --cask <installed-package>` or `brew upgrade --formula <installed-package>` |
+| Claude or Copilot resolving into a Windows WinGet package directory | `winget upgrade --id <installed-package> --exact --source winget` |
+| Detected npm/shim, system `/usr/bin` or `/bin`, or Nix installation | Report an error directing you to the original package manager |
+
+Homebrew package suffixes and Copilot's WinGet prerelease package are retained. An installed package manager must be on PATH. Other custom wrappers or install layouts may not reveal their package manager; native update support and installation handling are then delegated to the vendor. Older CLIs without an advertised `update` command require a one-time update through their original installer or package manager. setupmjr does not automatically migrate them to another installation method.
+
+An explicit update requests a manual check even when background updates are available. Existing auto-update settings, environment variables and release-channel configuration are passed through. setupmjr does not rewrite provider configuration, sign-in state, credentials or shell startup files. Vendor updaters may use the network, request permissions, and require running agent sessions to be restarted. On WSL, use the Linux setupmjr and Linux agents. Platforms other than Linux, macOS and Windows are rejected.
+
+See the official [Claude update documentation](https://code.claude.com/docs/en/setup#update-claude-code), [Codex command reference](https://developers.openai.com/codex/cli/reference#codex-update), and [Copilot command reference](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference).
+
 ## Store DeepSeek authentication
 
 ```bash

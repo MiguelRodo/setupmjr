@@ -144,6 +144,8 @@ Then authenticate using each CLI's own flow, for example `claude`, `codex login`
 
 Official references: [Claude Code](https://github.com/anthropics/claude-code#readme), [Codex](https://github.com/openai/codex#readme), [GitHub Copilot CLI](https://docs.github.com/en/copilot/how-tos/copilot-cli/set-up-copilot-cli/install-copilot-cli).
 
+Update installed agents with `setupmjr agent update <claude|codex|copilot>` or `setupmjr agent update --all`. See [agent updates](agent.qmd#update-installed-clis) for supported installation methods, platform details and per-tool results.
+
 ## Managed components
 
 The top-level `install` command owns installation glue for external tools:
