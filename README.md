@@ -86,12 +86,15 @@ setupmjr install copilot
 
 ## Releases
 
-Every push to `main` runs [Go Version and Release](.github/workflows/go-version-release.yml).
-It reads the conventional commits since the latest `vX.Y.Z` tag and releases a major
-(`!` or `BREAKING CHANGE:`), minor (`feat:`) or patch (`fix:`/`perf:`) version. Pushes with
-only other commit types (`docs:`, `ci:`, `chore:`, ...) do not release, so use conventional
-squash-merge titles. The pinned `MiguelRodo/actions/go-version-release` action owns tagging,
-GoReleaser, package artefacts, signing, APT publication and floating tags.
+Pushing a `vX.Y.Z` tag runs [Go Version and Release](.github/workflows/go-version-release.yml)
+for that tag, so merges to `main` never publish on their own:
+
+```bash
+git tag v0.8.0 origin/main && git push origin v0.8.0
+```
+
+The pinned `MiguelRodo/actions/go-version-release` action owns tag validation, GoReleaser,
+package artefacts, signing, APT publication and floating tags.
 
 After publishing, the workflow uses APT against only the published repository to check
 signatures, index hashes and the exact `setupmjr` version for `amd64` and `arm64`, retrying
