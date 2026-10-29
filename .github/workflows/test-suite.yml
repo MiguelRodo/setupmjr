@@ -32,3 +32,9 @@ jobs:
       - name: Test release publication check
         if: runner.os == 'Linux'
         run: bash .github/scripts/test-release-workflow.sh
+
+      - name: Test README terminal editing
+        if: runner.os == 'Linux'
+        run: |
+          go build -o "$RUNNER_TEMP/setupmjr-readme-pty" ./cmd/setupmjr
+          python3 .github/scripts/test-readme-pty.py "$RUNNER_TEMP/setupmjr-readme-pty"
