@@ -218,6 +218,9 @@ repo action &lt;action-name&gt;</code></pre>
 <h2 class="anchored" data-anchor-id="repo-readme"><code>repo readme</code></h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> repo readme</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Interactively scaffold a standard <code>README.md</code> with title, purpose, contacts, links and details sections.</p>
+<p>Blank contacts are omitted. A contact’s name and email share one bullet; name-only and email-only contacts are also supported. If both contacts are blank, the contact section is omitted. The generated file ends with a newline.</p>
+<p>On POSIX terminals, including Ubuntu/WSL and macOS, interactive input uses line editing sized to the actual terminal, so backspace remains visible across wrapped lines. Arrow-key editing is supported. Terminal settings are restored after completion or cancellation; native Windows keeps its console’s line-input behavior. Piped input also works, including a final nonempty answer without an input newline.</p>
+<p>An existing <code>README.md</code> is never overwritten. Edit an existing README directly; this generator creates new files only. Cancelled or incomplete input creates no README.</p>
 </section>
 <section id="repo-devcontainer" class="level2">
 <h2 class="anchored" data-anchor-id="repo-devcontainer"><code>repo devcontainer</code></h2>
