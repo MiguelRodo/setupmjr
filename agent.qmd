@@ -87,7 +87,7 @@ Select a provider, then run plain `copilot`:
 
 ```bash
 setupmjr agent -p openai      # aliases: -p o
-# First use in this already-open terminal only:
+# Only for first-time setup in an already-open terminal:
 source ~/.config/setupmjr/agent/copilot.sh
 copilot
 
@@ -98,7 +98,7 @@ setupmjr agent -p deepseek    # alias: -p d
 copilot                      # DeepSeek API
 ```
 
-The first selection installs a managed Bash/Zsh function named `copilot` through a bounded block in `.bashrc` and `.zshrc`. It calls the existing Copilot binary and reads the latest provider selection on every invocation. New shells load the integration automatically; existing shells load `copilot.sh` once. Later selections apply to the next `copilot` invocation without restarting or sourcing again. Existing aliases and custom functions are preserved with a warning; use `type copilot` to check resolution. Calling an absolute binary path or `command copilot` bypasses the managed function.
+The first selection installs a managed Bash/Zsh function named `copilot` through a bounded block in `.bashrc` and `.zshrc`. It calls the existing Copilot binary and reads the latest provider selection on every invocation. New shells load the integration automatically; a terminal already open during first-time setup needs to load `copilot.sh` once. The conditional sourcing reminder applies only to that initial setup, not to provider switches. Later selections apply to the next `copilot` invocation without restarting or sourcing again. Existing aliases and custom functions are preserved with a warning; use `type copilot` to check resolution. Calling an absolute binary path or `command copilot` bypasses the managed function.
 
 The non-secret selection is stored in `~/.config/setupmjr/agent/copilot.env`, with the function in `copilot.sh`. Both files are mode `0600` in the managed `0700` directory on POSIX. Selection writes are atomic, and non-regular file targets are rejected. The binary is never replaced. Do not source `copilot.env` directly; it is read inside the function's isolated child environment.
 
