@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://MiguelRodo.github.io/setupmjr/install.html</loc>
-    <lastmod>2026-10-15T09:46:40.417Z</lastmod>
-  </url>
-  <url>
     <loc>https://MiguelRodo.github.io/setupmjr/git.html</loc>
-    <lastmod>2026-10-15T09:46:40.417Z</lastmod>
-  </url>
-  <url>
-    <loc>https://MiguelRodo.github.io/setupmjr/shell.html</loc>
-    <lastmod>2026-10-15T09:46:40.420Z</lastmod>
-  </url>
-  <url>
-    <loc>https://MiguelRodo.github.io/setupmjr/r.html</loc>
-    <lastmod>2026-10-15T09:46:40.420Z</lastmod>
+    <lastmod>2026-10-29T07:33:16.539Z</lastmod>
   </url>
   <url>
     <loc>https://MiguelRodo.github.io/setupmjr/index.html</loc>
-    <lastmod>2026-10-15T09:46:40.417Z</lastmod>
-  </url>
-  <url>
-    <loc>https://MiguelRodo.github.io/setupmjr/repo.html</loc>
-    <lastmod>2026-10-15T09:46:40.420Z</lastmod>
+    <lastmod>2026-10-29T07:33:16.539Z</lastmod>
   </url>
   <url>
     <loc>https://MiguelRodo.github.io/setupmjr/agent.html</loc>
-    <lastmod>2026-10-15T09:46:40.416Z</lastmod>
+    <lastmod>2026-10-29T07:33:16.538Z</lastmod>
+  </url>
+  <url>
+    <loc>https://MiguelRodo.github.io/setupmjr/shell.html</loc>
+    <lastmod>2026-10-29T07:33:16.542Z</lastmod>
+  </url>
+  <url>
+    <loc>https://MiguelRodo.github.io/setupmjr/r.html</loc>
+    <lastmod>2026-10-29T07:33:16.542Z</lastmod>
+  </url>
+  <url>
+    <loc>https://MiguelRodo.github.io/setupmjr/repo.html</loc>
+    <lastmod>2026-10-29T07:33:16.542Z</lastmod>
   </url>
   <url>
     <loc>https://MiguelRodo.github.io/setupmjr/hpc.html</loc>
-    <lastmod>2026-10-15T09:46:40.417Z</lastmod>
+    <lastmod>2026-10-29T07:33:16.539Z</lastmod>
+  </url>
+  <url>
+    <loc>https://MiguelRodo.github.io/setupmjr/install.html</loc>
+    <lastmod>2026-10-29T07:33:16.539Z</lastmod>
   </url>
 </urlset>

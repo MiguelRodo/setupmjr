@@ -1,5 +1,313 @@
 [
   {
+    "objectID": "git.html",
+    "href": "git.html",
+    "title": "git",
+    "section": "",
+    "text": "The git subcommand configures Git identity and GitHub authentication."
+  },
+  {
+    "objectID": "git.html#commands",
+    "href": "git.html#commands",
+    "title": "git",
+    "section": "Commands",
+    "text": "Commands\ngit\ngit profile\ngit auth [text|cache|mngr] [--system|--local] [--remove]"
+  },
+  {
+    "objectID": "git.html#default-setup",
+    "href": "git.html#default-setup",
+    "title": "git",
+    "section": "Default setup",
+    "text": "Default setup\nsetupmjr git\nThis fills in missing Git name/email values and then configures GitHub authentication.\nsetupmjr git auth prefers a durable GitHub CLI login. If gh auth login has already authenticated github.com, setupmjr runs gh auth setup-git --hostname github.com. Otherwise it uses the protected-token fallback described below.\nThe persistent-login check deliberately ignores GH_TOKEN and GITHUB_TOKEN, so an environment-only token is not mistaken for a durable GitHub CLI login."
+  },
+  {
+    "objectID": "git.html#scope-and-replacement",
+    "href": "git.html#scope-and-replacement",
+    "title": "git",
+    "section": "Scope and replacement",
+    "text": "Scope and replacement\nAuthentication configuration is global by default. Use --system or --local to select another Git config scope:\nsetupmjr git auth --local\n--remove clears existing credential helpers in the selected scope before setupmjr configures the requested authentication path:\nsetupmjr git auth --local --remove\nUse one scope flag for clarity. If both --system and --local are supplied, the current CLI selects --system."
+  },
+  {
+    "objectID": "git.html#protected-token-fallback",
+    "href": "git.html#protected-token-fallback",
+    "title": "git",
+    "section": "Protected-token fallback",
+    "text": "Protected-token fallback\nWhen no persistent gh login is available, setupmjr reuses the first available credential from:\n\nGH_TOKEN;\nGITHUB_TOKEN;\n~/.config/setupmjr/auth/github.token;\na token entered at the prompt.\n\nThe auth directory is mode 0700 and github.token is mode 0600 on POSIX systems. Git is configured with a host-specific credential helper that reads this file when Git requests a credential; the literal token is not written into Git configuration or shell startup files.\nFor tools that consume GH_TOKEN, setupmjr places a non-secret managed block in Bash and Zsh login.sh files. The block reads the protected token file when the shell starts.\nsetupmjr git auth text explicitly selects this fallback. The text name remains for backwards compatibility."
+  },
+  {
+    "objectID": "git.html#migration",
+    "href": "git.html#migration",
+    "title": "git",
+    "section": "Migration",
+    "text": "Migration\nCurrent authentication setup removes active legacy GH_TOKEN= and GITHUB_USERNAME= assignments written by older setupmjr versions. It also migrates the short-lived managed block that older versions could place directly in .bashrc or .zshrc into the corresponding login.sh file."
+  },
+  {
+    "objectID": "git.html#consumers",
+    "href": "git.html#consumers",
+    "title": "git",
+    "section": "Consumers",
+    "text": "Consumers\nBoth authentication paths use Git’s standard credential interface. That is the integration boundary for command-line Git, R gitcreds and VS Code Dev Containers’ credential forwarding.\nFor Remote SSH → HPC → Dev Container workflows, configure authentication on the host first. If a container cannot reuse the helper, treat that as a forwarding problem rather than copying a PAT into devcontainer.json, a Dockerfile, an image or a repository file."
+  },
+  {
+    "objectID": "git.html#legacy-explicit-helpers",
+    "href": "git.html#legacy-explicit-helpers",
+    "title": "git",
+    "section": "Legacy explicit helpers",
+    "text": "Legacy explicit helpers\nThese older explicit helpers remain available but are not part of the default authentication path:\nsetupmjr git auth cache\nsetupmjr git auth mngr"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "setupmjr",
+    "section": "",
+    "text": "setupmjr is a cross-platform setup utility for shell, R, Git, repository, HPC and coding-agent environments."
+  },
+  {
+    "objectID": "index.html#start-here",
+    "href": "index.html#start-here",
+    "title": "setupmjr",
+    "section": "Start here",
+    "text": "Start here\nInstall the CLI using a supported package manager, release installer or source build. See Installation for the canonical commands.\nFor authoritative top-level syntax, run:\nsetupmjr --help\nThe agent command also has detailed option help:\nsetupmjr agent --help"
+  },
+  {
+    "objectID": "index.html#command-groups",
+    "href": "index.html#command-groups",
+    "title": "setupmjr",
+    "section": "Command groups",
+    "text": "Command groups\n\n\n\n\n\n\n\nCommand\nPurpose\n\n\n\n\nsetupmjr hpc\nConfigure Linux HPC shell, Git, scratch, Apptainer, SLURM and R setup.\n\n\nsetupmjr shell\nConfigure Bash or Zsh startup, executable paths and login integration.\n\n\nsetupmjr bash\nShorthand for setupmjr shell bash.\n\n\nsetupmjr r\nConfigure radian, lintr and the optional project-local switch_r helper.\n\n\nsetupmjr git\nConfigure Git identity and GitHub authentication.\n\n\nsetupmjr repo\nScaffold repository files, devcontainers and released workflow examples.\n\n\nsetupmjr install\nInstall or refresh external tools whose setup glue is owned by setupmjr.\n\n\nsetupmjr agent\nConfigure coding-agent credentials, providers and opt-in subagents.\n\n\n\nExternal tools keep ownership of their own behaviour. In particular, use repos directly after setupmjr install --repos, and use pj directly after setupmjr install --pj."
+  },
+  {
+    "objectID": "index.html#guides",
+    "href": "index.html#guides",
+    "title": "setupmjr",
+    "section": "Guides",
+    "text": "Guides\n\nInstallation\nHPC\nShell\nR setup\nGit\nRepository setup\nAgent configuration"
+  },
+  {
+    "objectID": "agent.html",
+    "href": "agent.html",
+    "title": "agent",
+    "section": "",
+    "text": "Use setupmjr agent for user-level coding-agent configuration. pj launches already-configured agents; provider and credential setup belongs here.\nInstall all three CLIs with setupmjr install agents (see installation). It uses the existing native vendor installers, skips CLIs already on PATH, and leaves authentication, API credentials and configured model providers unchanged.\nRun setupmjr agent --help for authoritative option syntax and setupmjr agent --list for accepted endpoints, providers, subagents and aliases."
+  },
+  {
+    "objectID": "agent.html#inspect-configuration",
+    "href": "agent.html#inspect-configuration",
+    "title": "agent",
+    "section": "Inspect configuration",
+    "text": "Inspect configuration\nsetupmjr agent --config\nsetupmjr agent --list\n--config reports the effective Codex provider, Copilot provider and configured opt-in subagent. Running setupmjr agent without options prints command help."
+  },
+  {
+    "objectID": "agent.html#update-installed-clis",
+    "href": "agent.html#update-installed-clis",
+    "title": "agent",
+    "section": "Update installed CLIs",
+    "text": "Update installed CLIs\nsetupmjr agent update claude\nsetupmjr agent update codex\nsetupmjr agent update copilot\nsetupmjr agent update --all\nChoose one agent or --all; these selectors cannot be combined with provider or authentication options. Updates use the first matching executable on PATH. With --all, missing tools are reported as skipped; a missing single selection is an error. Every installed tool is attempted even if another fails, with a separate completion or failure line for each tool and a nonzero exit status if any failed. Vendor output reports whether a version changed or was already current; completion means the update command succeeded.\n\n\n\n\n\n\n\nInstalled method\nUpdate path\n\n\n\n\nNative Claude, Codex or Copilot on Linux, macOS, WSL or Windows\nThe installed CLI’s update command, after checking its help advertises that command\n\n\nHomebrew executable resolving into Caskroom or Cellar\nbrew upgrade --cask &lt;installed-package&gt; or brew upgrade --formula &lt;installed-package&gt;\n\n\nClaude or Copilot resolving into a Windows WinGet package directory\nwinget upgrade --id &lt;installed-package&gt; --exact --source winget\n\n\nDetected npm/shim, system /usr/bin or /bin, or Nix installation\nReport an error directing you to the original package manager\n\n\n\nHomebrew package suffixes and Copilot’s WinGet prerelease package are retained. An installed package manager must be on PATH. Other custom wrappers or install layouts may not reveal their package manager; native update support and installation handling are then delegated to the vendor. Older CLIs without an advertised update command require a one-time update through their original installer or package manager. setupmjr does not automatically migrate them to another installation method.\nAn explicit update requests a manual check even when background updates are available. Existing auto-update settings, environment variables and release-channel configuration are passed through. setupmjr does not rewrite provider configuration, sign-in state, credentials or shell startup files. Vendor updaters may use the network, request permissions, and require running agent sessions to be restarted. On WSL, use the Linux setupmjr and Linux agents. Platforms other than Linux, macOS and Windows are rejected.\nSee the official Claude update documentation, Codex command reference, and Copilot command reference."
+  },
+  {
+    "objectID": "agent.html#diagnose-installations",
+    "href": "agent.html#diagnose-installations",
+    "title": "agent",
+    "section": "Diagnose installations",
+    "text": "Diagnose installations\nsetupmjr agent doctor\nDoctor checks Claude Code (claude), Codex (codex) and GitHub Copilot CLI (copilot) on the current process’s PATH. It prints the selected executable locations, versions and setupmjr-managed provider/subagent configuration, then continues through all checks with actionable fixes. It exits 0 when no checks fail and 1 when any check fails, including a missing CLI. WARN means unverified and does not change the exit status. Extra options are rejected; doctor cannot be combined with setup actions.\nChecks are read-only: doctor never installs, updates, signs in, sources shell files or writes configuration. It invokes only --version, Claude’s auth status and Codex’s login status, with closed stdin and a ten-second timeout per probe. Raw command output and errors are suppressed; only version numbers and credential-presence/status summaries are displayed. It makes no inference requests or deliberate credential-validation network requests. Local credential presence does not establish validity, account entitlement or service connectivity.\nCopilot authentication may live in an OS credential store. Doctor does not inspect that store or launch an interactive session: it reports authentication as unverified when no token environment variable is available. It checks COPILOT_GITHUB_TOKEN, GH_TOKEN and GITHUB_TOKEN in precedence order for empty values and unsupported classic PATs, without printing their values. Provider API keys are reported as present but unvalidated. To resolve access problems, run copilot login yourself.\nManaged DeepSeek checks detect missing credentials, an inactive Copilot shell environment and incomplete isolated subagent configuration. An opted-in agy subagent must be on PATH; its authentication remains unverified. CODEX_HOME is honored by the Codex checks and produces a warning because it can override setupmjr’s configuration in ~/.codex. Custom providers, CLI-specific configuration overrides and credential helpers may need separate investigation.\nPlatform details:\n\nUbuntu/Linux and WSL: PATH checks describe the current Linux environment. A Windows installation does not establish that the Linux CLI is available in WSL; run the Linux setupmjr executable there.\nmacOS: the same CLI status commands support credentials stored through vendor mechanisms, including Keychain; doctor does not assume that a missing plaintext credential file means signed out.\nNative Windows: lookup uses Windows PATH/PATHEXT. Doctor probes native executables directly; .cmd/.bat shims produce an actionable failure asking for the native installation. Claude Code needs Git for Windows (Git Bash). Bash/Zsh exports do not configure PowerShell; configure custom provider variables in the shell that launches Copilot."
+  },
+  {
+    "objectID": "agent.html#store-deepseek-authentication",
+    "href": "agent.html#store-deepseek-authentication",
+    "title": "agent",
+    "section": "Store DeepSeek authentication",
+    "text": "Store DeepSeek authentication\nsetupmjr agent --auth deepseek\nsetupmjr agent -a d\nAuthentication is credential-only: it does not change the active Codex or Copilot provider.\nsetupmjr reuses DEEPSEEK_API_KEY when available, then checks its managed credential and existing Codex DeepSeek configuration, and otherwise prompts without echoing the key. The reusable credential is stored at:\n~/.config/setupmjr/agent/auth/deepseek.key\nThe file is private and can be reused by both managed DeepSeek provider paths. DeepSeek is currently the only managed --auth endpoint."
+  },
+  {
+    "objectID": "agent.html#copilot-provider",
+    "href": "agent.html#copilot-provider",
+    "title": "agent",
+    "section": "Copilot provider",
+    "text": "Copilot provider\nThese options configure GitHub Copilot CLI in Bash/Zsh, including Ubuntu/WSL. They do not configure the VS Code extension or native PowerShell.\nSelect a provider, then run plain copilot:\nsetupmjr agent -p openai      # aliases: -p o\n# First use in this already-open terminal only:\nsource ~/.config/setupmjr/agent/copilot.sh\ncopilot\n\nsetupmjr agent -p github      # aliases: -p, -p g\ncopilot                      # Copilot allowances / GitHub-managed models\n\nsetupmjr agent -p deepseek    # alias: -p d\ncopilot                      # DeepSeek API\nThe first selection installs a managed Bash/Zsh function named copilot through a bounded block in .bashrc and .zshrc. It calls the existing Copilot binary and reads the latest provider selection on every invocation. New shells load the integration automatically; existing shells load copilot.sh once. Later selections apply to the next copilot invocation without restarting or sourcing again. Existing aliases and custom functions are preserved with a warning; use type copilot to check resolution. Calling an absolute binary path or command copilot bypasses the managed function.\nThe non-secret selection is stored in ~/.config/setupmjr/agent/copilot.env, with the function in copilot.sh. Both files are mode 0600 in the managed 0700 directory on POSIX. Selection writes are atomic, and non-regular file targets are rejected. The binary is never replaced. Do not source copilot.env directly; it is read inside the function’s isolated child environment.\n\nOpenAI API: Sol 6.1\nThe function reads an exported OPENAI_API_KEY or OPENAI_KEY from the terminal that runs copilot; OPENAI_API_KEY takes precedence when nonempty. If your key is already exported, no additional export is needed. For an existing shell-local variable, use export OPENAI_KEY without pasting its value into a command. No key is copied to a setupmjr configuration or shell file. Missing keys stop launch without falling back to Copilot allowances.\nFor the current source checkout before installation/release:\ncd /home/mrodo/repos/setupmjr\ngo run ./cmd/setupmjr agent -p openai\nsource ~/.config/setupmjr/agent/copilot.sh\ncopilot\nUse the same source command with -p github or -p deepseek to switch again. No special launch command is required. Any earlier placeholder provider registry is left untouched and unused.\nOpenAI uses https://api.openai.com/v1, provider type openai, wire API responses, and gpt-6.1-sol with medium reasoning. Sol needs Responses for tool calling. The prompt budget is 272,000 tokens to stay within its standard input-price threshold; output is capped at 128,000. The installed Ubuntu/WSL Copilot CLI 1.0.91’s local help was checked for the provider, wire API, model and reasoning flags. Launches disable automatic CLI updates.\nDeepSeek reads an exported DEEPSEEK_API_KEY, otherwise the existing private credential created by setupmjr agent --auth deepseek. It uses the Flash model through https://api.deepseek.com/anthropic with wire type anthropic. Selecting a provider does not create or copy any API credential.\nBefore API launches, credential-free local help checks reject an installed CLI that does not advertise the required BYOK/Responses options and model flags. Every invocation clears stale provider endpoints, keys, bearer tokens, key commands, headers, transports, model overrides and OpenAI SDK routing overrides inside the child environment. An empty null-device named registry prevents saved registries from overriding the selected route. Returning to github clears BYOK routing so the CLI uses GitHub-managed access. The original OpenAI and DeepSeek key variables are removed from the child after assigning the selected provider key. Parent-shell environment and unrelated startup content are preserved. As with any environment authentication, the running child holds its selected key; the integration disables shell tracing before expanding credentials.\n\n\nInspect the selected route\nsetupmjr agent copilot-status\n# Or, from the source checkout:\ngo run ./cmd/setupmjr agent copilot-status\nStatus shows the configured provider, endpoint, wire API, model and key-presence summary. It never shows a key, prefix or hash. For an existing DeepSeek credential file, presence is based on metadata without reading its contents. type copilot shows whether the managed function resolves in the current terminal. --config includes the same routing information. Status is not proof of a completed request, valid key, actual API charge or grant-ledger allocation; selecting a model name alone does not prove billing route.\nOpenAI’s grant guide covers eligible organization-billed API usage and excludes Codex usage through API keys. It does not explicitly certify this Copilot integration. Use a project key from the organization linked to the grant. Purchased API credits can be consumed after a grant runs out. No account linking, credit claiming, paid probe or ledger verification occurs during setup or status checks.\nOfficial references (checked 2026-10-29): Copilot model providers, Sol 6.1, API credit rules. The installed CLI’s copilot help providers is the checked source for environment-based BYOK."
+  },
+  {
+    "objectID": "agent.html#codex-provider",
+    "href": "agent.html#codex-provider",
+    "title": "agent",
+    "section": "Codex provider",
+    "text": "Codex provider\nOpenAI/ChatGPT is the default value for -c:\nsetupmjr agent -c\nsetupmjr agent -c o\nsetupmjr agent --codex-provider openai\nSwitch to DeepSeek with:\nsetupmjr agent -c d\nsetupmjr agent --codex-provider deepseek\nThe first managed DeepSeek setup uses DeepSeek’s official Codex setup script and selects the Flash model. setupmjr stages that script with its bounded downloader and runs it with bash --noprofile --norc plus a reduced environment. A timeout, failed HTTP response or incomplete download prevents execution.\nThis remains a remote-code trust boundary: DeepSeek publishes the installer at a mutable CDN URL without a versioned script or checksum that setupmjr can pin. If you do not want to run the vendor script, use DeepSeek’s documented manual Codex setup instead: https://api-docs.deepseek.com/quick_start/agent_integrations/codex/.\nBefore provider changes, setupmjr snapshots the active Codex config.toml and models.json under:\n~/.config/setupmjr/agent/codex/\nAfter both providers have been seen once, switching restores local snapshots instead of rerunning the DeepSeek installer. A pre-existing manual DeepSeek installation uses the vendor restore path once to capture the OpenAI state.\nProvider changes affect the ordinary ~/.codex home. Restart active Codex clients after switching. Restoring OpenAI configuration does not itself restore a ChatGPT login that a previous DeepSeek session may have displaced.\nThe automated DeepSeek bootstrap requires Bash and is intended for Linux, macOS and WSL."
+  },
+  {
+    "objectID": "agent.html#opt-in-subagent",
+    "href": "agent.html#opt-in-subagent",
+    "title": "agent",
+    "section": "Opt-in subagent",
+    "text": "Opt-in subagent\nagy is the default value for -s:\nsetupmjr agent -s\nsetupmjr agent -s agy\nsetupmjr agent --subagent agy\nThis installs bounded Codex guidance for explicitly authorised delegation through agy, preserving instructions outside the managed block.\nDeepSeek can be configured instead:\nsetupmjr agent -s deepseek\nThe DeepSeek subagent uses the isolated Codex home ~/.codex-deepseek-subagent and does not change the primary Codex provider. Its worker runs through codex exec --sandbox workspace-write. Delegation remains opt-in for the current task or conversation.\nSelecting one managed subagent replaces the other. --subagent-agy remains as a deprecated compatibility alias for --subagent agy."
+  },
+  {
+    "objectID": "agent.html#credential-boundaries",
+    "href": "agent.html#credential-boundaries",
+    "title": "agent",
+    "section": "Credential boundaries",
+    "text": "Credential boundaries\nsetupmjr creates managed agent-state directories with mode 0700 and credential/snapshot files with mode 0600 on POSIX systems. DeepSeek’s Codex config.toml format contains the API key, so DeepSeek snapshots are credentials too. Do not commit or share the managed credential or snapshot files."
+  },
+  {
+    "objectID": "shell.html",
+    "href": "shell.html",
+    "title": "shell",
+    "section": "",
+    "text": "The shell subcommand configures Bash or Zsh startup files. setupmjr bash is shorthand for setupmjr shell bash."
+  },
+  {
+    "objectID": "shell.html#commands",
+    "href": "shell.html#commands",
+    "title": "shell",
+    "section": "Commands",
+    "text": "Commands\nshell &lt;shell&gt; rc.d\nshell &lt;shell&gt; path\nshell &lt;shell&gt; login [--not-profile]\n\nbash rc.d\nbash path\nbash login [--not-profile]"
+  },
+  {
+    "objectID": "shell.html#rc.d",
+    "href": "shell.html#rc.d",
+    "title": "shell",
+    "section": "rc.d",
+    "text": "rc.d\nsetupmjr shell bash rc.d\nsetupmjr shell zsh rc.d\nThis ensures ~/.&lt;shell&gt;rc.d exists and configures ~/.&lt;shell&gt;rc to source readable files from that directory."
+  },
+  {
+    "objectID": "shell.html#details",
+    "href": "shell.html#details",
+    "title": "shell",
+    "section": "Details",
+    "text": "Details\nThe sourcing loop is:\nfor i in $HOME/.&lt;shell&gt;rc.d/*; do [ -r \"$i\" ] && source \"$i\"; done"
+  },
+  {
+    "objectID": "shell.html#path",
+    "href": "shell.html#path",
+    "title": "shell",
+    "section": "path",
+    "text": "path\nsetupmjr shell bash path\nsetupmjr shell zsh path\nThis first ensures the shell’s rc.d directory is wired in, then installs path-executables.sh there so ~/bin and ~/.local/bin are available on PATH without duplicating entries."
+  },
+  {
+    "objectID": "shell.html#login",
+    "href": "shell.html#login",
+    "title": "shell",
+    "section": "login",
+    "text": "login\nsetupmjr shell bash login\nsetupmjr shell zsh login\nThis installs login.sh in the shell’s rc.d directory and configures the corresponding login profile to source the directory. Bash uses ~/.profile unless ~/.bash_profile already exists; Zsh uses ~/.zprofile.\nUse --not-profile when you want the login.sh file but do not want setupmjr to modify the login profile:\nsetupmjr shell bash login --not-profile"
+  },
+  {
+    "objectID": "r.html",
+    "href": "r.html",
+    "title": "r",
+    "section": "",
+    "text": "The r subcommand configures R-related user and project files."
+  },
+  {
+    "objectID": "r.html#command",
+    "href": "r.html#command",
+    "title": "r",
+    "section": "Command",
+    "text": "Command\nr [--not-radian] [--not-lintr] [--switch-r]\nRunning:\nsetupmjr r\nconfigures the user-level radian and lintr defaults.\n\nFlags\n\n--not-radian skips the ~/.radian_profile configuration.\n--not-lintr skips the ~/.lintr configuration.\n--switch-r adds the project-local scripts/r/switch_r.R helper and ensures the current repository’s .Rprofile sources it.\n\nFor example:\nsetupmjr r --not-lintr\nsetupmjr r --switch-r\nThe HPC command accepts the same R flags:\nsetupmjr hpc r --not-lintr"
+  },
+  {
+    "objectID": "r.html#details",
+    "href": "r.html#details",
+    "title": "r",
+    "section": "Details",
+    "text": "Details\nUnless --not-radian is supplied, setupmjr ensures ~/.radian_profile contains:\noptions(radian.auto_match = FALSE)\nUnless --not-lintr is supplied, setupmjr ensures ~/.lintr contains:\nlinters: linters_with_defaults(\n    object_length_linter = NULL,\n    object_name_linter = NULL)\nWith --switch-r, setupmjr creates scripts/r/switch_r.R if it is absent and places this source line at the top of the current repository’s .Rprofile:\ntry(source(\"scripts/r/switch_r.R\"))"
+  },
+  {
+    "objectID": "repo.html",
+    "href": "repo.html",
+    "title": "repo",
+    "section": "",
+    "text": "The repo subcommand configures the current repository. Repository orchestration itself belongs to the standalone repos CLI."
+  },
+  {
+    "objectID": "repo.html#commands",
+    "href": "repo.html#commands",
+    "title": "repo",
+    "section": "Commands",
+    "text": "Commands\nrepo readme\nrepo devcontainer [--repo &lt;owner/repo&gt;@&lt;branch&gt;] [--build]\nrepo action &lt;action-name&gt;"
+  },
+  {
+    "objectID": "repo.html#repo-readme",
+    "href": "repo.html#repo-readme",
+    "title": "repo",
+    "section": "repo readme",
+    "text": "repo readme\nsetupmjr repo readme\nInteractively scaffold a standard README.md with title, purpose, contacts, links and details sections."
+  },
+  {
+    "objectID": "repo.html#repo-devcontainer",
+    "href": "repo.html#repo-devcontainer",
+    "title": "repo",
+    "section": "repo devcontainer",
+    "text": "repo devcontainer\nsetupmjr repo devcontainer\nsetupmjr repo devcontainer --repo MiguelRodo/comp@main\n\n--repo selects the source repository and branch in &lt;owner/repo&gt;@&lt;branch&gt; form. The default is MiguelRodo/comp@main.\n--build also installs the prebuild-devcontainer.yml workflow example from the latest published MiguelRodo/actions release.\n\nThe source archive is staged before extraction, and repository/branch values are passed as command arguments rather than interpolated into shell commands."
+  },
+  {
+    "objectID": "repo.html#repo-action",
+    "href": "repo.html#repo-action",
+    "title": "repo",
+    "section": "repo action",
+    "text": "repo action\nsetupmjr repo action &lt;action-name&gt;\nWorkflow examples are owned by MiguelRodo/actions. setupmjr resolves its latest published release and installs examples/&lt;action-name&gt;.yml from that exact tag into .github/workflows/.\nUse the released example filename without the .yml suffix. setupmjr keeps no embedded workflow copies and does not fall back to mutable actions/main; a missing released example is an error."
+  },
+  {
+    "objectID": "repo.html#repos-cli",
+    "href": "repo.html#repos-cli",
+    "title": "repo",
+    "section": "repos CLI",
+    "text": "repos CLI\nInstall or update the standalone repository-orchestration CLI with:\nsetupmjr install --repos\nThen use repos directly. setupmjr owns its installation glue, not its commands.\nNetwork downloads used by these setup paths have finite timeouts and are staged before replacing final files, so failed or incomplete downloads do not become installed artefacts."
+  },
+  {
+    "objectID": "hpc.html",
+    "href": "hpc.html",
+    "title": "hpc",
+    "section": "",
+    "text": "The hpc subcommand configures Linux HPC environments."
+  },
+  {
+    "objectID": "hpc.html#commands",
+    "href": "hpc.html#commands",
+    "title": "hpc",
+    "section": "Commands",
+    "text": "Commands\nhpc\nhpc scratch\nhpc apptainer\nhpc slurm\nhpc git\nhpc r [--not-radian] [--not-lintr] [--switch-r]\nInstall setupmjr using a supported Linux method from Installation, then verify it with setupmjr --version."
+  },
+  {
+    "objectID": "hpc.html#master-setup",
+    "href": "hpc.html#master-setup",
+    "title": "hpc",
+    "section": "Master setup",
+    "text": "Master setup\nsetupmjr hpc\nThe master command is Linux-only and stops on the first failed step. It runs:\n\nBash rc.d, executable-path and login/profile setup.\nZsh rc.d, executable-path and login/profile setup.\nGit identity and GitHub authentication.\nHPC scratch configuration.\nApptainer helpers.\nSLURM helpers.\nNormal setupmjr r defaults.\n\nThe focused subcommands below run the same components independently."
+  },
+  {
+    "objectID": "hpc.html#git",
+    "href": "hpc.html#git",
+    "title": "hpc",
+    "section": "Git",
+    "text": "Git\nsetupmjr hpc git\nThis is the normal setupmjr git setup. It prefers a persistent GitHub CLI login and otherwise uses setupmjr’s protected-token credential helper. See Git for authentication, migration and Dev Container behaviour."
+  },
+  {
+    "objectID": "hpc.html#scratch-space",
+    "href": "hpc.html#scratch-space",
+    "title": "hpc",
+    "section": "Scratch space",
+    "text": "Scratch space\nsetupmjr hpc scratch\nThis installs ~/.bashrc.d/hpc-scratch.sh, which points large caches and artefacts at /scratch/$USER when available, including Apptainer/Singularity storage and R library/renv caches.\nThe master setup wires Bash rc.d first. When running hpc scratch independently, run setupmjr shell bash rc.d first if Bash is not already sourcing ~/.bashrc.d."
+  },
+  {
+    "objectID": "hpc.html#apptainer",
+    "href": "hpc.html#apptainer",
+    "title": "hpc",
+    "section": "Apptainer",
+    "text": "Apptainer\nsetupmjr hpc apptainer\nThis installs the embedded apptainer-* helper scripts into ~/.local/bin, excluding apptainer-vscode."
+  },
+  {
+    "objectID": "hpc.html#slurm",
+    "href": "hpc.html#slurm",
+    "title": "hpc",
+    "section": "SLURM",
+    "text": "SLURM\nsetupmjr hpc slurm\nThis installs SLURM helpers into ~/.local/bin, including:\n\nslurm-sbatch for job submission and submission records;\nslurm-sintx for interactive sessions;\nslurm-squeue for listing the current user’s jobs."
+  },
+  {
+    "objectID": "hpc.html#r",
+    "href": "hpc.html#r",
+    "title": "hpc",
+    "section": "R",
+    "text": "R\nsetupmjr hpc r\nThis delegates to the normal R setup and accepts the same flags:\nsetupmjr hpc r --not-lintr\nsetupmjr hpc r --switch-r\nSee R setup for the flag behaviour."
+  },
+  {
     "objectID": "install.html",
     "href": "install.html",
     "title": "Installation",
@@ -68,313 +376,5 @@
     "title": "Installation",
     "section": "Verify installation",
     "text": "Verify installation\nsetupmjr --version\nsetupmjr --help"
-  },
-  {
-    "objectID": "git.html",
-    "href": "git.html",
-    "title": "git",
-    "section": "",
-    "text": "The git subcommand configures Git identity and GitHub authentication."
-  },
-  {
-    "objectID": "git.html#commands",
-    "href": "git.html#commands",
-    "title": "git",
-    "section": "Commands",
-    "text": "Commands\ngit\ngit profile\ngit auth [text|cache|mngr] [--system|--local] [--remove]"
-  },
-  {
-    "objectID": "git.html#default-setup",
-    "href": "git.html#default-setup",
-    "title": "git",
-    "section": "Default setup",
-    "text": "Default setup\nsetupmjr git\nThis fills in missing Git name/email values and then configures GitHub authentication.\nsetupmjr git auth prefers a durable GitHub CLI login. If gh auth login has already authenticated github.com, setupmjr runs gh auth setup-git --hostname github.com. Otherwise it uses the protected-token fallback described below.\nThe persistent-login check deliberately ignores GH_TOKEN and GITHUB_TOKEN, so an environment-only token is not mistaken for a durable GitHub CLI login."
-  },
-  {
-    "objectID": "git.html#scope-and-replacement",
-    "href": "git.html#scope-and-replacement",
-    "title": "git",
-    "section": "Scope and replacement",
-    "text": "Scope and replacement\nAuthentication configuration is global by default. Use --system or --local to select another Git config scope:\nsetupmjr git auth --local\n--remove clears existing credential helpers in the selected scope before setupmjr configures the requested authentication path:\nsetupmjr git auth --local --remove\nUse one scope flag for clarity. If both --system and --local are supplied, the current CLI selects --system."
-  },
-  {
-    "objectID": "git.html#protected-token-fallback",
-    "href": "git.html#protected-token-fallback",
-    "title": "git",
-    "section": "Protected-token fallback",
-    "text": "Protected-token fallback\nWhen no persistent gh login is available, setupmjr reuses the first available credential from:\n\nGH_TOKEN;\nGITHUB_TOKEN;\n~/.config/setupmjr/auth/github.token;\na token entered at the prompt.\n\nThe auth directory is mode 0700 and github.token is mode 0600 on POSIX systems. Git is configured with a host-specific credential helper that reads this file when Git requests a credential; the literal token is not written into Git configuration or shell startup files.\nFor tools that consume GH_TOKEN, setupmjr places a non-secret managed block in Bash and Zsh login.sh files. The block reads the protected token file when the shell starts.\nsetupmjr git auth text explicitly selects this fallback. The text name remains for backwards compatibility."
-  },
-  {
-    "objectID": "git.html#migration",
-    "href": "git.html#migration",
-    "title": "git",
-    "section": "Migration",
-    "text": "Migration\nCurrent authentication setup removes active legacy GH_TOKEN= and GITHUB_USERNAME= assignments written by older setupmjr versions. It also migrates the short-lived managed block that older versions could place directly in .bashrc or .zshrc into the corresponding login.sh file."
-  },
-  {
-    "objectID": "git.html#consumers",
-    "href": "git.html#consumers",
-    "title": "git",
-    "section": "Consumers",
-    "text": "Consumers\nBoth authentication paths use Git’s standard credential interface. That is the integration boundary for command-line Git, R gitcreds and VS Code Dev Containers’ credential forwarding.\nFor Remote SSH → HPC → Dev Container workflows, configure authentication on the host first. If a container cannot reuse the helper, treat that as a forwarding problem rather than copying a PAT into devcontainer.json, a Dockerfile, an image or a repository file."
-  },
-  {
-    "objectID": "git.html#legacy-explicit-helpers",
-    "href": "git.html#legacy-explicit-helpers",
-    "title": "git",
-    "section": "Legacy explicit helpers",
-    "text": "Legacy explicit helpers\nThese older explicit helpers remain available but are not part of the default authentication path:\nsetupmjr git auth cache\nsetupmjr git auth mngr"
-  },
-  {
-    "objectID": "shell.html",
-    "href": "shell.html",
-    "title": "shell",
-    "section": "",
-    "text": "The shell subcommand configures Bash or Zsh startup files. setupmjr bash is shorthand for setupmjr shell bash."
-  },
-  {
-    "objectID": "shell.html#commands",
-    "href": "shell.html#commands",
-    "title": "shell",
-    "section": "Commands",
-    "text": "Commands\nshell &lt;shell&gt; rc.d\nshell &lt;shell&gt; path\nshell &lt;shell&gt; login [--not-profile]\n\nbash rc.d\nbash path\nbash login [--not-profile]"
-  },
-  {
-    "objectID": "shell.html#rc.d",
-    "href": "shell.html#rc.d",
-    "title": "shell",
-    "section": "rc.d",
-    "text": "rc.d\nsetupmjr shell bash rc.d\nsetupmjr shell zsh rc.d\nThis ensures ~/.&lt;shell&gt;rc.d exists and configures ~/.&lt;shell&gt;rc to source readable files from that directory."
-  },
-  {
-    "objectID": "shell.html#details",
-    "href": "shell.html#details",
-    "title": "shell",
-    "section": "Details",
-    "text": "Details\nThe sourcing loop is:\nfor i in $HOME/.&lt;shell&gt;rc.d/*; do [ -r \"$i\" ] && source \"$i\"; done"
-  },
-  {
-    "objectID": "shell.html#path",
-    "href": "shell.html#path",
-    "title": "shell",
-    "section": "path",
-    "text": "path\nsetupmjr shell bash path\nsetupmjr shell zsh path\nThis first ensures the shell’s rc.d directory is wired in, then installs path-executables.sh there so ~/bin and ~/.local/bin are available on PATH without duplicating entries."
-  },
-  {
-    "objectID": "shell.html#login",
-    "href": "shell.html#login",
-    "title": "shell",
-    "section": "login",
-    "text": "login\nsetupmjr shell bash login\nsetupmjr shell zsh login\nThis installs login.sh in the shell’s rc.d directory and configures the corresponding login profile to source the directory. Bash uses ~/.profile unless ~/.bash_profile already exists; Zsh uses ~/.zprofile.\nUse --not-profile when you want the login.sh file but do not want setupmjr to modify the login profile:\nsetupmjr shell bash login --not-profile"
-  },
-  {
-    "objectID": "r.html",
-    "href": "r.html",
-    "title": "r",
-    "section": "",
-    "text": "The r subcommand configures R-related user and project files."
-  },
-  {
-    "objectID": "r.html#command",
-    "href": "r.html#command",
-    "title": "r",
-    "section": "Command",
-    "text": "Command\nr [--not-radian] [--not-lintr] [--switch-r]\nRunning:\nsetupmjr r\nconfigures the user-level radian and lintr defaults.\n\nFlags\n\n--not-radian skips the ~/.radian_profile configuration.\n--not-lintr skips the ~/.lintr configuration.\n--switch-r adds the project-local scripts/r/switch_r.R helper and ensures the current repository’s .Rprofile sources it.\n\nFor example:\nsetupmjr r --not-lintr\nsetupmjr r --switch-r\nThe HPC command accepts the same R flags:\nsetupmjr hpc r --not-lintr"
-  },
-  {
-    "objectID": "r.html#details",
-    "href": "r.html#details",
-    "title": "r",
-    "section": "Details",
-    "text": "Details\nUnless --not-radian is supplied, setupmjr ensures ~/.radian_profile contains:\noptions(radian.auto_match = FALSE)\nUnless --not-lintr is supplied, setupmjr ensures ~/.lintr contains:\nlinters: linters_with_defaults(\n    object_length_linter = NULL,\n    object_name_linter = NULL)\nWith --switch-r, setupmjr creates scripts/r/switch_r.R if it is absent and places this source line at the top of the current repository’s .Rprofile:\ntry(source(\"scripts/r/switch_r.R\"))"
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "setupmjr",
-    "section": "",
-    "text": "setupmjr is a cross-platform setup utility for shell, R, Git, repository, HPC and coding-agent environments."
-  },
-  {
-    "objectID": "index.html#start-here",
-    "href": "index.html#start-here",
-    "title": "setupmjr",
-    "section": "Start here",
-    "text": "Start here\nInstall the CLI using a supported package manager, release installer or source build. See Installation for the canonical commands.\nFor authoritative top-level syntax, run:\nsetupmjr --help\nThe agent command also has detailed option help:\nsetupmjr agent --help"
-  },
-  {
-    "objectID": "index.html#command-groups",
-    "href": "index.html#command-groups",
-    "title": "setupmjr",
-    "section": "Command groups",
-    "text": "Command groups\n\n\n\n\n\n\n\nCommand\nPurpose\n\n\n\n\nsetupmjr hpc\nConfigure Linux HPC shell, Git, scratch, Apptainer, SLURM and R setup.\n\n\nsetupmjr shell\nConfigure Bash or Zsh startup, executable paths and login integration.\n\n\nsetupmjr bash\nShorthand for setupmjr shell bash.\n\n\nsetupmjr r\nConfigure radian, lintr and the optional project-local switch_r helper.\n\n\nsetupmjr git\nConfigure Git identity and GitHub authentication.\n\n\nsetupmjr repo\nScaffold repository files, devcontainers and released workflow examples.\n\n\nsetupmjr install\nInstall or refresh external tools whose setup glue is owned by setupmjr.\n\n\nsetupmjr agent\nConfigure coding-agent credentials, providers and opt-in subagents.\n\n\n\nExternal tools keep ownership of their own behaviour. In particular, use repos directly after setupmjr install --repos, and use pj directly after setupmjr install --pj."
-  },
-  {
-    "objectID": "index.html#guides",
-    "href": "index.html#guides",
-    "title": "setupmjr",
-    "section": "Guides",
-    "text": "Guides\n\nInstallation\nHPC\nShell\nR setup\nGit\nRepository setup\nAgent configuration"
-  },
-  {
-    "objectID": "repo.html",
-    "href": "repo.html",
-    "title": "repo",
-    "section": "",
-    "text": "The repo subcommand configures the current repository. Repository orchestration itself belongs to the standalone repos CLI."
-  },
-  {
-    "objectID": "repo.html#commands",
-    "href": "repo.html#commands",
-    "title": "repo",
-    "section": "Commands",
-    "text": "Commands\nrepo readme\nrepo devcontainer [--repo &lt;owner/repo&gt;@&lt;branch&gt;] [--build]\nrepo action &lt;action-name&gt;"
-  },
-  {
-    "objectID": "repo.html#repo-readme",
-    "href": "repo.html#repo-readme",
-    "title": "repo",
-    "section": "repo readme",
-    "text": "repo readme\nsetupmjr repo readme\nInteractively scaffold a standard README.md with title, purpose, contacts, links and details sections."
-  },
-  {
-    "objectID": "repo.html#repo-devcontainer",
-    "href": "repo.html#repo-devcontainer",
-    "title": "repo",
-    "section": "repo devcontainer",
-    "text": "repo devcontainer\nsetupmjr repo devcontainer\nsetupmjr repo devcontainer --repo MiguelRodo/comp@main\n\n--repo selects the source repository and branch in &lt;owner/repo&gt;@&lt;branch&gt; form. The default is MiguelRodo/comp@main.\n--build also installs the prebuild-devcontainer.yml workflow example from the latest published MiguelRodo/actions release.\n\nThe source archive is staged before extraction, and repository/branch values are passed as command arguments rather than interpolated into shell commands."
-  },
-  {
-    "objectID": "repo.html#repo-action",
-    "href": "repo.html#repo-action",
-    "title": "repo",
-    "section": "repo action",
-    "text": "repo action\nsetupmjr repo action &lt;action-name&gt;\nWorkflow examples are owned by MiguelRodo/actions. setupmjr resolves its latest published release and installs examples/&lt;action-name&gt;.yml from that exact tag into .github/workflows/.\nUse the released example filename without the .yml suffix. setupmjr keeps no embedded workflow copies and does not fall back to mutable actions/main; a missing released example is an error."
-  },
-  {
-    "objectID": "repo.html#repos-cli",
-    "href": "repo.html#repos-cli",
-    "title": "repo",
-    "section": "repos CLI",
-    "text": "repos CLI\nInstall or update the standalone repository-orchestration CLI with:\nsetupmjr install --repos\nThen use repos directly. setupmjr owns its installation glue, not its commands.\nNetwork downloads used by these setup paths have finite timeouts and are staged before replacing final files, so failed or incomplete downloads do not become installed artefacts."
-  },
-  {
-    "objectID": "agent.html",
-    "href": "agent.html",
-    "title": "agent",
-    "section": "",
-    "text": "Use setupmjr agent for user-level coding-agent configuration. pj launches already-configured agents; provider and credential setup belongs here.\nInstall all three CLIs with setupmjr install agents (see installation). It uses the existing native vendor installers, skips CLIs already on PATH, and leaves authentication, API credentials and configured model providers unchanged.\nRun setupmjr agent --help for authoritative option syntax and setupmjr agent --list for accepted endpoints, providers, subagents and aliases."
-  },
-  {
-    "objectID": "agent.html#inspect-configuration",
-    "href": "agent.html#inspect-configuration",
-    "title": "agent",
-    "section": "Inspect configuration",
-    "text": "Inspect configuration\nsetupmjr agent --config\nsetupmjr agent --list\n--config reports the effective Codex provider, Copilot provider and configured opt-in subagent. Running setupmjr agent without options prints command help."
-  },
-  {
-    "objectID": "agent.html#update-installed-clis",
-    "href": "agent.html#update-installed-clis",
-    "title": "agent",
-    "section": "Update installed CLIs",
-    "text": "Update installed CLIs\nsetupmjr agent update claude\nsetupmjr agent update codex\nsetupmjr agent update copilot\nsetupmjr agent update --all\nChoose one agent or --all; these selectors cannot be combined with provider or authentication options. Updates use the first matching executable on PATH. With --all, missing tools are reported as skipped; a missing single selection is an error. Every installed tool is attempted even if another fails, with a separate completion or failure line for each tool and a nonzero exit status if any failed. Vendor output reports whether a version changed or was already current; completion means the update command succeeded.\n\n\n\n\n\n\n\nInstalled method\nUpdate path\n\n\n\n\nNative Claude, Codex or Copilot on Linux, macOS, WSL or Windows\nThe installed CLI’s update command, after checking its help advertises that command\n\n\nHomebrew executable resolving into Caskroom or Cellar\nbrew upgrade --cask &lt;installed-package&gt; or brew upgrade --formula &lt;installed-package&gt;\n\n\nClaude or Copilot resolving into a Windows WinGet package directory\nwinget upgrade --id &lt;installed-package&gt; --exact --source winget\n\n\nDetected npm/shim, system /usr/bin or /bin, or Nix installation\nReport an error directing you to the original package manager\n\n\n\nHomebrew package suffixes and Copilot’s WinGet prerelease package are retained. An installed package manager must be on PATH. Other custom wrappers or install layouts may not reveal their package manager; native update support and installation handling are then delegated to the vendor. Older CLIs without an advertised update command require a one-time update through their original installer or package manager. setupmjr does not automatically migrate them to another installation method.\nAn explicit update requests a manual check even when background updates are available. Existing auto-update settings, environment variables and release-channel configuration are passed through. setupmjr does not rewrite provider configuration, sign-in state, credentials or shell startup files. Vendor updaters may use the network, request permissions, and require running agent sessions to be restarted. On WSL, use the Linux setupmjr and Linux agents. Platforms other than Linux, macOS and Windows are rejected.\nSee the official Claude update documentation, Codex command reference, and Copilot command reference."
-  },
-  {
-    "objectID": "agent.html#diagnose-installations",
-    "href": "agent.html#diagnose-installations",
-    "title": "agent",
-    "section": "Diagnose installations",
-    "text": "Diagnose installations\nsetupmjr agent doctor\nDoctor checks Claude Code (claude), Codex (codex) and GitHub Copilot CLI (copilot) on the current process’s PATH. It prints the selected executable locations, versions and setupmjr-managed provider/subagent configuration, then continues through all checks with actionable fixes. It exits 0 when no checks fail and 1 when any check fails, including a missing CLI. WARN means unverified and does not change the exit status. Extra options are rejected; doctor cannot be combined with setup actions.\nChecks are read-only: doctor never installs, updates, signs in, sources shell files or writes configuration. It invokes only --version, Claude’s auth status and Codex’s login status, with closed stdin and a ten-second timeout per probe. Raw command output and errors are suppressed; only version numbers and credential-presence/status summaries are displayed. It makes no inference requests or deliberate credential-validation network requests. Local credential presence does not establish validity, account entitlement or service connectivity.\nCopilot authentication may live in an OS credential store. Doctor does not inspect that store or launch an interactive session: it reports authentication as unverified when no token environment variable is available. It checks COPILOT_GITHUB_TOKEN, GH_TOKEN and GITHUB_TOKEN in precedence order for empty values and unsupported classic PATs, without printing their values. Provider API keys are reported as present but unvalidated. To resolve access problems, run copilot login yourself.\nManaged DeepSeek checks detect missing credentials, an inactive Copilot shell environment and incomplete isolated subagent configuration. An opted-in agy subagent must be on PATH; its authentication remains unverified. CODEX_HOME is honored by the Codex checks and produces a warning because it can override setupmjr’s configuration in ~/.codex. Custom providers, CLI-specific configuration overrides and credential helpers may need separate investigation.\nPlatform details:\n\nUbuntu/Linux and WSL: PATH checks describe the current Linux environment. A Windows installation does not establish that the Linux CLI is available in WSL; run the Linux setupmjr executable there.\nmacOS: the same CLI status commands support credentials stored through vendor mechanisms, including Keychain; doctor does not assume that a missing plaintext credential file means signed out.\nNative Windows: lookup uses Windows PATH/PATHEXT. Doctor probes native executables directly; .cmd/.bat shims produce an actionable failure asking for the native installation. Claude Code needs Git for Windows (Git Bash). Bash/Zsh exports do not configure PowerShell; configure custom provider variables in the shell that launches Copilot."
-  },
-  {
-    "objectID": "agent.html#store-deepseek-authentication",
-    "href": "agent.html#store-deepseek-authentication",
-    "title": "agent",
-    "section": "Store DeepSeek authentication",
-    "text": "Store DeepSeek authentication\nsetupmjr agent --auth deepseek\nsetupmjr agent -a d\nAuthentication is credential-only: it does not change the active Codex or Copilot provider.\nsetupmjr reuses DEEPSEEK_API_KEY when available, then checks its managed credential and existing Codex DeepSeek configuration, and otherwise prompts without echoing the key. The reusable credential is stored at:\n~/.config/setupmjr/agent/auth/deepseek.key\nThe file is private and can be reused by both managed DeepSeek provider paths. DeepSeek is currently the only managed --auth endpoint."
-  },
-  {
-    "objectID": "agent.html#copilot-provider",
-    "href": "agent.html#copilot-provider",
-    "title": "agent",
-    "section": "Copilot provider",
-    "text": "Copilot provider\nGitHub-managed Copilot models are the default value for -p:\nsetupmjr agent -p\nsetupmjr agent -p g\nsetupmjr agent --copilot-provider github\nSwitch to DeepSeek after storing its credential:\nsetupmjr agent --auth deepseek\nsetupmjr agent -p d\nThe managed environment lives at ~/.config/setupmjr/agent/copilot.env and is sourced by Bash and Zsh startup files. DeepSeek uses its Anthropic-compatible endpoint with the Flash model; COPILOT_PROVIDER_TYPE=anthropic selects the wire protocol, not Anthropic as the model vendor.\nThe raw key is not embedded in the provider environment. Switching back to github removes the managed BYOK provider variables for new shells. Restart the shell, or source the managed environment file, after switching. GitHub authentication for Copilot remains separate from provider selection."
-  },
-  {
-    "objectID": "agent.html#codex-provider",
-    "href": "agent.html#codex-provider",
-    "title": "agent",
-    "section": "Codex provider",
-    "text": "Codex provider\nOpenAI/ChatGPT is the default value for -c:\nsetupmjr agent -c\nsetupmjr agent -c o\nsetupmjr agent --codex-provider openai\nSwitch to DeepSeek with:\nsetupmjr agent -c d\nsetupmjr agent --codex-provider deepseek\nThe first managed DeepSeek setup uses DeepSeek’s official Codex setup script and selects the Flash model. setupmjr stages that script with its bounded downloader and runs it with bash --noprofile --norc plus a reduced environment. A timeout, failed HTTP response or incomplete download prevents execution.\nThis remains a remote-code trust boundary: DeepSeek publishes the installer at a mutable CDN URL without a versioned script or checksum that setupmjr can pin. If you do not want to run the vendor script, use DeepSeek’s documented manual Codex setup instead: https://api-docs.deepseek.com/quick_start/agent_integrations/codex/.\nBefore provider changes, setupmjr snapshots the active Codex config.toml and models.json under:\n~/.config/setupmjr/agent/codex/\nAfter both providers have been seen once, switching restores local snapshots instead of rerunning the DeepSeek installer. A pre-existing manual DeepSeek installation uses the vendor restore path once to capture the OpenAI state.\nProvider changes affect the ordinary ~/.codex home. Restart active Codex clients after switching. Restoring OpenAI configuration does not itself restore a ChatGPT login that a previous DeepSeek session may have displaced.\nThe automated DeepSeek bootstrap requires Bash and is intended for Linux, macOS and WSL."
-  },
-  {
-    "objectID": "agent.html#opt-in-subagent",
-    "href": "agent.html#opt-in-subagent",
-    "title": "agent",
-    "section": "Opt-in subagent",
-    "text": "Opt-in subagent\nagy is the default value for -s:\nsetupmjr agent -s\nsetupmjr agent -s agy\nsetupmjr agent --subagent agy\nThis installs bounded Codex guidance for explicitly authorised delegation through agy, preserving instructions outside the managed block.\nDeepSeek can be configured instead:\nsetupmjr agent -s deepseek\nThe DeepSeek subagent uses the isolated Codex home ~/.codex-deepseek-subagent and does not change the primary Codex provider. Its worker runs through codex exec --sandbox workspace-write. Delegation remains opt-in for the current task or conversation.\nSelecting one managed subagent replaces the other. --subagent-agy remains as a deprecated compatibility alias for --subagent agy."
-  },
-  {
-    "objectID": "agent.html#credential-boundaries",
-    "href": "agent.html#credential-boundaries",
-    "title": "agent",
-    "section": "Credential boundaries",
-    "text": "Credential boundaries\nsetupmjr creates managed agent-state directories with mode 0700 and credential/snapshot files with mode 0600 on POSIX systems. DeepSeek’s Codex config.toml format contains the API key, so DeepSeek snapshots are credentials too. Do not commit or share the managed credential or snapshot files."
-  },
-  {
-    "objectID": "hpc.html",
-    "href": "hpc.html",
-    "title": "hpc",
-    "section": "",
-    "text": "The hpc subcommand configures Linux HPC environments."
-  },
-  {
-    "objectID": "hpc.html#commands",
-    "href": "hpc.html#commands",
-    "title": "hpc",
-    "section": "Commands",
-    "text": "Commands\nhpc\nhpc scratch\nhpc apptainer\nhpc slurm\nhpc git\nhpc r [--not-radian] [--not-lintr] [--switch-r]\nInstall setupmjr using a supported Linux method from Installation, then verify it with setupmjr --version."
-  },
-  {
-    "objectID": "hpc.html#master-setup",
-    "href": "hpc.html#master-setup",
-    "title": "hpc",
-    "section": "Master setup",
-    "text": "Master setup\nsetupmjr hpc\nThe master command is Linux-only and stops on the first failed step. It runs:\n\nBash rc.d, executable-path and login/profile setup.\nZsh rc.d, executable-path and login/profile setup.\nGit identity and GitHub authentication.\nHPC scratch configuration.\nApptainer helpers.\nSLURM helpers.\nNormal setupmjr r defaults.\n\nThe focused subcommands below run the same components independently."
-  },
-  {
-    "objectID": "hpc.html#git",
-    "href": "hpc.html#git",
-    "title": "hpc",
-    "section": "Git",
-    "text": "Git\nsetupmjr hpc git\nThis is the normal setupmjr git setup. It prefers a persistent GitHub CLI login and otherwise uses setupmjr’s protected-token credential helper. See Git for authentication, migration and Dev Container behaviour."
-  },
-  {
-    "objectID": "hpc.html#scratch-space",
-    "href": "hpc.html#scratch-space",
-    "title": "hpc",
-    "section": "Scratch space",
-    "text": "Scratch space\nsetupmjr hpc scratch\nThis installs ~/.bashrc.d/hpc-scratch.sh, which points large caches and artefacts at /scratch/$USER when available, including Apptainer/Singularity storage and R library/renv caches.\nThe master setup wires Bash rc.d first. When running hpc scratch independently, run setupmjr shell bash rc.d first if Bash is not already sourcing ~/.bashrc.d."
-  },
-  {
-    "objectID": "hpc.html#apptainer",
-    "href": "hpc.html#apptainer",
-    "title": "hpc",
-    "section": "Apptainer",
-    "text": "Apptainer\nsetupmjr hpc apptainer\nThis installs the embedded apptainer-* helper scripts into ~/.local/bin, excluding apptainer-vscode."
-  },
-  {
-    "objectID": "hpc.html#slurm",
-    "href": "hpc.html#slurm",
-    "title": "hpc",
-    "section": "SLURM",
-    "text": "SLURM\nsetupmjr hpc slurm\nThis installs SLURM helpers into ~/.local/bin, including:\n\nslurm-sbatch for job submission and submission records;\nslurm-sintx for interactive sessions;\nslurm-squeue for listing the current user’s jobs."
-  },
-  {
-    "objectID": "hpc.html#r",
-    "href": "hpc.html#r",
-    "title": "hpc",
-    "section": "R",
-    "text": "R\nsetupmjr hpc r\nThis delegates to the normal R setup and accepts the same flags:\nsetupmjr hpc r --not-lintr\nsetupmjr hpc r --switch-r\nSee R setup for the flag behaviour."
   }
 ]
