@@ -154,7 +154,13 @@ func runAgentDoctor(home string, out io.Writer) error {
 			doctorCopilotAuth(copilotProvider, report)
 		}
 	}
-	if copilotProvider == "deepseek" {
+	_, wrapperErr := os.Stat(filepath.Join(home, ".config", "setupmjr", "agent", "copilot.sh"))
+	if wrapperErr == nil && (copilotProvider == "deepseek" || copilotProvider == "openai") {
+		if !copilotKeyPresent(home, copilotProvider) {
+			report("FAIL", "Selected Copilot API provider has no available credential in this environment; export the selected provider's key before plain copilot.")
+		}
+		report("WARN", "Managed Copilot route is loaded at launch by the Bash/Zsh function; run type copilot and setupmjr agent copilot-status. Parent-shell provider exports need not match. Actual API billing is not checked.")
+	} else if copilotProvider == "deepseek" {
 		key, err := os.ReadFile(deepSeekCredentialPath(home))
 		if err != nil || strings.TrimSpace(string(key)) == "" {
 			report("FAIL", "Managed Copilot DeepSeek credential missing, empty or unreadable; run setupmjr agent --auth deepseek.")

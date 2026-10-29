@@ -21,6 +21,16 @@ type agentOptions struct {
 func handleAgent(args []string) error {
 	if len(args) > 0 {
 		switch args[0] {
+		case "copilot-status":
+			if len(args) != 1 {
+				return fmt.Errorf("usage: setupmjr agent copilot-status")
+			}
+			home, err := os.UserHomeDir()
+			if err != nil {
+				return err
+			}
+			printCopilotStatus(home)
+			return nil
 		case "update":
 			return handleAgentUpdate(args[1:])
 		case "doctor":
@@ -180,14 +190,16 @@ func printAgentUsage() {
        setupmjr agent update <claude|codex|copilot>
        setupmjr agent update --all
        setupmjr agent doctor
+       setupmjr agent copilot-status
 
 Commands:
+  copilot-status                     Show selected Copilot route and key presence, never key contents.
   update <agent>|--all                Update installed coding-agent CLIs natively.
   doctor                             Check installations and local authentication without changing configuration.
 
 Options:
   -a, --auth <endpoint>              Store authentication for an endpoint.
-  -p, --copilot-provider [provider]  Switch Copilot provider. Defaults to github when omitted.
+  -p, --copilot-provider [provider]  Select provider for plain copilot. Defaults to github.
   -c, --codex-provider [provider]    Switch Codex provider. Defaults to openai when omitted.
   -s, --subagent [subagent]          Configure opt-in subagent. Defaults to agy when omitted.
       --config                       Show the current effective agent configuration.
@@ -197,6 +209,7 @@ Options:
 Examples:
   setupmjr agent --auth deepseek     Store the DeepSeek API credential
   setupmjr agent -p d                Switch Copilot to DeepSeek
+  setupmjr agent -p openai           Select OpenAI API for plain copilot
   setupmjr agent -p                  Switch Copilot back to GitHub-managed models
   setupmjr agent -c                  Switch Codex back to OpenAI/ChatGPT
   setupmjr agent -c d                Switch Codex to DeepSeek
@@ -211,6 +224,7 @@ func printAgentList() {
 Copilot providers:
   g, github, default   GitHub-managed Copilot models (default for -p)
   d, deepseek          DeepSeek Flash via DeepSeek's Anthropic-compatible endpoint
+  o, openai            OpenAI Responses API, Sol 6.1 (medium), key from current environment
 
 Codex providers:
   o, openai, chatgpt   OpenAI/ChatGPT (default for -c)
@@ -231,7 +245,7 @@ func printAgentConfig(home string) error {
 		return err
 	}
 	fmt.Printf("Codex provider:   %s\n", provider)
-	fmt.Printf("Copilot provider: %s\n", currentCopilotProvider(home))
+	printCopilotStatus(home)
 	fmt.Printf("Subagent:         %s\n", subagent)
 	return nil
 }

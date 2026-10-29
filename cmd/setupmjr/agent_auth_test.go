@@ -42,6 +42,8 @@ func TestParseAgentArgsCopilotProvider(t *testing.T) {
 	}{
 		{args: []string{"-p"}, want: "github"},
 		{args: []string{"-p", "d"}, want: "deepseek"},
+		{args: []string{"-p", "o"}, want: "openai"},
+		{args: []string{"--copilot-provider", "OpenAI"}, want: "openai"},
 		{args: []string{"--copilot-provider", "github"}, want: "github"},
 		{args: []string{"--copilot-provider", "default"}, want: "github"},
 	}
@@ -150,7 +152,7 @@ func TestConfigureCopilotDeepSeekWritesProviderConfiguration(t *testing.T) {
 		if strings.Count(text, "# setupmjr-copilot-provider:start") != 1 {
 			t.Fatalf("%s managed block count wrong:\n%s", rc, text)
 		}
-		if !strings.Contains(text, ".config/setupmjr/agent/copilot.env") {
+		if !strings.Contains(text, ".config/setupmjr/agent/copilot.sh") {
 			t.Fatalf("%s does not source Copilot provider environment:\n%s", rc, text)
 		}
 	}

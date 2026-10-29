@@ -29,6 +29,13 @@ For GitHub issue or Project administration, use
 
 Before adding or copying behaviour from one of those projects, inspect the canonical owner and prefer delegation or consumption of its supported interface. Preserve existing release/channel semantics unless the task explicitly changes them.
 
+## Agent provider integrations
+
+- Extend the existing provider-switch workflow, following the DeepSeek pattern: `setupmjr` selects the provider and ordinary `copilot` remains the normal launch command.
+- Do not require provider-specific launch commands or introduce a redundant provider framework.
+- Consume API keys from the launching environment rather than embedding credentials in managed configuration. Preserve existing protected credential sources where already supported.
+- Verify the installed CLI's actual provider and protocol capabilities before claiming the integration works; a model name alone does not establish its billing route.
+
 ## User environment changes
 
 - Treat `$HOME`, shell startup files, Git configuration, credentials, HPC configuration, and generated project files as user-owned state.
