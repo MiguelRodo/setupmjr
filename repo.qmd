@@ -21,6 +21,12 @@ setupmjr repo readme
 
 Interactively scaffold a standard `README.md` with title, purpose, contacts, links and details sections.
 
+Blank contacts are omitted. A contact's name and email share one bullet; name-only and email-only contacts are also supported. If both contacts are blank, the contact section is omitted. The generated file ends with a newline.
+
+On POSIX terminals, including Ubuntu/WSL and macOS, interactive input uses line editing sized to the actual terminal, so backspace remains visible across wrapped lines. Arrow-key editing is supported. Terminal settings are restored after completion or cancellation; native Windows keeps its console's line-input behavior. Piped input also works, including a final nonempty answer without an input newline.
+
+An existing `README.md` is never overwritten. Edit an existing README directly; this generator creates new files only. Cancelled or incomplete input creates no README.
+
 ## `repo devcontainer`
 
 ```bash

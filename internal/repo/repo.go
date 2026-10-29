@@ -1,7 +1,6 @@
 package repo
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -31,63 +30,6 @@ func getLatestGitHubReleaseTag(ownerRepo string) (string, error) {
 	}
 
 	return release.TagName, nil
-}
-
-func SetupRepoReadme() error {
-	reader := bufio.NewReader(os.Stdin)
-
-	fmt.Print("Enter title: ")
-	title, _ := reader.ReadString('\n')
-	title = strings.TrimSpace(title)
-
-	fmt.Print("Complete this sentence describing the purpose of the repo: This repository... and we'll ensure a single white space after this repository: ")
-	purpose, _ := reader.ReadString('\n')
-	purpose = strings.TrimSpace(purpose)
-
-	fmt.Print("Enter Contact 1 Full Name: ")
-	name1, _ := reader.ReadString('\n')
-	name1 = strings.TrimSpace(name1)
-
-	fmt.Print("Enter Contact 1 Email: ")
-	email1, _ := reader.ReadString('\n')
-	email1 = strings.TrimSpace(email1)
-
-	fmt.Print("Enter Contact 2 Full Name: ")
-	name2, _ := reader.ReadString('\n')
-	name2 = strings.TrimSpace(name2)
-
-	fmt.Print("Enter Contact 2 Email: ")
-	email2, _ := reader.ReadString('\n')
-	email2 = strings.TrimSpace(email2)
-
-	readmeContent := fmt.Sprintf(`# %s
-
-This repository %s
-
-## Contact
-
-For more information, please contact:
-- %s:
-  - %s
-- %s:
-  - %s
-
-## Links
-
-- [URLs to data sources (e.g. OneDrive), GitHub repositories, publications, etc.]
-
-## Details
-
-[Methods, timeline, team, data sources, software/tools, etc.]
-`, title, purpose, name1, email1, name2, email2)
-
-	err := os.WriteFile("README.md", []byte(readmeContent), 0644)
-	if err != nil {
-		return fmt.Errorf("failed to write README.md: %w", err)
-	}
-
-	fmt.Println("Successfully created README.md")
-	return nil
 }
 
 func extractDevcontainer(archive io.Reader, repoDirName string) ([]byte, error) {
