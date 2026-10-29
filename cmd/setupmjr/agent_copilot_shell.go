@@ -118,8 +118,9 @@ esac
 }
 
 func printCopilotShellInstructions() {
-	fmt.Println("First use in an existing Bash/Zsh terminal: source ~/.config/setupmjr/agent/copilot.sh")
-	fmt.Println("Then run copilot normally. Later provider switches apply to the next copilot invocation.")
+	fmt.Println("Only if this is your first setup in an already-open Bash/Zsh terminal: source ~/.config/setupmjr/agent/copilot.sh")
+	fmt.Println("No sourcing is needed after provider switches. New terminals load the integration automatically.")
+	fmt.Println("Run copilot normally; the next invocation uses the selected provider.")
 	fmt.Println("Configured route/status: setupmjr agent copilot-status (actual API billing is not verified).")
 }
 
