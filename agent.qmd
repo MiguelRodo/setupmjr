@@ -81,24 +81,61 @@ The file is private and can be reused by both managed DeepSeek provider paths. D
 
 ## Copilot provider
 
-GitHub-managed Copilot models are the default value for `-p`:
+These options configure **GitHub Copilot CLI in Bash/Zsh**, including Ubuntu/WSL. They do not configure the VS Code extension or native PowerShell.
+
+Select a provider, then run plain `copilot`:
 
 ```bash
-setupmjr agent -p
-setupmjr agent -p g
-setupmjr agent --copilot-provider github
+setupmjr agent -p openai      # aliases: -p o
+# First use in this already-open terminal only:
+source ~/.config/setupmjr/agent/copilot.sh
+copilot
+
+setupmjr agent -p github      # aliases: -p, -p g
+copilot                      # Copilot allowances / GitHub-managed models
+
+setupmjr agent -p deepseek    # alias: -p d
+copilot                      # DeepSeek API
 ```
 
-Switch to DeepSeek after storing its credential:
+The first selection installs a managed Bash/Zsh function named `copilot` through a bounded block in `.bashrc` and `.zshrc`. It calls the existing Copilot binary and reads the latest provider selection on every invocation. New shells load the integration automatically; existing shells load `copilot.sh` once. Later selections apply to the next `copilot` invocation without restarting or sourcing again. Existing aliases and custom functions are preserved with a warning; use `type copilot` to check resolution. Calling an absolute binary path or `command copilot` bypasses the managed function.
+
+The non-secret selection is stored in `~/.config/setupmjr/agent/copilot.env`, with the function in `copilot.sh`. Both files are mode `0600` in the managed `0700` directory on POSIX. Selection writes are atomic, and non-regular file targets are rejected. The binary is never replaced. Do not source `copilot.env` directly; it is read inside the function's isolated child environment.
+
+### OpenAI API: Sol 6.1
+
+The function reads an exported `OPENAI_API_KEY` or `OPENAI_KEY` from the terminal that runs `copilot`; `OPENAI_API_KEY` takes precedence when nonempty. If your key is already exported, no additional export is needed. For an existing shell-local variable, use `export OPENAI_KEY` without pasting its value into a command. No key is copied to a setupmjr configuration or shell file. Missing keys stop launch without falling back to Copilot allowances.
+
+For the current source checkout before installation/release:
 
 ```bash
-setupmjr agent --auth deepseek
-setupmjr agent -p d
+cd /home/mrodo/repos/setupmjr
+go run ./cmd/setupmjr agent -p openai
+source ~/.config/setupmjr/agent/copilot.sh
+copilot
 ```
 
-The managed environment lives at `~/.config/setupmjr/agent/copilot.env` and is sourced by Bash and Zsh startup files. DeepSeek uses its Anthropic-compatible endpoint with the Flash model; `COPILOT_PROVIDER_TYPE=anthropic` selects the wire protocol, not Anthropic as the model vendor.
+Use the same source command with `-p github` or `-p deepseek` to switch again. No special launch command is required. Any earlier placeholder provider registry is left untouched and unused.
 
-The raw key is not embedded in the provider environment. Switching back to `github` removes the managed BYOK provider variables for new shells. Restart the shell, or source the managed environment file, after switching. GitHub authentication for Copilot remains separate from provider selection.
+OpenAI uses `https://api.openai.com/v1`, provider type `openai`, wire API `responses`, and `gpt-6.1-sol` with medium reasoning. Sol needs Responses for tool calling. The prompt budget is 272,000 tokens to stay within its standard input-price threshold; output is capped at 128,000. The installed Ubuntu/WSL Copilot CLI 1.0.91's local help was checked for the provider, wire API, model and reasoning flags. Launches disable automatic CLI updates.
+
+DeepSeek reads an exported `DEEPSEEK_API_KEY`, otherwise the existing private credential created by `setupmjr agent --auth deepseek`. It uses the Flash model through `https://api.deepseek.com/anthropic` with wire type `anthropic`. Selecting a provider does not create or copy any API credential.
+
+Before API launches, credential-free local help checks reject an installed CLI that does not advertise the required BYOK/Responses options and model flags. Every invocation clears stale provider endpoints, keys, bearer tokens, key commands, headers, transports, model overrides and OpenAI SDK routing overrides inside the child environment. An empty null-device named registry prevents saved registries from overriding the selected route. Returning to `github` clears BYOK routing so the CLI uses GitHub-managed access. The original OpenAI and DeepSeek key variables are removed from the child after assigning the selected provider key. Parent-shell environment and unrelated startup content are preserved. As with any environment authentication, the running child holds its selected key; the integration disables shell tracing before expanding credentials.
+
+### Inspect the selected route
+
+```bash
+setupmjr agent copilot-status
+# Or, from the source checkout:
+go run ./cmd/setupmjr agent copilot-status
+```
+
+Status shows the configured provider, endpoint, wire API, model and key-presence summary. It never shows a key, prefix or hash. For an existing DeepSeek credential file, presence is based on metadata without reading its contents. `type copilot` shows whether the managed function resolves in the current terminal. `--config` includes the same routing information. Status is not proof of a completed request, valid key, actual API charge or grant-ledger allocation; selecting a model name alone does not prove billing route.
+
+OpenAI's grant guide covers eligible organization-billed API usage and excludes Codex usage through API keys. It does not explicitly certify this Copilot integration. Use a project key from the organization linked to the grant. Purchased API credits can be consumed after a grant runs out. No account linking, credit claiming, paid probe or ledger verification occurs during setup or status checks.
+
+Official references (checked 2026-10-29): [Copilot model providers](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-llm-models), [Sol 6.1](https://developers.openai.com/api/docs/models/gpt-6.1-sol), [API credit rules](https://developers.openai.com/api/docs/guides/chatgpt-api-credits). The installed CLI's `copilot help providers` is the checked source for environment-based BYOK.
 
 ## Codex provider
 

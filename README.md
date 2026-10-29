@@ -72,6 +72,8 @@ setupmjr install copilot
 - `setupmjr install` installs or refreshes setupmjr-managed external tools and can invoke the official Claude Code, Codex and Copilot CLI installers.
 - `setupmjr agent` configures coding-agent credentials, providers and opt-in subagents. `setupmjr agent update <claude|codex|copilot>` updates one installed CLI; `setupmjr agent update --all` attempts every supported CLI on PATH. See [supported update paths](agent.qmd#update-installed-clis).
 
+Choose the provider for plain `copilot` with `setupmjr agent -p github`, `-p deepseek` or `-p openai`. In an existing Bash/Zsh terminal, load the integration once with `source ~/.config/setupmjr/agent/copilot.sh`; future switches apply on the next `copilot` invocation. OpenAI uses an exported `OPENAI_API_KEY` or `OPENAI_KEY` without storing it. Inspect the configured route with `setupmjr agent copilot-status`. See [Copilot provider setup](agent.qmd#copilot-provider).
+
 `setupmjr --help` is the authoritative top-level syntax. `setupmjr agent --help` gives the detailed agent options.
 
 ## Guides
