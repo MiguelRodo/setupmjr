@@ -56,34 +56,6 @@
     "text": "Legacy explicit helpers\nThese older explicit helpers remain available but are not part of the default authentication path:\nsetupmjr git auth cache\nsetupmjr git auth mngr"
   },
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "setupmjr",
-    "section": "",
-    "text": "setupmjr is a cross-platform setup utility for shell, R, Git, repository, HPC and coding-agent environments."
-  },
-  {
-    "objectID": "index.html#start-here",
-    "href": "index.html#start-here",
-    "title": "setupmjr",
-    "section": "Start here",
-    "text": "Start here\nInstall the CLI using a supported package manager, release installer or source build. See Installation for the canonical commands.\nFor authoritative top-level syntax, run:\nsetupmjr --help\nThe agent command also has detailed option help:\nsetupmjr agent --help"
-  },
-  {
-    "objectID": "index.html#command-groups",
-    "href": "index.html#command-groups",
-    "title": "setupmjr",
-    "section": "Command groups",
-    "text": "Command groups\n\n\n\n\n\n\n\nCommand\nPurpose\n\n\n\n\nsetupmjr hpc\nConfigure Linux HPC shell, Git, scratch, Apptainer, SLURM and R setup.\n\n\nsetupmjr shell\nConfigure Bash or Zsh startup, executable paths and login integration.\n\n\nsetupmjr bash\nShorthand for setupmjr shell bash.\n\n\nsetupmjr r\nConfigure radian, lintr and the optional project-local switch_r helper.\n\n\nsetupmjr git\nConfigure Git identity and GitHub authentication.\n\n\nsetupmjr repo\nScaffold repository files, devcontainers and released workflow examples.\n\n\nsetupmjr install\nInstall or refresh external tools whose setup glue is owned by setupmjr.\n\n\nsetupmjr agent\nConfigure coding-agent credentials, providers and opt-in subagents.\n\n\n\nExternal tools keep ownership of their own behaviour. In particular, use repos directly after setupmjr install --repos, and use pj directly after setupmjr install --pj."
-  },
-  {
-    "objectID": "index.html#guides",
-    "href": "index.html#guides",
-    "title": "setupmjr",
-    "section": "Guides",
-    "text": "Guides\n\nInstallation\nHPC\nShell\nR setup\nGit\nRepository setup\nAgent configuration"
-  },
-  {
     "objectID": "agent.html",
     "href": "agent.html",
     "title": "agent",
@@ -147,6 +119,34 @@
     "text": "Credential boundaries\nsetupmjr creates managed agent-state directories with mode 0700 and credential/snapshot files with mode 0600 on POSIX systems. DeepSeek’s Codex config.toml format contains the API key, so DeepSeek snapshots are credentials too. Do not commit or share the managed credential or snapshot files."
   },
   {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "setupmjr",
+    "section": "",
+    "text": "setupmjr is a cross-platform setup utility for shell, R, Git, repository, HPC and coding-agent environments."
+  },
+  {
+    "objectID": "index.html#start-here",
+    "href": "index.html#start-here",
+    "title": "setupmjr",
+    "section": "Start here",
+    "text": "Start here\nInstall the CLI using a supported package manager, release installer or source build. See Installation for the canonical commands.\nFor authoritative top-level syntax, run:\nsetupmjr --help\nThe agent command also has detailed option help:\nsetupmjr agent --help"
+  },
+  {
+    "objectID": "index.html#command-groups",
+    "href": "index.html#command-groups",
+    "title": "setupmjr",
+    "section": "Command groups",
+    "text": "Command groups\n\n\n\n\n\n\n\nCommand\nPurpose\n\n\n\n\nsetupmjr hpc\nConfigure Linux HPC shell, Git, scratch, Apptainer, SLURM and R setup.\n\n\nsetupmjr shell\nConfigure Bash or Zsh startup, executable paths and login integration.\n\n\nsetupmjr bash\nShorthand for setupmjr shell bash.\n\n\nsetupmjr r\nConfigure radian, lintr and the optional project-local switch_r helper.\n\n\nsetupmjr git\nConfigure Git identity and GitHub authentication.\n\n\nsetupmjr repo\nScaffold repository files, devcontainers and released workflow examples.\n\n\nsetupmjr install\nInstall or refresh external tools whose setup glue is owned by setupmjr.\n\n\nsetupmjr agent\nConfigure coding-agent credentials, providers and opt-in subagents.\n\n\n\nExternal tools keep ownership of their own behaviour. In particular, use repos directly after setupmjr install --repos, and use pj directly after setupmjr install --pj."
+  },
+  {
+    "objectID": "index.html#guides",
+    "href": "index.html#guides",
+    "title": "setupmjr",
+    "section": "Guides",
+    "text": "Guides\n\nInstallation\nHPC\nShell\nR setup\nGit\nRepository setup\nAgent configuration"
+  },
+  {
     "objectID": "shell.html",
     "href": "shell.html",
     "title": "shell",
@@ -187,27 +187,6 @@
     "title": "shell",
     "section": "login",
     "text": "login\nsetupmjr shell bash login\nsetupmjr shell zsh login\nThis installs login.sh in the shell’s rc.d directory and configures the corresponding login profile to source the directory. Bash uses ~/.profile unless ~/.bash_profile already exists; Zsh uses ~/.zprofile.\nUse --not-profile when you want the login.sh file but do not want setupmjr to modify the login profile:\nsetupmjr shell bash login --not-profile"
-  },
-  {
-    "objectID": "r.html",
-    "href": "r.html",
-    "title": "r",
-    "section": "",
-    "text": "The r subcommand configures R-related user and project files."
-  },
-  {
-    "objectID": "r.html#command",
-    "href": "r.html#command",
-    "title": "r",
-    "section": "Command",
-    "text": "Command\nr [--not-radian] [--not-lintr] [--switch-r]\nRunning:\nsetupmjr r\nconfigures the user-level radian and lintr defaults.\n\nFlags\n\n--not-radian skips the ~/.radian_profile configuration.\n--not-lintr skips the ~/.lintr configuration.\n--switch-r adds the project-local scripts/r/switch_r.R helper and ensures the current repository’s .Rprofile sources it.\n\nFor example:\nsetupmjr r --not-lintr\nsetupmjr r --switch-r\nThe HPC command accepts the same R flags:\nsetupmjr hpc r --not-lintr"
-  },
-  {
-    "objectID": "r.html#details",
-    "href": "r.html#details",
-    "title": "r",
-    "section": "Details",
-    "text": "Details\nUnless --not-radian is supplied, setupmjr ensures ~/.radian_profile contains:\noptions(radian.auto_match = FALSE)\nUnless --not-lintr is supplied, setupmjr ensures ~/.lintr contains:\nlinters: linters_with_defaults(\n    object_length_linter = NULL,\n    object_name_linter = NULL)\nWith --switch-r, setupmjr creates scripts/r/switch_r.R if it is absent and places this source line at the top of the current repository’s .Rprofile:\ntry(source(\"scripts/r/switch_r.R\"))"
   },
   {
     "objectID": "repo.html",
@@ -252,60 +231,25 @@
     "text": "repos CLI\nInstall or update the standalone repository-orchestration CLI with:\nsetupmjr install --repos\nThen use repos directly. setupmjr owns its installation glue, not its commands.\nNetwork downloads used by these setup paths have finite timeouts and are staged before replacing final files, so failed or incomplete downloads do not become installed artefacts."
   },
   {
-    "objectID": "hpc.html",
-    "href": "hpc.html",
-    "title": "hpc",
+    "objectID": "r.html",
+    "href": "r.html",
+    "title": "r",
     "section": "",
-    "text": "The hpc subcommand configures Linux HPC environments."
+    "text": "The r subcommand configures R-related user and project files."
   },
   {
-    "objectID": "hpc.html#commands",
-    "href": "hpc.html#commands",
-    "title": "hpc",
-    "section": "Commands",
-    "text": "Commands\nhpc\nhpc scratch\nhpc apptainer\nhpc slurm\nhpc git\nhpc r [--not-radian] [--not-lintr] [--switch-r]\nInstall setupmjr using a supported Linux method from Installation, then verify it with setupmjr --version."
+    "objectID": "r.html#command",
+    "href": "r.html#command",
+    "title": "r",
+    "section": "Command",
+    "text": "Command\nr [--not-radian] [--not-lintr] [--switch-r]\nRunning:\nsetupmjr r\nconfigures the user-level radian and lintr defaults.\n\nFlags\n\n--not-radian skips the ~/.radian_profile configuration.\n--not-lintr skips the ~/.lintr configuration.\n--switch-r adds the project-local scripts/r/switch_r.R helper and ensures the current repository’s .Rprofile sources it.\n\nFor example:\nsetupmjr r --not-lintr\nsetupmjr r --switch-r\nThe HPC command accepts the same R flags:\nsetupmjr hpc r --not-lintr"
   },
   {
-    "objectID": "hpc.html#master-setup",
-    "href": "hpc.html#master-setup",
-    "title": "hpc",
-    "section": "Master setup",
-    "text": "Master setup\nsetupmjr hpc\nThe master command is Linux-only and stops on the first failed step. It runs:\n\nBash rc.d, executable-path and login/profile setup.\nZsh rc.d, executable-path and login/profile setup.\nGit identity and GitHub authentication.\nHPC scratch configuration.\nApptainer helpers.\nSLURM helpers.\nNormal setupmjr r defaults.\n\nThe focused subcommands below run the same components independently."
-  },
-  {
-    "objectID": "hpc.html#git",
-    "href": "hpc.html#git",
-    "title": "hpc",
-    "section": "Git",
-    "text": "Git\nsetupmjr hpc git\nThis is the normal setupmjr git setup. It prefers a persistent GitHub CLI login and otherwise uses setupmjr’s protected-token credential helper. See Git for authentication, migration and Dev Container behaviour."
-  },
-  {
-    "objectID": "hpc.html#scratch-space",
-    "href": "hpc.html#scratch-space",
-    "title": "hpc",
-    "section": "Scratch space",
-    "text": "Scratch space\nsetupmjr hpc scratch\nThis installs ~/.bashrc.d/hpc-scratch.sh, which points large caches and artefacts at /scratch/$USER when available, including Apptainer/Singularity storage and R library/renv caches.\nThe master setup wires Bash rc.d first. When running hpc scratch independently, run setupmjr shell bash rc.d first if Bash is not already sourcing ~/.bashrc.d."
-  },
-  {
-    "objectID": "hpc.html#apptainer",
-    "href": "hpc.html#apptainer",
-    "title": "hpc",
-    "section": "Apptainer",
-    "text": "Apptainer\nsetupmjr hpc apptainer\nThis installs the embedded apptainer-* helper scripts into ~/.local/bin, excluding apptainer-vscode."
-  },
-  {
-    "objectID": "hpc.html#slurm",
-    "href": "hpc.html#slurm",
-    "title": "hpc",
-    "section": "SLURM",
-    "text": "SLURM\nsetupmjr hpc slurm\nThis installs SLURM helpers into ~/.local/bin, including:\n\nslurm-sbatch for job submission and submission records;\nslurm-sintx for interactive sessions;\nslurm-squeue for listing the current user’s jobs."
-  },
-  {
-    "objectID": "hpc.html#r",
-    "href": "hpc.html#r",
-    "title": "hpc",
-    "section": "R",
-    "text": "R\nsetupmjr hpc r\nThis delegates to the normal R setup and accepts the same flags:\nsetupmjr hpc r --not-lintr\nsetupmjr hpc r --switch-r\nSee R setup for the flag behaviour."
+    "objectID": "r.html#details",
+    "href": "r.html#details",
+    "title": "r",
+    "section": "Details",
+    "text": "Details\nUnless --not-radian is supplied, setupmjr ensures ~/.radian_profile contains:\noptions(radian.auto_match = FALSE)\nUnless --not-lintr is supplied, setupmjr ensures ~/.lintr contains:\nlinters: linters_with_defaults(\n    object_length_linter = NULL,\n    object_name_linter = NULL)\nWith --switch-r, setupmjr creates scripts/r/switch_r.R if it is absent and places this source line at the top of the current repository’s .Rprofile:\ntry(source(\"scripts/r/switch_r.R\"))"
   },
   {
     "objectID": "install.html",
@@ -376,5 +320,61 @@
     "title": "Installation",
     "section": "Verify installation",
     "text": "Verify installation\nsetupmjr --version\nsetupmjr --help"
+  },
+  {
+    "objectID": "hpc.html",
+    "href": "hpc.html",
+    "title": "hpc",
+    "section": "",
+    "text": "The hpc subcommand configures Linux HPC environments."
+  },
+  {
+    "objectID": "hpc.html#commands",
+    "href": "hpc.html#commands",
+    "title": "hpc",
+    "section": "Commands",
+    "text": "Commands\nhpc\nhpc scratch\nhpc apptainer\nhpc slurm\nhpc git\nhpc r [--not-radian] [--not-lintr] [--switch-r]\nInstall setupmjr using a supported Linux method from Installation, then verify it with setupmjr --version."
+  },
+  {
+    "objectID": "hpc.html#master-setup",
+    "href": "hpc.html#master-setup",
+    "title": "hpc",
+    "section": "Master setup",
+    "text": "Master setup\nsetupmjr hpc\nThe master command is Linux-only and stops on the first failed step. It runs:\n\nBash rc.d, executable-path and login/profile setup.\nZsh rc.d, executable-path and login/profile setup.\nGit identity and GitHub authentication.\nHPC scratch configuration.\nApptainer helpers.\nSLURM helpers.\nNormal setupmjr r defaults.\n\nThe focused subcommands below run the same components independently."
+  },
+  {
+    "objectID": "hpc.html#git",
+    "href": "hpc.html#git",
+    "title": "hpc",
+    "section": "Git",
+    "text": "Git\nsetupmjr hpc git\nThis is the normal setupmjr git setup. It prefers a persistent GitHub CLI login and otherwise uses setupmjr’s protected-token credential helper. See Git for authentication, migration and Dev Container behaviour."
+  },
+  {
+    "objectID": "hpc.html#scratch-space",
+    "href": "hpc.html#scratch-space",
+    "title": "hpc",
+    "section": "Scratch space",
+    "text": "Scratch space\nsetupmjr hpc scratch\nThis installs ~/.bashrc.d/hpc-scratch.sh, which points large caches and artefacts at /scratch/$USER when available, including Apptainer/Singularity storage and R library/renv caches.\nThe master setup wires Bash rc.d first. When running hpc scratch independently, run setupmjr shell bash rc.d first if Bash is not already sourcing ~/.bashrc.d."
+  },
+  {
+    "objectID": "hpc.html#apptainer",
+    "href": "hpc.html#apptainer",
+    "title": "hpc",
+    "section": "Apptainer",
+    "text": "Apptainer\nsetupmjr hpc apptainer\nThis installs the embedded apptainer-* helper scripts into ~/.local/bin, excluding apptainer-vscode."
+  },
+  {
+    "objectID": "hpc.html#slurm",
+    "href": "hpc.html#slurm",
+    "title": "hpc",
+    "section": "SLURM",
+    "text": "SLURM\nsetupmjr hpc slurm\nThis installs SLURM helpers into ~/.local/bin, including:\n\nslurm-sbatch for job submission and submission records;\nslurm-sintx for interactive sessions;\nslurm-squeue for listing the current user’s jobs."
+  },
+  {
+    "objectID": "hpc.html#r",
+    "href": "hpc.html#r",
+    "title": "hpc",
+    "section": "R",
+    "text": "R\nsetupmjr hpc r\nThis delegates to the normal R setup and accepts the same flags:\nsetupmjr hpc r --not-lintr\nsetupmjr hpc r --switch-r\nSee R setup for the flag behaviour."
   }
 ]
