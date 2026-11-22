@@ -49,6 +49,11 @@ jobs:
         run: |
           test -n "$APT_SIGNING_KEY" || { echo '::error::GPG_PRIVATE_KEY is required'; exit 1; }
           test -n "$APT_REPO_TOKEN" || { echo '::error::APT_REPO_TOKEN is required'; exit 1; }
+      - name: Install APT publication prerequisites
+        if: ${{ inputs.apt_repo != '' || github.event_name == 'push' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y apt-utils dpkg-dev
       - uses: MiguelRodo/actions/go-version-release@bf850afe48d42ac221079cfede39021d0574c15a # v3.0.0
         id: publish
         env:
