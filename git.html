@@ -81,7 +81,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-8d3ad9c781c51ccd60b292c95058b2c2.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-cb61c712ca1a7fe70a83faed8e4da2d7.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -228,8 +228,12 @@ git auth [text|cache|mngr] [--system|--local] [--remove]</code></pre>
 <h2 class="anchored" data-anchor-id="scope-and-replacement">Scope and replacement</h2>
 <p>Authentication configuration is global by default. Use <code>--system</code> or <code>--local</code> to select another Git config scope:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> git auth <span class="at">--local</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>For HTTPS requests to <code>github.com</code>, Git reads an empty helper entry before the chosen helper. This resets helpers inherited from earlier configuration, including the credential cache and repository-scoped helper supplied by GitHub Codespaces. Other hosts continue using their configured helpers.</p>
+<p>After upgrading an existing Codespace, rerun <code>setupmjr git auth</code> to apply the new helper order. To reuse a token already saved in the protected file when the Codespace exports its own token, run:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">env</span> <span class="at">-u</span> GH_TOKEN <span class="at">-u</span> GITHUB_TOKEN setupmjr git auth text</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Check access without displaying credentials by running <code>GIT_TERMINAL_PROMPT=0 git ls-remote https://github.com/OWNER/PRIVATE-REPO.git HEAD</code> with a repository the selected account can read.</p>
 <p><code>--remove</code> clears existing credential helpers in the selected scope before setupmjr configures the requested authentication path:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> git auth <span class="at">--local</span> <span class="at">--remove</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> git auth <span class="at">--local</span> <span class="at">--remove</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Use one scope flag for clarity. If both <code>--system</code> and <code>--local</code> are supplied, the current CLI selects <code>--system</code>.</p>
 </section>
 <section id="protected-token-fallback" class="level2">
@@ -257,8 +261,8 @@ git auth [text|cache|mngr] [--system|--local] [--remove]</code></pre>
 <section id="legacy-explicit-helpers" class="level2">
 <h2 class="anchored" data-anchor-id="legacy-explicit-helpers">Legacy explicit helpers</h2>
 <p>These older explicit helpers remain available but are not part of the default authentication path:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> git auth cache</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> git auth mngr</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> git auth cache</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">setupmjr</span> git auth mngr</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
 </section>

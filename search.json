@@ -1,5 +1,264 @@
 [
   {
+    "objectID": "r.html",
+    "href": "r.html",
+    "title": "r",
+    "section": "",
+    "text": "The r subcommand configures R-related user and project files."
+  },
+  {
+    "objectID": "r.html#command",
+    "href": "r.html#command",
+    "title": "r",
+    "section": "Command",
+    "text": "Command\nr [--not-radian] [--not-lintr] [--switch-r]\nRunning:\nsetupmjr r\nconfigures the user-level radian and lintr defaults.\n\nFlags\n\n--not-radian skips the ~/.radian_profile configuration.\n--not-lintr skips the ~/.lintr configuration.\n--switch-r adds the project-local scripts/r/switch_r.R helper and ensures the current repository’s .Rprofile sources it.\n\nFor example:\nsetupmjr r --not-lintr\nsetupmjr r --switch-r\nThe HPC command accepts the same R flags:\nsetupmjr hpc r --not-lintr"
+  },
+  {
+    "objectID": "r.html#details",
+    "href": "r.html#details",
+    "title": "r",
+    "section": "Details",
+    "text": "Details\nUnless --not-radian is supplied, setupmjr ensures ~/.radian_profile contains:\noptions(radian.auto_match = FALSE)\nUnless --not-lintr is supplied, setupmjr ensures ~/.lintr contains:\nlinters: linters_with_defaults(\n    object_length_linter = NULL,\n    object_name_linter = NULL)\nWith --switch-r, setupmjr creates scripts/r/switch_r.R if it is absent and places this source line at the top of the current repository’s .Rprofile:\ntry(source(\"scripts/r/switch_r.R\"))"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "setupmjr",
+    "section": "",
+    "text": "setupmjr is a cross-platform setup utility for shell, R, Git, repository, HPC and coding-agent environments."
+  },
+  {
+    "objectID": "index.html#start-here",
+    "href": "index.html#start-here",
+    "title": "setupmjr",
+    "section": "Start here",
+    "text": "Start here\nInstall the CLI using a supported package manager, release installer or source build. See Installation for the canonical commands.\nFor authoritative top-level syntax, run:\nsetupmjr --help\nThe agent command also has detailed option help:\nsetupmjr agent --help"
+  },
+  {
+    "objectID": "index.html#command-groups",
+    "href": "index.html#command-groups",
+    "title": "setupmjr",
+    "section": "Command groups",
+    "text": "Command groups\n\n\n\n\n\n\n\nCommand\nPurpose\n\n\n\n\nsetupmjr hpc\nConfigure Linux HPC shell, Git, scratch, Apptainer, SLURM and R setup.\n\n\nsetupmjr shell\nConfigure Bash or Zsh startup, executable paths and login integration.\n\n\nsetupmjr bash\nShorthand for setupmjr shell bash.\n\n\nsetupmjr r\nConfigure radian, lintr and the optional project-local switch_r helper.\n\n\nsetupmjr git\nConfigure Git identity and GitHub authentication.\n\n\nsetupmjr repo\nScaffold repository files, devcontainers and released workflow examples.\n\n\nsetupmjr install\nInstall or refresh external tools whose setup glue is owned by setupmjr.\n\n\nsetupmjr agent\nConfigure coding-agent credentials, providers and opt-in subagents.\n\n\n\nExternal tools keep ownership of their own behaviour. In particular, use repos directly after setupmjr install --repos, and use pj directly after setupmjr install --pj."
+  },
+  {
+    "objectID": "index.html#guides",
+    "href": "index.html#guides",
+    "title": "setupmjr",
+    "section": "Guides",
+    "text": "Guides\n\nInstallation\nHPC\nShell\nR setup\nGit\nRepository setup\nAgent configuration"
+  },
+  {
+    "objectID": "hpc.html",
+    "href": "hpc.html",
+    "title": "hpc",
+    "section": "",
+    "text": "The hpc subcommand configures Linux HPC environments."
+  },
+  {
+    "objectID": "hpc.html#commands",
+    "href": "hpc.html#commands",
+    "title": "hpc",
+    "section": "Commands",
+    "text": "Commands\nhpc\nhpc scratch\nhpc apptainer\nhpc slurm\nhpc git\nhpc r [--not-radian] [--not-lintr] [--switch-r]\nInstall setupmjr using a supported Linux method from Installation, then verify it with setupmjr --version."
+  },
+  {
+    "objectID": "hpc.html#master-setup",
+    "href": "hpc.html#master-setup",
+    "title": "hpc",
+    "section": "Master setup",
+    "text": "Master setup\nsetupmjr hpc\nThe master command is Linux-only and stops on the first failed step. It runs:\n\nBash rc.d, executable-path and login/profile setup.\nZsh rc.d, executable-path and login/profile setup.\nGit identity and GitHub authentication.\nHPC scratch configuration.\nApptainer helpers.\nSLURM helpers.\nNormal setupmjr r defaults.\n\nThe focused subcommands below run the same components independently."
+  },
+  {
+    "objectID": "hpc.html#git",
+    "href": "hpc.html#git",
+    "title": "hpc",
+    "section": "Git",
+    "text": "Git\nsetupmjr hpc git\nThis is the normal setupmjr git setup. It prefers a persistent GitHub CLI login and otherwise uses setupmjr’s protected-token credential helper. See Git for authentication, migration and Dev Container behaviour."
+  },
+  {
+    "objectID": "hpc.html#scratch-space",
+    "href": "hpc.html#scratch-space",
+    "title": "hpc",
+    "section": "Scratch space",
+    "text": "Scratch space\nsetupmjr hpc scratch\nThis installs ~/.bashrc.d/hpc-scratch.sh, which points large caches and artefacts at /scratch/$USER when available, including Apptainer/Singularity storage and R library/renv caches.\nThe master setup wires Bash rc.d first. When running hpc scratch independently, run setupmjr shell bash rc.d first if Bash is not already sourcing ~/.bashrc.d."
+  },
+  {
+    "objectID": "hpc.html#apptainer",
+    "href": "hpc.html#apptainer",
+    "title": "hpc",
+    "section": "Apptainer",
+    "text": "Apptainer\nsetupmjr hpc apptainer\nThis installs the embedded apptainer-* helper scripts into ~/.local/bin, excluding apptainer-vscode."
+  },
+  {
+    "objectID": "hpc.html#slurm",
+    "href": "hpc.html#slurm",
+    "title": "hpc",
+    "section": "SLURM",
+    "text": "SLURM\nsetupmjr hpc slurm\nThis installs SLURM helpers into ~/.local/bin, including:\n\nslurm-sbatch for job submission and submission records;\nslurm-sintx for interactive sessions;\nslurm-squeue for listing the current user’s jobs."
+  },
+  {
+    "objectID": "hpc.html#r",
+    "href": "hpc.html#r",
+    "title": "hpc",
+    "section": "R",
+    "text": "R\nsetupmjr hpc r\nThis delegates to the normal R setup and accepts the same flags:\nsetupmjr hpc r --not-lintr\nsetupmjr hpc r --switch-r\nSee R setup for the flag behaviour."
+  },
+  {
+    "objectID": "shell.html",
+    "href": "shell.html",
+    "title": "shell",
+    "section": "",
+    "text": "The shell subcommand configures Bash or Zsh startup files. setupmjr bash is shorthand for setupmjr shell bash."
+  },
+  {
+    "objectID": "shell.html#commands",
+    "href": "shell.html#commands",
+    "title": "shell",
+    "section": "Commands",
+    "text": "Commands\nshell &lt;shell&gt; rc.d\nshell &lt;shell&gt; path\nshell &lt;shell&gt; login [--not-profile]\n\nbash rc.d\nbash path\nbash login [--not-profile]"
+  },
+  {
+    "objectID": "shell.html#rc.d",
+    "href": "shell.html#rc.d",
+    "title": "shell",
+    "section": "rc.d",
+    "text": "rc.d\nsetupmjr shell bash rc.d\nsetupmjr shell zsh rc.d\nThis ensures ~/.&lt;shell&gt;rc.d exists and configures ~/.&lt;shell&gt;rc to source readable files from that directory."
+  },
+  {
+    "objectID": "shell.html#details",
+    "href": "shell.html#details",
+    "title": "shell",
+    "section": "Details",
+    "text": "Details\nThe sourcing loop is:\nfor i in $HOME/.&lt;shell&gt;rc.d/*; do [ -r \"$i\" ] && source \"$i\"; done"
+  },
+  {
+    "objectID": "shell.html#path",
+    "href": "shell.html#path",
+    "title": "shell",
+    "section": "path",
+    "text": "path\nsetupmjr shell bash path\nsetupmjr shell zsh path\nThis first ensures the shell’s rc.d directory is wired in, then installs path-executables.sh there so ~/bin and ~/.local/bin are available on PATH without duplicating entries."
+  },
+  {
+    "objectID": "shell.html#login",
+    "href": "shell.html#login",
+    "title": "shell",
+    "section": "login",
+    "text": "login\nsetupmjr shell bash login\nsetupmjr shell zsh login\nThis installs login.sh in the shell’s rc.d directory and configures the corresponding login profile to source the directory. Bash uses ~/.profile unless ~/.bash_profile already exists; Zsh uses ~/.zprofile.\nUse --not-profile when you want the login.sh file but do not want setupmjr to modify the login profile:\nsetupmjr shell bash login --not-profile"
+  },
+  {
+    "objectID": "repo.html",
+    "href": "repo.html",
+    "title": "repo",
+    "section": "",
+    "text": "The repo subcommand configures the current repository. Repository orchestration itself belongs to the standalone repos CLI."
+  },
+  {
+    "objectID": "repo.html#commands",
+    "href": "repo.html#commands",
+    "title": "repo",
+    "section": "Commands",
+    "text": "Commands\nrepo readme\nrepo devcontainer [--repo &lt;owner/repo&gt;@&lt;branch&gt;] [--build]\nrepo action &lt;action-name&gt;"
+  },
+  {
+    "objectID": "repo.html#repo-readme",
+    "href": "repo.html#repo-readme",
+    "title": "repo",
+    "section": "repo readme",
+    "text": "repo readme\nsetupmjr repo readme\nInteractively scaffold a standard README.md with title, purpose, contacts, links and details sections.\nBlank contacts are omitted. A contact’s name and email share one bullet; name-only and email-only contacts are also supported. If both contacts are blank, the contact section is omitted. The generated file ends with a newline.\nOn POSIX terminals, including Ubuntu/WSL and macOS, interactive input uses line editing sized to the actual terminal, so backspace remains visible across wrapped lines. Arrow-key editing is supported. Terminal settings are restored after completion or cancellation; native Windows keeps its console’s line-input behavior. Piped input also works, including a final nonempty answer without an input newline.\nAn existing README.md is never overwritten. Edit an existing README directly; this generator creates new files only. Cancelled or incomplete input creates no README."
+  },
+  {
+    "objectID": "repo.html#repo-devcontainer",
+    "href": "repo.html#repo-devcontainer",
+    "title": "repo",
+    "section": "repo devcontainer",
+    "text": "repo devcontainer\nsetupmjr repo devcontainer\nsetupmjr repo devcontainer --repo MiguelRodo/comp@main\n\n--repo selects the source repository and branch in &lt;owner/repo&gt;@&lt;branch&gt; form. The default is MiguelRodo/comp@main.\n--build also installs the prebuild-devcontainer.yml workflow example from the latest published MiguelRodo/actions release.\n\nThe source archive is staged before extraction, and repository/branch values are passed as command arguments rather than interpolated into shell commands."
+  },
+  {
+    "objectID": "repo.html#repo-action",
+    "href": "repo.html#repo-action",
+    "title": "repo",
+    "section": "repo action",
+    "text": "repo action\nsetupmjr repo action &lt;action-name&gt;\nWorkflow examples are owned by MiguelRodo/actions. setupmjr resolves its latest published release and installs examples/&lt;action-name&gt;.yml from that exact tag into .github/workflows/.\nUse the released example filename without the .yml suffix. setupmjr keeps no embedded workflow copies and does not fall back to mutable actions/main; a missing released example is an error."
+  },
+  {
+    "objectID": "repo.html#repos-cli",
+    "href": "repo.html#repos-cli",
+    "title": "repo",
+    "section": "repos CLI",
+    "text": "repos CLI\nInstall or update the standalone repository-orchestration CLI with:\nsetupmjr install --repos\nThen use repos directly. setupmjr owns its installation glue, not its commands.\nNetwork downloads used by these setup paths have finite timeouts and are staged before replacing final files, so failed or incomplete downloads do not become installed artefacts."
+  },
+  {
+    "objectID": "install.html",
+    "href": "install.html",
+    "title": "Installation",
+    "section": "",
+    "text": "setupmjr is distributed as a compiled Go CLI. Use the native package path where available, the release installers when you want a user-local binary, or build from source."
+  },
+  {
+    "objectID": "install.html#ubuntu-debian",
+    "href": "install.html#ubuntu-debian",
+    "title": "Installation",
+    "section": "Ubuntu / Debian",
+    "text": "Ubuntu / Debian\n\nAPT repository\nConfigure the published apt-miguelrodo repository once:\nsudo apt-get install -y curl gpg\ncurl -fsSL https://miguelrodo.github.io/apt-miguelrodo/KEY.gpg \\\n  | sudo gpg --dearmor -o /usr/share/keyrings/apt-miguelrodo.gpg\necho \"deb [signed-by=/usr/share/keyrings/apt-miguelrodo.gpg] https://miguelrodo.github.io/apt-miguelrodo stable main\" \\\n  | sudo tee /etc/apt/sources.list.d/apt-miguelrodo.list &gt;/dev/null\nsudo apt-get update\nsudo apt-get install -y setupmjr\nThe Debian package depends on bash and repos, so APT resolves those dependencies through the repository."
+  },
+  {
+    "objectID": "install.html#macos",
+    "href": "install.html#macos",
+    "title": "Installation",
+    "section": "macOS",
+    "text": "macOS\n\nHomebrew\nThe GitHub repository MiguelRodo/homebrew-tap is the Homebrew tap MiguelRodo/tap:\nbrew tap MiguelRodo/tap\nbrew trust MiguelRodo/tap\nbrew install MiguelRodo/tap/setupmjr\nHomebrew 6 requires explicit trust for non-official taps. The setupmjr formula depends on MiguelRodo/tap/repos, so trusting the tap allows Homebrew to resolve that dependency automatically."
+  },
+  {
+    "objectID": "install.html#linux-macos-user-local-installer",
+    "href": "install.html#linux-macos-user-local-installer",
+    "title": "Installation",
+    "section": "Linux / macOS user-local installer",
+    "text": "Linux / macOS user-local installer\nFor a no-sudo release installation on Linux or macOS:\ngit clone https://github.com/MiguelRodo/setupmjr.git\ncd setupmjr\nbash install-local.sh\nThe installer downloads the latest release binary, verifies it against checksums.txt when SHA-256 tooling is available, and writes to the first writable directory already on PATH. If none is writable, it falls back to ~/.local/bin and prints the required PATH instruction. If repos is missing, the installed binary runs setupmjr install --repos.\nThe installer supports both amd64 and arm64 release binaries.\nTo uninstall an installation recorded by this installer:\nbash uninstall-local.sh"
+  },
+  {
+    "objectID": "install.html#windows",
+    "href": "install.html#windows",
+    "title": "Installation",
+    "section": "Windows",
+    "text": "Windows\n\nScoop\nscoop bucket add MiguelRodo https://github.com/MiguelRodo/scoop-bucket\nscoop install setupmjr\nThe published Scoop manifest declares repos as a dependency.\n\n\nInstaller script\nAlternatively:\ngit clone https://github.com/MiguelRodo/setupmjr.git\ncd setupmjr\n.\\install.ps1\nThe script downloads the latest release binary into the first writable directory already on Path. If repos is missing, it runs setupmjr install --repos and fails if that dependency installation fails.\nTo uninstall the recorded installation:\n.\\install.ps1 -Uninstall"
+  },
+  {
+    "objectID": "install.html#from-source",
+    "href": "install.html#from-source",
+    "title": "Installation",
+    "section": "From source",
+    "text": "From source\nWith Go installed:\ngo install github.com/MiguelRodo/setupmjr/cmd/setupmjr@latest\nOr build a local clone:\ngit clone https://github.com/MiguelRodo/setupmjr.git\ncd setupmjr\ngo build -o setupmjr ./cmd/setupmjr"
+  },
+  {
+    "objectID": "install.html#coding-agent-clis",
+    "href": "install.html#coding-agent-clis",
+    "title": "Installation",
+    "section": "Coding-agent CLIs",
+    "text": "Coding-agent CLIs\nInstall the terminal applications independently of provider selection:\nsetupmjr install agents\nThis installs Claude Code, Codex and GitHub Copilot in order, skipping each CLI already found on PATH. Each agent gets a completion, skip or error result. If an installation fails, the command still attempts the remaining agents and returns an error listing the failures. It does not update already-installed CLIs; ensure their installation directories are on PATH before running it again.\nTo run an individual installer instead:\nsetupmjr install claude\nsetupmjr install codex\nsetupmjr install copilot\nThese are subcommands, not combinable flags. They delegate to the same vendors’ supported installers, whether run individually or via agents; they do not sign in, change API credentials, set a model provider, or modify existing agent configuration. Use setupmjr agent --config to inspect configuration.\n\n\n\n\n\n\n\n\nCLI\nLinux, macOS and WSL\nNative Windows\n\n\n\n\nClaude Code\nAnthropic native install.sh via Bash\nwinget install --id Anthropic.ClaudeCode --exact --source winget\n\n\nCodex\nOpenAI native install.sh via sh\nOpenAI native install.ps1 via Windows PowerShell\n\n\nGitHub Copilot\nGitHub’s gh.io/copilot-install script via Bash\nwinget install --id GitHub.Copilot --exact --source winget\n\n\n\nOn Windows, install WinGet before the Claude and Copilot commands if it is absent. On Unix-like hosts, Bash is required for Claude and Copilot; Codex requires sh. No Node.js installation is required for these paths. On WSL, run the Linux setupmjr executable to install Linux CLIs, not the Windows executable.\nFor scripts, setupmjr uses a bounded download into a temporary file and executes it only after a complete download. This avoids partial-download execution, but the scripts are still mutable third-party code without a pinned checksum; review the vendors’ installer sources if that trust model is inappropriate for your environment. Native package managers handle their own validation and elevation prompts. Installers may use the network and request additional system dependencies.\nAfter installation, start a fresh terminal if the CLI was added to your PATH. Run setupmjr agent doctor for read-only installation, local authentication and managed-configuration diagnostics (see agent diagnostics), or check versions individually:\nclaude --version\ncodex --version\ncopilot --version\nThen authenticate using each CLI’s own flow, for example claude, codex login or copilot followed by /login. None of the setupmjr install subcommands handles authentication.\nOfficial references: Claude Code, Codex, GitHub Copilot CLI.\nUpdate installed agents with setupmjr agent update &lt;claude|codex|copilot&gt; or setupmjr agent update --all. See agent updates for supported installation methods, platform details and per-tool results."
+  },
+  {
+    "objectID": "install.html#managed-components",
+    "href": "install.html#managed-components",
+    "title": "Installation",
+    "section": "Managed components",
+    "text": "Managed components\nThe top-level install command owns installation glue for external tools:\nsetupmjr install --repos\nsetupmjr install --pj\nsetupmjr install --gh-skill\nFlags may be combined. Regardless of flag order, setupmjr runs --repos, then --gh-skill, then --pj, and stops at the first failure:\nsetupmjr install --repos --gh-skill --pj\n\n--repos installs the latest released MiguelRodo/repos binary into ~/.local/bin; use repos directly afterwards.\n--gh-skill installs github-projects from MiguelRodo/github-projects-skill for universal agents at user scope from main.\n--pj installs or updates the launcher from MiguelRodo/pj using its floating v0 release line.\n\nAt least one target flag is required."
+  },
+  {
+    "objectID": "install.html#release-assets",
+    "href": "install.html#release-assets",
+    "title": "Installation",
+    "section": "Release assets",
+    "text": "Release assets\nGitHub Releases publish Linux, macOS and Windows binaries for amd64 and arm64. Archives are .tar.gz on Linux/macOS and .zip on Windows. Installer scripts use the stable bare-binary names:\nsetupmjr_linux_&lt;arch&gt;\nsetupmjr_darwin_&lt;arch&gt;\nsetupmjr_windows_&lt;arch&gt;.exe"
+  },
+  {
+    "objectID": "install.html#verify-installation",
+    "href": "install.html#verify-installation",
+    "title": "Installation",
+    "section": "Verify installation",
+    "text": "Verify installation\nsetupmjr --version\nsetupmjr --help"
+  },
+  {
     "objectID": "git.html",
     "href": "git.html",
     "title": "git",
@@ -25,7 +284,7 @@
     "href": "git.html#scope-and-replacement",
     "title": "git",
     "section": "Scope and replacement",
-    "text": "Scope and replacement\nAuthentication configuration is global by default. Use --system or --local to select another Git config scope:\nsetupmjr git auth --local\n--remove clears existing credential helpers in the selected scope before setupmjr configures the requested authentication path:\nsetupmjr git auth --local --remove\nUse one scope flag for clarity. If both --system and --local are supplied, the current CLI selects --system."
+    "text": "Scope and replacement\nAuthentication configuration is global by default. Use --system or --local to select another Git config scope:\nsetupmjr git auth --local\nFor HTTPS requests to github.com, Git reads an empty helper entry before the chosen helper. This resets helpers inherited from earlier configuration, including the credential cache and repository-scoped helper supplied by GitHub Codespaces. Other hosts continue using their configured helpers.\nAfter upgrading an existing Codespace, rerun setupmjr git auth to apply the new helper order. To reuse a token already saved in the protected file when the Codespace exports its own token, run:\nenv -u GH_TOKEN -u GITHUB_TOKEN setupmjr git auth text\nCheck access without displaying credentials by running GIT_TERMINAL_PROMPT=0 git ls-remote https://github.com/OWNER/PRIVATE-REPO.git HEAD with a repository the selected account can read.\n--remove clears existing credential helpers in the selected scope before setupmjr configures the requested authentication path:\nsetupmjr git auth --local --remove\nUse one scope flag for clarity. If both --system and --local are supplied, the current CLI selects --system."
   },
   {
     "objectID": "git.html#protected-token-fallback",
@@ -117,264 +376,5 @@
     "title": "agent",
     "section": "Credential boundaries",
     "text": "Credential boundaries\nsetupmjr creates managed agent-state directories with mode 0700 and credential/snapshot files with mode 0600 on POSIX systems. DeepSeek’s Codex config.toml format contains the API key, so DeepSeek snapshots are credentials too. Do not commit or share the managed credential or snapshot files."
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "setupmjr",
-    "section": "",
-    "text": "setupmjr is a cross-platform setup utility for shell, R, Git, repository, HPC and coding-agent environments."
-  },
-  {
-    "objectID": "index.html#start-here",
-    "href": "index.html#start-here",
-    "title": "setupmjr",
-    "section": "Start here",
-    "text": "Start here\nInstall the CLI using a supported package manager, release installer or source build. See Installation for the canonical commands.\nFor authoritative top-level syntax, run:\nsetupmjr --help\nThe agent command also has detailed option help:\nsetupmjr agent --help"
-  },
-  {
-    "objectID": "index.html#command-groups",
-    "href": "index.html#command-groups",
-    "title": "setupmjr",
-    "section": "Command groups",
-    "text": "Command groups\n\n\n\n\n\n\n\nCommand\nPurpose\n\n\n\n\nsetupmjr hpc\nConfigure Linux HPC shell, Git, scratch, Apptainer, SLURM and R setup.\n\n\nsetupmjr shell\nConfigure Bash or Zsh startup, executable paths and login integration.\n\n\nsetupmjr bash\nShorthand for setupmjr shell bash.\n\n\nsetupmjr r\nConfigure radian, lintr and the optional project-local switch_r helper.\n\n\nsetupmjr git\nConfigure Git identity and GitHub authentication.\n\n\nsetupmjr repo\nScaffold repository files, devcontainers and released workflow examples.\n\n\nsetupmjr install\nInstall or refresh external tools whose setup glue is owned by setupmjr.\n\n\nsetupmjr agent\nConfigure coding-agent credentials, providers and opt-in subagents.\n\n\n\nExternal tools keep ownership of their own behaviour. In particular, use repos directly after setupmjr install --repos, and use pj directly after setupmjr install --pj."
-  },
-  {
-    "objectID": "index.html#guides",
-    "href": "index.html#guides",
-    "title": "setupmjr",
-    "section": "Guides",
-    "text": "Guides\n\nInstallation\nHPC\nShell\nR setup\nGit\nRepository setup\nAgent configuration"
-  },
-  {
-    "objectID": "shell.html",
-    "href": "shell.html",
-    "title": "shell",
-    "section": "",
-    "text": "The shell subcommand configures Bash or Zsh startup files. setupmjr bash is shorthand for setupmjr shell bash."
-  },
-  {
-    "objectID": "shell.html#commands",
-    "href": "shell.html#commands",
-    "title": "shell",
-    "section": "Commands",
-    "text": "Commands\nshell &lt;shell&gt; rc.d\nshell &lt;shell&gt; path\nshell &lt;shell&gt; login [--not-profile]\n\nbash rc.d\nbash path\nbash login [--not-profile]"
-  },
-  {
-    "objectID": "shell.html#rc.d",
-    "href": "shell.html#rc.d",
-    "title": "shell",
-    "section": "rc.d",
-    "text": "rc.d\nsetupmjr shell bash rc.d\nsetupmjr shell zsh rc.d\nThis ensures ~/.&lt;shell&gt;rc.d exists and configures ~/.&lt;shell&gt;rc to source readable files from that directory."
-  },
-  {
-    "objectID": "shell.html#details",
-    "href": "shell.html#details",
-    "title": "shell",
-    "section": "Details",
-    "text": "Details\nThe sourcing loop is:\nfor i in $HOME/.&lt;shell&gt;rc.d/*; do [ -r \"$i\" ] && source \"$i\"; done"
-  },
-  {
-    "objectID": "shell.html#path",
-    "href": "shell.html#path",
-    "title": "shell",
-    "section": "path",
-    "text": "path\nsetupmjr shell bash path\nsetupmjr shell zsh path\nThis first ensures the shell’s rc.d directory is wired in, then installs path-executables.sh there so ~/bin and ~/.local/bin are available on PATH without duplicating entries."
-  },
-  {
-    "objectID": "shell.html#login",
-    "href": "shell.html#login",
-    "title": "shell",
-    "section": "login",
-    "text": "login\nsetupmjr shell bash login\nsetupmjr shell zsh login\nThis installs login.sh in the shell’s rc.d directory and configures the corresponding login profile to source the directory. Bash uses ~/.profile unless ~/.bash_profile already exists; Zsh uses ~/.zprofile.\nUse --not-profile when you want the login.sh file but do not want setupmjr to modify the login profile:\nsetupmjr shell bash login --not-profile"
-  },
-  {
-    "objectID": "repo.html",
-    "href": "repo.html",
-    "title": "repo",
-    "section": "",
-    "text": "The repo subcommand configures the current repository. Repository orchestration itself belongs to the standalone repos CLI."
-  },
-  {
-    "objectID": "repo.html#commands",
-    "href": "repo.html#commands",
-    "title": "repo",
-    "section": "Commands",
-    "text": "Commands\nrepo readme\nrepo devcontainer [--repo &lt;owner/repo&gt;@&lt;branch&gt;] [--build]\nrepo action &lt;action-name&gt;"
-  },
-  {
-    "objectID": "repo.html#repo-readme",
-    "href": "repo.html#repo-readme",
-    "title": "repo",
-    "section": "repo readme",
-    "text": "repo readme\nsetupmjr repo readme\nInteractively scaffold a standard README.md with title, purpose, contacts, links and details sections.\nBlank contacts are omitted. A contact’s name and email share one bullet; name-only and email-only contacts are also supported. If both contacts are blank, the contact section is omitted. The generated file ends with a newline.\nOn POSIX terminals, including Ubuntu/WSL and macOS, interactive input uses line editing sized to the actual terminal, so backspace remains visible across wrapped lines. Arrow-key editing is supported. Terminal settings are restored after completion or cancellation; native Windows keeps its console’s line-input behavior. Piped input also works, including a final nonempty answer without an input newline.\nAn existing README.md is never overwritten. Edit an existing README directly; this generator creates new files only. Cancelled or incomplete input creates no README."
-  },
-  {
-    "objectID": "repo.html#repo-devcontainer",
-    "href": "repo.html#repo-devcontainer",
-    "title": "repo",
-    "section": "repo devcontainer",
-    "text": "repo devcontainer\nsetupmjr repo devcontainer\nsetupmjr repo devcontainer --repo MiguelRodo/comp@main\n\n--repo selects the source repository and branch in &lt;owner/repo&gt;@&lt;branch&gt; form. The default is MiguelRodo/comp@main.\n--build also installs the prebuild-devcontainer.yml workflow example from the latest published MiguelRodo/actions release.\n\nThe source archive is staged before extraction, and repository/branch values are passed as command arguments rather than interpolated into shell commands."
-  },
-  {
-    "objectID": "repo.html#repo-action",
-    "href": "repo.html#repo-action",
-    "title": "repo",
-    "section": "repo action",
-    "text": "repo action\nsetupmjr repo action &lt;action-name&gt;\nWorkflow examples are owned by MiguelRodo/actions. setupmjr resolves its latest published release and installs examples/&lt;action-name&gt;.yml from that exact tag into .github/workflows/.\nUse the released example filename without the .yml suffix. setupmjr keeps no embedded workflow copies and does not fall back to mutable actions/main; a missing released example is an error."
-  },
-  {
-    "objectID": "repo.html#repos-cli",
-    "href": "repo.html#repos-cli",
-    "title": "repo",
-    "section": "repos CLI",
-    "text": "repos CLI\nInstall or update the standalone repository-orchestration CLI with:\nsetupmjr install --repos\nThen use repos directly. setupmjr owns its installation glue, not its commands.\nNetwork downloads used by these setup paths have finite timeouts and are staged before replacing final files, so failed or incomplete downloads do not become installed artefacts."
-  },
-  {
-    "objectID": "r.html",
-    "href": "r.html",
-    "title": "r",
-    "section": "",
-    "text": "The r subcommand configures R-related user and project files."
-  },
-  {
-    "objectID": "r.html#command",
-    "href": "r.html#command",
-    "title": "r",
-    "section": "Command",
-    "text": "Command\nr [--not-radian] [--not-lintr] [--switch-r]\nRunning:\nsetupmjr r\nconfigures the user-level radian and lintr defaults.\n\nFlags\n\n--not-radian skips the ~/.radian_profile configuration.\n--not-lintr skips the ~/.lintr configuration.\n--switch-r adds the project-local scripts/r/switch_r.R helper and ensures the current repository’s .Rprofile sources it.\n\nFor example:\nsetupmjr r --not-lintr\nsetupmjr r --switch-r\nThe HPC command accepts the same R flags:\nsetupmjr hpc r --not-lintr"
-  },
-  {
-    "objectID": "r.html#details",
-    "href": "r.html#details",
-    "title": "r",
-    "section": "Details",
-    "text": "Details\nUnless --not-radian is supplied, setupmjr ensures ~/.radian_profile contains:\noptions(radian.auto_match = FALSE)\nUnless --not-lintr is supplied, setupmjr ensures ~/.lintr contains:\nlinters: linters_with_defaults(\n    object_length_linter = NULL,\n    object_name_linter = NULL)\nWith --switch-r, setupmjr creates scripts/r/switch_r.R if it is absent and places this source line at the top of the current repository’s .Rprofile:\ntry(source(\"scripts/r/switch_r.R\"))"
-  },
-  {
-    "objectID": "install.html",
-    "href": "install.html",
-    "title": "Installation",
-    "section": "",
-    "text": "setupmjr is distributed as a compiled Go CLI. Use the native package path where available, the release installers when you want a user-local binary, or build from source."
-  },
-  {
-    "objectID": "install.html#ubuntu-debian",
-    "href": "install.html#ubuntu-debian",
-    "title": "Installation",
-    "section": "Ubuntu / Debian",
-    "text": "Ubuntu / Debian\n\nAPT repository\nConfigure the published apt-miguelrodo repository once:\nsudo apt-get install -y curl gpg\ncurl -fsSL https://miguelrodo.github.io/apt-miguelrodo/KEY.gpg \\\n  | sudo gpg --dearmor -o /usr/share/keyrings/apt-miguelrodo.gpg\necho \"deb [signed-by=/usr/share/keyrings/apt-miguelrodo.gpg] https://miguelrodo.github.io/apt-miguelrodo stable main\" \\\n  | sudo tee /etc/apt/sources.list.d/apt-miguelrodo.list &gt;/dev/null\nsudo apt-get update\nsudo apt-get install -y setupmjr\nThe Debian package depends on bash and repos, so APT resolves those dependencies through the repository."
-  },
-  {
-    "objectID": "install.html#macos",
-    "href": "install.html#macos",
-    "title": "Installation",
-    "section": "macOS",
-    "text": "macOS\n\nHomebrew\nThe GitHub repository MiguelRodo/homebrew-tap is the Homebrew tap MiguelRodo/tap:\nbrew tap MiguelRodo/tap\nbrew trust MiguelRodo/tap\nbrew install MiguelRodo/tap/setupmjr\nHomebrew 6 requires explicit trust for non-official taps. The setupmjr formula depends on MiguelRodo/tap/repos, so trusting the tap allows Homebrew to resolve that dependency automatically."
-  },
-  {
-    "objectID": "install.html#linux-macos-user-local-installer",
-    "href": "install.html#linux-macos-user-local-installer",
-    "title": "Installation",
-    "section": "Linux / macOS user-local installer",
-    "text": "Linux / macOS user-local installer\nFor a no-sudo release installation on Linux or macOS:\ngit clone https://github.com/MiguelRodo/setupmjr.git\ncd setupmjr\nbash install-local.sh\nThe installer downloads the latest release binary, verifies it against checksums.txt when SHA-256 tooling is available, and writes to the first writable directory already on PATH. If none is writable, it falls back to ~/.local/bin and prints the required PATH instruction. If repos is missing, the installed binary runs setupmjr install --repos.\nThe installer supports both amd64 and arm64 release binaries.\nTo uninstall an installation recorded by this installer:\nbash uninstall-local.sh"
-  },
-  {
-    "objectID": "install.html#windows",
-    "href": "install.html#windows",
-    "title": "Installation",
-    "section": "Windows",
-    "text": "Windows\n\nScoop\nscoop bucket add MiguelRodo https://github.com/MiguelRodo/scoop-bucket\nscoop install setupmjr\nThe published Scoop manifest declares repos as a dependency.\n\n\nInstaller script\nAlternatively:\ngit clone https://github.com/MiguelRodo/setupmjr.git\ncd setupmjr\n.\\install.ps1\nThe script downloads the latest release binary into the first writable directory already on Path. If repos is missing, it runs setupmjr install --repos and fails if that dependency installation fails.\nTo uninstall the recorded installation:\n.\\install.ps1 -Uninstall"
-  },
-  {
-    "objectID": "install.html#from-source",
-    "href": "install.html#from-source",
-    "title": "Installation",
-    "section": "From source",
-    "text": "From source\nWith Go installed:\ngo install github.com/MiguelRodo/setupmjr/cmd/setupmjr@latest\nOr build a local clone:\ngit clone https://github.com/MiguelRodo/setupmjr.git\ncd setupmjr\ngo build -o setupmjr ./cmd/setupmjr"
-  },
-  {
-    "objectID": "install.html#coding-agent-clis",
-    "href": "install.html#coding-agent-clis",
-    "title": "Installation",
-    "section": "Coding-agent CLIs",
-    "text": "Coding-agent CLIs\nInstall the terminal applications independently of provider selection:\nsetupmjr install agents\nThis installs Claude Code, Codex and GitHub Copilot in order, skipping each CLI already found on PATH. Each agent gets a completion, skip or error result. If an installation fails, the command still attempts the remaining agents and returns an error listing the failures. It does not update already-installed CLIs; ensure their installation directories are on PATH before running it again.\nTo run an individual installer instead:\nsetupmjr install claude\nsetupmjr install codex\nsetupmjr install copilot\nThese are subcommands, not combinable flags. They delegate to the same vendors’ supported installers, whether run individually or via agents; they do not sign in, change API credentials, set a model provider, or modify existing agent configuration. Use setupmjr agent --config to inspect configuration.\n\n\n\n\n\n\n\n\nCLI\nLinux, macOS and WSL\nNative Windows\n\n\n\n\nClaude Code\nAnthropic native install.sh via Bash\nwinget install --id Anthropic.ClaudeCode --exact --source winget\n\n\nCodex\nOpenAI native install.sh via sh\nOpenAI native install.ps1 via Windows PowerShell\n\n\nGitHub Copilot\nGitHub’s gh.io/copilot-install script via Bash\nwinget install --id GitHub.Copilot --exact --source winget\n\n\n\nOn Windows, install WinGet before the Claude and Copilot commands if it is absent. On Unix-like hosts, Bash is required for Claude and Copilot; Codex requires sh. No Node.js installation is required for these paths. On WSL, run the Linux setupmjr executable to install Linux CLIs, not the Windows executable.\nFor scripts, setupmjr uses a bounded download into a temporary file and executes it only after a complete download. This avoids partial-download execution, but the scripts are still mutable third-party code without a pinned checksum; review the vendors’ installer sources if that trust model is inappropriate for your environment. Native package managers handle their own validation and elevation prompts. Installers may use the network and request additional system dependencies.\nAfter installation, start a fresh terminal if the CLI was added to your PATH. Run setupmjr agent doctor for read-only installation, local authentication and managed-configuration diagnostics (see agent diagnostics), or check versions individually:\nclaude --version\ncodex --version\ncopilot --version\nThen authenticate using each CLI’s own flow, for example claude, codex login or copilot followed by /login. None of the setupmjr install subcommands handles authentication.\nOfficial references: Claude Code, Codex, GitHub Copilot CLI.\nUpdate installed agents with setupmjr agent update &lt;claude|codex|copilot&gt; or setupmjr agent update --all. See agent updates for supported installation methods, platform details and per-tool results."
-  },
-  {
-    "objectID": "install.html#managed-components",
-    "href": "install.html#managed-components",
-    "title": "Installation",
-    "section": "Managed components",
-    "text": "Managed components\nThe top-level install command owns installation glue for external tools:\nsetupmjr install --repos\nsetupmjr install --pj\nsetupmjr install --gh-skill\nFlags may be combined. Regardless of flag order, setupmjr runs --repos, then --gh-skill, then --pj, and stops at the first failure:\nsetupmjr install --repos --gh-skill --pj\n\n--repos installs the latest released MiguelRodo/repos binary into ~/.local/bin; use repos directly afterwards.\n--gh-skill installs github-projects from MiguelRodo/github-projects-skill for universal agents at user scope from main.\n--pj installs or updates the launcher from MiguelRodo/pj using its floating v0 release line.\n\nAt least one target flag is required."
-  },
-  {
-    "objectID": "install.html#release-assets",
-    "href": "install.html#release-assets",
-    "title": "Installation",
-    "section": "Release assets",
-    "text": "Release assets\nGitHub Releases publish Linux, macOS and Windows binaries for amd64 and arm64. Archives are .tar.gz on Linux/macOS and .zip on Windows. Installer scripts use the stable bare-binary names:\nsetupmjr_linux_&lt;arch&gt;\nsetupmjr_darwin_&lt;arch&gt;\nsetupmjr_windows_&lt;arch&gt;.exe"
-  },
-  {
-    "objectID": "install.html#verify-installation",
-    "href": "install.html#verify-installation",
-    "title": "Installation",
-    "section": "Verify installation",
-    "text": "Verify installation\nsetupmjr --version\nsetupmjr --help"
-  },
-  {
-    "objectID": "hpc.html",
-    "href": "hpc.html",
-    "title": "hpc",
-    "section": "",
-    "text": "The hpc subcommand configures Linux HPC environments."
-  },
-  {
-    "objectID": "hpc.html#commands",
-    "href": "hpc.html#commands",
-    "title": "hpc",
-    "section": "Commands",
-    "text": "Commands\nhpc\nhpc scratch\nhpc apptainer\nhpc slurm\nhpc git\nhpc r [--not-radian] [--not-lintr] [--switch-r]\nInstall setupmjr using a supported Linux method from Installation, then verify it with setupmjr --version."
-  },
-  {
-    "objectID": "hpc.html#master-setup",
-    "href": "hpc.html#master-setup",
-    "title": "hpc",
-    "section": "Master setup",
-    "text": "Master setup\nsetupmjr hpc\nThe master command is Linux-only and stops on the first failed step. It runs:\n\nBash rc.d, executable-path and login/profile setup.\nZsh rc.d, executable-path and login/profile setup.\nGit identity and GitHub authentication.\nHPC scratch configuration.\nApptainer helpers.\nSLURM helpers.\nNormal setupmjr r defaults.\n\nThe focused subcommands below run the same components independently."
-  },
-  {
-    "objectID": "hpc.html#git",
-    "href": "hpc.html#git",
-    "title": "hpc",
-    "section": "Git",
-    "text": "Git\nsetupmjr hpc git\nThis is the normal setupmjr git setup. It prefers a persistent GitHub CLI login and otherwise uses setupmjr’s protected-token credential helper. See Git for authentication, migration and Dev Container behaviour."
-  },
-  {
-    "objectID": "hpc.html#scratch-space",
-    "href": "hpc.html#scratch-space",
-    "title": "hpc",
-    "section": "Scratch space",
-    "text": "Scratch space\nsetupmjr hpc scratch\nThis installs ~/.bashrc.d/hpc-scratch.sh, which points large caches and artefacts at /scratch/$USER when available, including Apptainer/Singularity storage and R library/renv caches.\nThe master setup wires Bash rc.d first. When running hpc scratch independently, run setupmjr shell bash rc.d first if Bash is not already sourcing ~/.bashrc.d."
-  },
-  {
-    "objectID": "hpc.html#apptainer",
-    "href": "hpc.html#apptainer",
-    "title": "hpc",
-    "section": "Apptainer",
-    "text": "Apptainer\nsetupmjr hpc apptainer\nThis installs the embedded apptainer-* helper scripts into ~/.local/bin, excluding apptainer-vscode."
-  },
-  {
-    "objectID": "hpc.html#slurm",
-    "href": "hpc.html#slurm",
-    "title": "hpc",
-    "section": "SLURM",
-    "text": "SLURM\nsetupmjr hpc slurm\nThis installs SLURM helpers into ~/.local/bin, including:\n\nslurm-sbatch for job submission and submission records;\nslurm-sintx for interactive sessions;\nslurm-squeue for listing the current user’s jobs."
-  },
-  {
-    "objectID": "hpc.html#r",
-    "href": "hpc.html#r",
-    "title": "hpc",
-    "section": "R",
-    "text": "R\nsetupmjr hpc r\nThis delegates to the normal R setup and accepts the same flags:\nsetupmjr hpc r --not-lintr\nsetupmjr hpc r --switch-r\nSee R setup for the flag behaviour."
   }
 ]
