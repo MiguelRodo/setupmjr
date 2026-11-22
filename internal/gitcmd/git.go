@@ -106,10 +106,8 @@ func SetupGitAuthGh(scope string) error {
 		if err := cmd.Run(); err != nil {
 			return fmt.Errorf("configure Git to use GitHub CLI credentials: %w", err)
 		}
-	} else {
-		if _, err := RunCommand("git", "config", scope, "--replace-all", "credential.https://github.com.helper", "!gh auth git-credential"); err != nil {
-			return fmt.Errorf("configure GitHub CLI credential helper: %w", err)
-		}
+	} else if err := configureGitHubHelper(scope, "!gh auth git-credential"); err != nil {
+		return err
 	}
 
 	fmt.Println("Configured Git to use the existing GitHub CLI login.")
@@ -138,11 +136,23 @@ func SetupGitAuthText(scope string) error {
 	if err := wireGitHubTokenEnv(home); err != nil {
 		return err
 	}
-	if _, err := RunCommand("git", "config", scope, "--replace-all", "credential.https://github.com.helper", githubHelper); err != nil {
-		return fmt.Errorf("configure GitHub credential helper: %w", err)
+	if err := configureGitHubHelper(scope, githubHelper); err != nil {
+		return err
 	}
 
 	fmt.Printf("Configured GitHub authentication using %s\n", githubTokenPath(home))
+	return nil
+}
+
+func configureGitHubHelper(scope, helper string) error {
+	const key = "credential.https://github.com.helper"
+	// Git accumulates helpers across scopes. An empty entry resets earlier helpers for this host.
+	if _, err := RunCommand("git", "config", scope, "--replace-all", key, ""); err != nil {
+		return fmt.Errorf("reset inherited GitHub credential helpers: %w", err)
+	}
+	if _, err := RunCommand("git", "config", scope, "--add", key, helper); err != nil {
+		return fmt.Errorf("configure GitHub credential helper: %w", err)
+	}
 	return nil
 }
 

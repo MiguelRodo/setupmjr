@@ -33,6 +33,16 @@ Authentication configuration is global by default. Use `--system` or `--local` t
 setupmjr git auth --local
 ```
 
+For HTTPS requests to `github.com`, Git reads an empty helper entry before the chosen helper. This resets helpers inherited from earlier configuration, including the credential cache and repository-scoped helper supplied by GitHub Codespaces. Other hosts continue using their configured helpers.
+
+After upgrading an existing Codespace, rerun `setupmjr git auth` to apply the new helper order. To reuse a token already saved in the protected file when the Codespace exports its own token, run:
+
+```bash
+env -u GH_TOKEN -u GITHUB_TOKEN setupmjr git auth text
+```
+
+Check access without displaying credentials by running `GIT_TERMINAL_PROMPT=0 git ls-remote https://github.com/OWNER/PRIVATE-REPO.git HEAD` with a repository the selected account can read.
+
 `--remove` clears existing credential helpers in the selected scope before setupmjr configures the requested authentication path:
 
 ```bash
