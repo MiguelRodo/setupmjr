@@ -23,7 +23,8 @@ if [ "${1:-} ${2:-}" = "auth status" ]; then
 fi
 if [ "${1:-} ${2:-}" = "auth setup-git" ]; then
   [ "${FAKE_GH_AUTHENTICATED:-0}" = "1" ] || exit 1
-  git config --global credential.https://github.com.helper '!gh auth git-credential'
+  git config --global --replace-all credential.https://github.com.helper ''
+  git config --global --add credential.https://github.com.helper '!gh auth git-credential'
   exit 0
 fi
 if [ "${1:-} ${2:-}" = "auth git-credential" ]; then
@@ -89,6 +90,38 @@ assert_token_fallback() {
 }
 
 case "$scenario" in
+  inherited-helpers)
+    install_fake_gh
+    unset GIT_CONFIG_NOSYSTEM GH_TOKEN GITHUB_TOKEN
+    export GIT_CONFIG_SYSTEM="$root/system.gitconfig"
+    export GIT_TERMINAL_PROMPT=0
+    git config --system credential.helper "!f() { printf 'username=system\\npassword=fixture-only\\n'; }; f"
+    git init -q "$root/repo"
+    cd "$root/repo"
+
+    # Local gh selection must win over the system helper inside this checkout.
+    export FAKE_GH_AUTHENTICATED=1 FAKE_GH_TOKEN='fixture-gh'
+    "$bin" git auth --local </dev/null
+    creds="$(printf 'protocol=https\nhost=github.com\n\n' | git credential fill)"
+    grep -Fxq "password=$FAKE_GH_TOKEN" <<<"$creds"
+
+    # Migrate an old global configuration and rerun with a Codespaces-style helper.
+    cd "$root"
+    git config --global credential.https://github.com.helper old-helper
+    export GH_TOKEN='fixture-pat' GITHUB_TOKEN='fixture-container-token'
+    for _ in 1 2; do
+      "$bin" git auth text </dev/null
+      mapfile -t helpers < <(git config --global --get-all credential.https://github.com.helper)
+      test "${#helpers[@]}" = 2
+      test -z "${helpers[0]}"
+      test -n "${helpers[1]}"
+      creds="$(printf 'protocol=https\nhost=github.com\n\n' | git credential fill)"
+      grep -Fxq "password=$GH_TOKEN" <<<"$creds"
+    done
+    creds="$(printf 'protocol=https\nhost=example.org\n\n' | git credential fill)"
+    grep -Fxq 'password=fixture-only' <<<"$creds"
+    ;;
+
   token-env)
     install_fake_gh
     export FAKE_GH_AUTHENTICATED=0

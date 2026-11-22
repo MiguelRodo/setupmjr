@@ -67,7 +67,7 @@ setupmjr install copilot
 - `setupmjr hpc` configures Linux HPC environments and exposes focused `scratch`, `apptainer`, `slurm`, `git` and `r` setup steps.
 - `setupmjr shell` configures Bash or Zsh startup files; `setupmjr bash` is shorthand for Bash.
 - `setupmjr r` configures `radian`, `lintr` and the optional project-local `switch_r` helper.
-- `setupmjr git` configures Git identity and GitHub authentication.
+- `setupmjr git` configures Git identity and GitHub authentication. In a Codespace, rerun `setupmjr git auth` after upgrading to apply the host-specific helper order. See [Git configuration](git.qmd#scope-and-replacement).
 - `setupmjr repo` scaffolds repository files, devcontainers and released workflow examples.
 - `setupmjr install` installs or refreshes setupmjr-managed external tools and can invoke the official Claude Code, Codex and Copilot CLI installers.
 - `setupmjr agent` configures coding-agent credentials, providers and opt-in subagents. `setupmjr agent update <claude|codex|copilot>` updates one installed CLI; `setupmjr agent update --all` attempts every supported CLI on PATH. See [supported update paths](agent.qmd#update-installed-clis).
